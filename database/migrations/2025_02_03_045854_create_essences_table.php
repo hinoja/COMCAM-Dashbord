@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('essences', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_local')->unique();
+            $table->string('nom_local');
             $table->string('code')->unique();
             $table->timestamps();
         });
