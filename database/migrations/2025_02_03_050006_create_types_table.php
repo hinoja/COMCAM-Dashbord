@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('types', function (Blueprint $table) {
             $table->id();
-            $table->string('designation')->nullable();
-            $table->string('code')->unique();
+            $table->string('designation');
             $table->foreignId('forme_id')->constrained();
+            $table->string('code')->unique();
             $table->timestamps();
         });
     }

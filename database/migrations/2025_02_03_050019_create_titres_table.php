@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('titres', function (Blueprint $table) {
             $table->id();
-            $table->string('nom')->unique();
-            $table->string('localisation')->nullable();
-            $table->float('volume');
+            $table->integer('exercice');
+            $table->string('nom');
+            $table->string('localisation');
+            $table->foreignId('zone_id')->constrained();
+            // $table->integer('code');
             $table->foreignId('essence_id')->constrained();
             $table->foreignId('forme_id')->constrained();
-            $table->foreignId('zone_id')->constrained();
+            $table->foreignId('type_id')->constrained();
+            $table->float('volume');
             $table->timestamps();
         });
     }

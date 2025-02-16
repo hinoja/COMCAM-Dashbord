@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SocieteController;
+use App\Http\Controllers\TitreController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,6 +21,12 @@ Route::middleware('auth')->group(function () {
 
 // _____________________________ADMIN_______________________________________________________________________
 
-Route::view('/admin','admin.essence.index');
+Route::view('/admin/societes', 'admin.societe.index')->name('admin.societe.index');
+Route::post('/import/societe', [SocieteController::class, 'import'])->name('import.societe.post');
 
-require __DIR__.'/auth.php';
+//titres
+Route::view('/admin/titres/ajout', 'admin.titre.index')->name('admin.titre.index');
+// Route::view('/admin/titres', 'admin.titre.index');
+Route::post('/import/titres', [TitreController::class, 'import'])->name('import.titre.post');
+
+require __DIR__ . '/auth.php';

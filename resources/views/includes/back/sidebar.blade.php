@@ -28,13 +28,13 @@
                     <span>@lang('Categories')</span></a>
             </li>
 
-            <li class="@if (Str::contains($currentUri, 'sub-categories')) active @endif">
-                <a class="nav-link" href="#"><i class="fas fa-layer-group"></i>
-                    <span>@lang('Sub-categories')</span></a>
+            <li class="@if (Str::contains($currentUri, 'titre')) active @endif">
+                <a class="nav-link" href="{{ route('admin.titre.index') }}"><i class="fas fa-layer-group"></i>
+                    <span>@lang('Titres')</span></a>
             </li>
-            <li class="@if (Str::contains($currentUri, 'tags')) active @endif">
-                <a class="nav-link" href="#"><i class="fas fa-tags"></i>
-                    <span>@lang('Tags')</span></a>
+            <li class="@if (Str::contains($currentUri, 'societe')) active @endif">
+                <a class="nav-link" href="{{ route('admin.societe.index') }}"><i class="fas fa-tags"></i>
+                    <span>@lang('Societes')</span></a>
             </li>
 
 

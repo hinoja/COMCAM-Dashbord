@@ -12,6 +12,7 @@
     <link href="{{ asset('favicon.png') }}" rel="icon">
 
     <!-- Fonts -->
+    <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
@@ -25,6 +26,7 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('back/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('back/css/components.css') }}">
+
 
     @livewireStyles
 
@@ -74,6 +76,10 @@
     <!-- Template JS File -->
     <script src="{{ asset('back/js/scripts.js') }}"></script>
     <script src="{{ asset('back/js/custom.js') }}"></script>
+
+    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
+    {!! Toastr::message() !!}
 
     @livewireScripts
 
