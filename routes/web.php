@@ -25,7 +25,15 @@ Route::view('/admin/societes', 'admin.societe.index')->name('admin.societe.index
 Route::post('/import/societe', [SocieteController::class, 'import'])->name('import.societe.post');
 
 //titres
-Route::view('/admin/titres/ajout', 'admin.titre.index')->name('admin.titre.index');
+Route::controller(TitreController::class)->prefix('titre')->name('admin.titre')->group(function () {
+    Route::get('/', 'index')->name('.index');
+    Route::get('/create', 'create')->name('.create');
+    Route::post('/store', 'addTitre')->name('.store');
+    Route::post('/import', 'import')->name('.import');
+    Route::get('export/',  'export')->name('.export');
+});
+
+// Route::view('/admin/titres/ajout', 'admin.titre.index')->name('admin.titre.index');
 // Route::view('/admin/titres', 'admin.titre.index');
 Route::post('/import/titres', [TitreController::class, 'import'])->name('import.titre.post');
 

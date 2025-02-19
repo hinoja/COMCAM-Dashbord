@@ -2,15 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Type;
+use App\Models\Zone;
+use App\Models\Forme;
+use App\Models\Titre;
+use App\Models\Essence;
 use App\Imports\TitreImport;
 use Illuminate\Http\Request;
+use App\Http\Requests\TitreRequest;
+use Brian2694\Toastr\Facades\Toastr;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TitreController extends Controller
 {
-    public function add(){
-        return 0;
+    // this function will help to list all titles
+    public function index()
+    {
+        $titres = Titre::all();
+        return view('titres.index', compact('titres'));
     }
+
+    public function create(Request $request)
+    {
+        $zones = Zone::query()->get();
+        $formes = Forme::query()->get();
+        $types = Type::query()->get();
+        $essences = Essence::query()->get();
+
+        return view('admin.titre.create', ['zones' => $zones, 'formes' => $formes, 'types' => $types, 'essences' => $essences]);
+    }
+
+
+    // this function will help to add a new title
+    public function  addTitre(TitreRequest $request)
+    {
+        $titre = new Titre([
+            'exercice' => $request->exercice,
+            'nom' => $request->nom,
+            'localisation' => $request->localisation,
+            'zone_id' => $request->zone_id,
+            'essence_id' => $request->essence_id,
+            'forme_id' => $request->forme_id,
+            'type_id' => $request->type_id,
+            'volume' => $request->volume,
+        ]);
+        $titre->save();
+        toastr()->success('Ajout d\'un nouveau Titre avec succes !', 'Succès');
+        return redirect()->back();
+    }
+
+    // this function will help to import the list of titles
     public function import(Request $request)
     {
         $request->validate([
@@ -24,7 +65,8 @@ class TitreController extends Controller
         toastr()->success('Importation de la liste des titres réussie !', 'Succès');
         return redirect()->back();
     }
-    public function exportUsers(Request $request)
+    // this function will help to export the list of titles
+    public function export(Request $request)
     {
         return Excel::download(new TitreImport, 'titres.xlsx');
     }

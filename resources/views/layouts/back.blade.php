@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="{{ asset('back/css/components.css') }}">
 
 
-    @livewireStyles
+    {{-- @livewireStyles --}}
 
     @stack('css')
 </head>
@@ -81,7 +81,7 @@
     <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
     {!! Toastr::message() !!}
 
-    @livewireScripts
+    {{-- @livewireScripts --}}
 
     @stack('js')
 

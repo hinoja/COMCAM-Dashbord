@@ -29,7 +29,7 @@
             </li>
 
             <li class="@if (Str::contains($currentUri, 'titre')) active @endif">
-                <a class="nav-link" href="{{ route('admin.titre.index') }}"><i class="fas fa-layer-group"></i>
+                <a class="nav-link" href="{{ route('admin.titre.create') }}"><i class="fas fa-layer-group"></i>
                     <span>@lang('Titres')</span></a>
             </li>
             <li class="@if (Str::contains($currentUri, 'societe')) active @endif">
