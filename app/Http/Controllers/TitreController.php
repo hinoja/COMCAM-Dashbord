@@ -19,8 +19,10 @@ class TitreController extends Controller
     public function index()
     {
         $titres = Titre::all();
-        return view('titres.index', compact('titres'));
+        // return view('titres.index', compact('titres'));
+        return view('admin.titre.index');
     }
+    public function edit(Titre $titre) {}
 
     public function create(Request $request)
     {
@@ -47,7 +49,7 @@ class TitreController extends Controller
             'volume' => $request->volume,
         ]);
         $titre->save();
-        toastr()->success('Ajout d\'un nouveau Titre avec succes !', 'Succès');
+        notify()->success('Ajout d\'un nouveau Titre avec succès !'); // this is a package for notifications
         return redirect()->back();
     }
 
@@ -60,9 +62,9 @@ class TitreController extends Controller
         Excel::import(
             new TitreImport,
             $request->file('file')->store('files')
-        );
-        // $toastr = new Toastr();
-        toastr()->success('Importation de la liste des titres réussie !', 'Succès');
+        ); 
+        notify()->success('Importation de la liste des titres réussie !'); // this is a package for notifications
+
         return redirect()->back();
     }
     // this function will help to export the list of titles

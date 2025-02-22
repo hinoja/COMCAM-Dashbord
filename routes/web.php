@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocieteController;
 use App\Http\Controllers\TitreController;
+use App\Http\Controllers\TransactionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,10 +28,20 @@ Route::post('/import/societe', [SocieteController::class, 'import'])->name('impo
 //titres
 Route::controller(TitreController::class)->prefix('titre')->name('admin.titre')->group(function () {
     Route::get('/', 'index')->name('.index');
+    Route::post('{titre}/edit', 'edit')->name('.edit');
     Route::get('/create', 'create')->name('.create');
     Route::post('/store', 'addTitre')->name('.store');
     Route::post('/import', 'import')->name('.import');
     Route::get('export/',  'export')->name('.export');
+});
+//Transactions
+Route::controller(TransactionController::class)->prefix('transaction')->name('admin.transaction')->group(function () {
+    // Route::get('/', 'index')->name('.index');
+    // Route::post('{titre}/edit', 'edit')->name('.edit');
+    Route::get('/create', 'create')->name('.create');
+    Route::post('/store', 'store')->name('.store');
+    // Route::post('/import', 'import')->name('.import');
+    // Route::get('export/',  'export')->name('.export');
 });
 
 // Route::view('/admin/titres/ajout', 'admin.titre.index')->name('admin.titre.index');

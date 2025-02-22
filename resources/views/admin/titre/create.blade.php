@@ -7,12 +7,11 @@
         <div class="container">
             <h2 class="section-title text-primary">Liste des Titres</h2>
             <hr class="my-4">
-
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-10 col-12">
                     <div class="card shadow">
                         <!-- Premier formulaire : Ajout d'un Nouveau Titre -->
-                        <form method="POST" action="{{ route('admin.titre.store') }}" >
+                        <form method="POST" action="{{ route('admin.titre.store') }}">
                             @csrf
                             @foreach ($errors as $error)
                                 <div class="alert alert-danger">{{ $error }}</div>
@@ -30,15 +29,15 @@
                                         <select id="exercice" name="exercice"
                                             class="form-control select-custom @error('exercice') is-invalid @enderror"
                                             required>
-                                            <option value="" selected disabled>Sélectionner une année</option>
+                                            <option value="" disabled>Sélectionner une année</option>
                                             @php
-                                                $currentYear = date('Y');
-                                                $startYear = $currentYear - 2;
-                                                $endYear = $currentYear + 3;
+                                                $currentYear = date('Y'); // Année en cours
+                                                $startYear = $currentYear - 2; // Début de la plage d'années
+                                                $endYear = $currentYear + 3; // Fin de la plage d'années
                                             @endphp
                                             @for ($year = $startYear; $year <= $endYear; $year++)
                                                 <option value="{{ $year }}"
-                                                    {{ old('exercice') == $year ? 'selected' : '' }}>
+                                                    {{ old('exercice', $currentYear) == $year ? 'selected' : '' }}>
                                                     {{ $year }}
                                                 </option>
                                             @endfor
@@ -164,8 +163,6 @@
                                         <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-
                             </div>
 
                             <div class="card-footer bg-white text-right py-3">
@@ -192,7 +189,7 @@
                                     <div class="custom-file">
                                         <input type="file"
                                             class="custom-file-input @error('file') is-invalid @enderror" id="file"
-                                            name="file"  accept=".xlsx,.xls,.csv">
+                                            name="file" accept=".xlsx,.xls,.csv">
                                         <label class="custom-file-label" for="file">Choisir un fichier</label>
                                         @error('file')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -297,7 +294,7 @@
         };
 
         // Lorsque la page est chargée
-     /*   $(document).ready(function() {
+        $(document).ready(function() {
             // Écouteur d'événement sur le changement de forme
             $('#forme').on('change', function() {
                 const selectedForme = $(this).find('option:selected').text();
@@ -311,15 +308,15 @@
                 if (typeRelations[selectedForme]) {
                     typeRelations[selectedForme].forEach(type => {
                         // Rechercher l'ID correspondant dans la collection $types
-                        @foreach ($types as $type)
-                            if ('{{ $type->designation }}' === type) {
-                                typeSelect.append(
-                                    `<option value="{{ $type->id }}">${type}</option>`);
-                            }
-                        @endforeach
+                        undefined
+                        if ('{{ $type->designation }}' === type) {
+                            typeSelect.append(
+                                `<option value="{{ $type->id }}">${type}</option>`);
+                        }
+
                     });
                 }
             });
-        });*/
+        });
     </script>
 @endpush

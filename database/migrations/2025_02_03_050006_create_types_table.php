@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('designation');
             $table->foreignId('forme_id')->constrained();
-            $table->string('code')->unique();
+            $table->string('code')->unique()->nullable();
             $table->timestamps();
         });
     }

@@ -31,11 +31,16 @@
     {{-- @livewireStyles --}}
 
     @stack('css')
+    @notifyCss
 </head>
 
 <body>
+    @if(session('notify'))
+    @notify(session('notify'))
+@endif
     {{-- @include('sweetalert::alert') --}}
-
+    @include('notify::components.notify')
+    {{-- <x:notify-messages /> --}}
     <div id="app">
         <div class="main-wrapper main-wrapper-1">
             <div class="navbar-bg"></div>
@@ -77,13 +82,19 @@
     <script src="{{ asset('back/js/scripts.js') }}"></script>
     <script src="{{ asset('back/js/custom.js') }}"></script>
 
-    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    {{-- <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script> --}}
     <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
-    {!! Toastr::message() !!}
+     <!-- Include Toastr CSS (if using Toastr) -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+      <!-- Include Toastr JS (if using Toastr) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  
 
     {{-- @livewireScripts --}}
 
     @stack('js')
+
+    @notifyJs
 
 </body>
 

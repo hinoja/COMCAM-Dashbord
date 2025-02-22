@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Societe;
 use Illuminate\Http\Request;
 use App\Imports\SocieteImport;
 use Brian2694\Toastr\Facades\Toastr;
@@ -9,7 +10,18 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SocieteController extends Controller
 {
-
+    public function store(Request $request)
+    {
+        $request->validate([
+            'acronym' => ['required', 'string', 'max:255']
+        ]);
+        $societe = new Societe([
+            'acronym' => $request->acronym
+        ]);
+        $societe->save();
+        notify()->success('Ajout d\'une nouvelle société avec succès !'); // this is a package for notifications
+        return redirect()->back();
+    }
     public function import(Request $request)
     {
         $request->validate([
@@ -19,8 +31,8 @@ class SocieteController extends Controller
             new SocieteImport,
             $request->file('file')->store('files')
         );
+        notify()->success('mportation de la liste des sociétés réussie !'); // this is a package for notifications
 
-         toastr()->info('Importation de la liste des sociétés réussie !', 'Succès');
         return redirect()->back();
     }
     public function exportUsers(Request $request)

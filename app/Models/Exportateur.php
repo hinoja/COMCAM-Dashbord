@@ -9,4 +9,5 @@ class Exportateur extends Model
 {
     /** @use HasFactory<\Database\Factories\ExportateurFactory> */
     use HasFactory;
+    
 }

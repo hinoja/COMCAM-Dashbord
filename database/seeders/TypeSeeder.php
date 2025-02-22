@@ -16,7 +16,7 @@ class TypeSeeder extends Seeder
         Type::factory()->create([
             'designation' => 'Sciage',
             'code' => '5N',
-            'forme_id' => 1,
+            'forme_id' => 2,
         ]);
 
         Type::factory()->create([

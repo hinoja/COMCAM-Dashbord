@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Conditionnement;
 use Illuminate\Database\Seeder;
+use App\Models\Conditionnemment;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ConditionnementSeeder extends Seeder
 {
@@ -12,12 +15,12 @@ class ConditionnementSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Conditionnemment::factory()->create([
+        Conditionnemment::factory()->create([
             'designation' => 'Conventionel Débit',
             'code' => 'CDT',
         ]);
 
-        \App\Models\Conditionnemment::factory()->create([
+        Conditionnemment::factory()->create([
             'designation' => 'Conteneur Débit',
             'code' => 'CD',
         ]);
