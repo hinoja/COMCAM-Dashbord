@@ -20,8 +20,5 @@ class FormeSeeder extends Seeder
             'designation' => 'Débité',
         ]);
 
-        \App\Models\Forme::factory()->create([
-            'designation' => 'PS',
-        ]);
     }
 }

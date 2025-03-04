@@ -49,23 +49,23 @@ class TitresTable extends DataTableComponent
             Column::make("Volume(m3)", "volume")
                 ->sortable()
                 ->searchable(),
-            Column::make("cree le", "created_at")->format(fn($value) => $value->format('d-m-Y H:i'))
-                ->sortable()
-                ->searchable(),
+            // Column::make("cree le", "created_at")->format(fn($value) => $value->format('d-m-Y H:i'))
+            //     ->sortable()
+            //     ->searchable(),
 
             ButtonGroupColumn::make("Actions")->buttons([
-                // LinkColumn::make('Edit')->title(fn($row) => 'Edit')
-                //     ->location(fn($row) => route('admin.titre.edit', $row->id))
-                //     ->attributes(fn($row) => ['class' => 'btn btn-warning btn-sm']),
+
+
                 LinkColumn::make('Delete')
                     ->title(fn($row) => 'Supprimer')
                     ->location(fn($row) => '#')
                     ->attributes(fn($row) => [
                         'class' => 'btn btn-danger btn-sm',
                         'wire:click' => "deleteTitre({$row->id})",
-                        'onclick' => "confirm('Etes vous sur ?') || event.stopImmediatePropagation()"
+                        'onclick' => "return confirm('Êtes-vous sûr ?')",
                     ])
             ])
+
 
 
         ];
@@ -73,14 +73,15 @@ class TitresTable extends DataTableComponent
     public function deleteTitre($id)
     {
         Titre::findOrFail($id)->delete();
-        $this->emit('refreshDataTable');
+        $this->emit('refreshDataTable'); // Rafraîchir la table après suppression
     }
-    public function filters():array
+
+    public function filters(): array
     {
         return [
-             TextFilter::make('nom'),
-             TextFilter::make('localisation'),
-             DateFilter::make('created_at'),
+            TextFilter::make('nom'),
+            TextFilter::make('localisation'),
+            DateFilter::make('created_at'),
         ];
     }
 }

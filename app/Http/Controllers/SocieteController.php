@@ -16,7 +16,7 @@ class SocieteController extends Controller
             'acronym' => ['required', 'string', 'max:255']
         ]);
         $societe = new Societe([
-            'acronym' => $request->acronym
+            'acronym' =>strtoupper($request->acronym)
         ]);
         $societe->save();
         notify()->success('Ajout d\'une nouvelle société avec succès !'); // this is a package for notifications
@@ -31,7 +31,7 @@ class SocieteController extends Controller
             new SocieteImport,
             $request->file('file')->store('files')
         );
-        notify()->success('mportation de la liste des sociétés réussie !'); // this is a package for notifications
+        notify()->success('Importation de la liste des sociétés réussie !'); // this is a package for notifications
 
         return redirect()->back();
     }

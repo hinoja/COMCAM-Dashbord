@@ -28,18 +28,21 @@ Route::post('/import/societe', [SocieteController::class, 'import'])->name('impo
 //titres
 Route::controller(TitreController::class)->prefix('titre')->name('admin.titre')->group(function () {
     Route::get('/', 'index')->name('.index');
-    Route::post('{titre}/edit', 'edit')->name('.edit');
     Route::get('/create', 'create')->name('.create');
     Route::post('/store', 'addTitre')->name('.store');
     Route::post('/import', 'import')->name('.import');
-    Route::get('export/',  'export')->name('.export');
+    Route::get('/export',  'export')->name('.export');
+    Route::get('/{id}/edit', 'edit')->name('.edit');      // This is the route causing issues
+    // Route::post('/{titre}/update', 'update')->name('.update');
 });
+//Transactions
 //Transactions
 Route::controller(TransactionController::class)->prefix('transaction')->name('admin.transaction')->group(function () {
     // Route::get('/', 'index')->name('.index');
     // Route::post('{titre}/edit', 'edit')->name('.edit');
     Route::get('/create', 'create')->name('.create');
     Route::post('/store', 'store')->name('.store');
+    Route::post('/confirm', 'confirm')->name('.confirm');  // Modified confirm route
     // Route::post('/import', 'import')->name('.import');
     // Route::get('export/',  'export')->name('.export');
 });

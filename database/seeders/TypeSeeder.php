@@ -14,6 +14,11 @@ class TypeSeeder extends Seeder
     public function run(): void
     {
         Type::factory()->create([
+            'designation' => '',
+            'code' => '',
+            'forme_id' => 1,
+        ]);
+        Type::factory()->create([
             'designation' => 'Sciage',
             'code' => '5N',
             'forme_id' => 2,
@@ -32,9 +37,9 @@ class TypeSeeder extends Seeder
         ]);
 
         Type::factory()->create([
-            'designation' => 'PS',
+            'designation' => 'Produits Speciaux',
             'code' => 'PS',
-            'forme_id' => 3,
+            'forme_id' => 2,
         ]);
     }
 }

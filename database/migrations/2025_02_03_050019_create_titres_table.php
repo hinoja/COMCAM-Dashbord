@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('forme_id')->constrained();
             $table->foreignId('type_id')->constrained();
             $table->float('volume');
+            $table->float('VolumeRestant')->nullable();
             $table->timestamps();
         });
     }

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Titre extends Model
 {
-    public $fillable = ['exercice', 'nom', 'localisation', 'zone_id', 'essence_id', 'forme_id', 'type_id', 'volume'];
+    public $fillable = ['exercice', 'nom', 'localisation', 'zone_id', 'essence_id', 'forme_id', 'type_id', 'volume','VolumeRestant'];
     /** @use HasFactory<\Database\Factories\TitreFactory> */
     use HasFactory;
     public function zone()
@@ -31,7 +31,7 @@ class Titre extends Model
     {
         return $this->belongsTo(Type::class);
     }
-    
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);

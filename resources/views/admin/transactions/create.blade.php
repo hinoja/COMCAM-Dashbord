@@ -5,11 +5,17 @@
 @section('content')
     <div class="section-body">
         <div class="container-fluid px-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title mb-0">
-                    <i class="fas fa-exchange-alt text-primary mr-2"></i>
-                    Nouvelle Transaction
-                </h2>
+            <div class="d-flex justify-content-between align-items-center p-3 rounded"
+                style="background-color: #2d6a4f; color: white;">
+                <!-- Logo et titre -->
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-book-open fa-2x mr-3"></i> <!-- Icône pour "Titres" -->
+                    <h2 class="m-0">Gestion des Transactions</h2>
+                </div>
+                <!-- Badge avec le total des titres -->
+                <span class="badge badge-light p-2" style="background-color: #a8d5ba; color: black;">
+                    Total: {{ $totalTitres ?? 'N/A' }} titres
+                </span>
             </div>
 
             <div class="row justify-content-center">
@@ -23,7 +29,7 @@
                             </h4>
                         </div>
 
-                        <form method="POST" action="{{ route('admin.transaction.store') }}" class="needs-validation" >
+                        <form method="POST" action="{{ route('admin.transaction.store') }}" class="needs-validation">
                             @csrf
                             <div class="card-body">
                                 <!-- Alertes d'erreur -->
@@ -54,16 +60,16 @@
                                                     class="form-control select2 @error('exercice') is-invalid @enderror">
                                                     <option disabled value="">Sélectionner une année</option>
                                                     @php
-                                                    $currentYear = date('Y'); // Année en cours
-                                                    $startYear = $currentYear - 2; // Début de la plage d'années
-                                                    $endYear = $currentYear + 3; // Fin de la plage d'années
-                                                @endphp
-                                                @for ($year = $startYear; $year <= $endYear; $year++)
-                                                    <option value="{{ $year }}"
-                                                        {{ old('exercice', $currentYear) == $year ? 'selected' : '' }}>
-                                                        {{ $year }}
-                                                    </option>
-                                                @endfor
+                                                        $currentYear = date('Y'); // Année en cours
+                                                        $startYear = $currentYear - 2; // Début de la plage d'années
+                                                        $endYear = $currentYear + 3; // Fin de la plage d'années
+                                                    @endphp
+                                                    @for ($year = $startYear; $year <= $endYear; $year++)
+                                                        <option value="{{ $year }}"
+                                                            {{ old('exercice', $currentYear) == $year ? 'selected' : '' }}>
+                                                            {{ $year }}
+                                                        </option>
+                                                    @endfor
                                                 </select>
                                                 @error('exercice')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -77,9 +83,9 @@
                                                     Date
                                                 </label>
                                                 @php
-                                                    $date=now();
+                                                    $date = now();
                                                 @endphp
-                                                <input type="date" name="date" value={{ $date}}
+                                                <input type="date" name="date" value={{ $date }}
                                                     class="form-control @error('date') is-invalid @enderror"
                                                     value="{{ old('date') }}">
                                                 @error('date')
@@ -302,7 +308,7 @@
                                 </div>
                             </div>
 
-                            <div class="card-footer bg-white border-top-0 text-right py-3">
+                            <div class="card-footer  border-top-0 text-right py-3">
                                 <button type="submit" class="btn btn-primary btn-lg px-5">
                                     <i class="fas fa-save mr-2"></i>
                                     Enregistrer
@@ -333,7 +339,7 @@
                                 </div>
                             </div>
 
-                            <div class="card-footer bg-white border-top-0 text-right py-3">
+                            <div class="card-footer  border-top-0 text-right py-3">
                                 <button type="submit" class="btn btn-success btn-lg px-5">
                                     <i class="fas fa-upload mr-2"></i>
                                     Importer

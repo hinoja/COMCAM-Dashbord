@@ -7,26 +7,21 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="section-title text-primary">Liste des Titres</h2>
             <div class="d-flex gap-2">
-                <a  href="{{ route('admin.titre.create') }}" class="btn btn-primary">
+                <a href="{{ route('admin.titre.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Ajouter un Titre
                 </a>
-                <button onclick="exportToExcel()" class="btn btn-success">
-                    <i class="fas fa-file-excel me-2"></i>Exporter Excel
-                </button>
+                <a href="{{ route('admin.titre.export') }}" class="btn btn-success">
+                    <i class="fas fa-download mr-2"></i>Exporter Excel
+                </a>
             </div>
         </div>
 
-
-        <div class="container-fluid ">
-
+        <div class="container-fluid">
             <hr class="my-4">
-
             <div class="row justify-content-center">
                 <div class="col-lg-12 col-md-12 col-12">
                     <div class="card shadow">
-                        <livewire:titres-table theme="bootstrap-4" />
-
-
+                        @livewire('manage-titre')
                     </div>
                 </div>
             </div>
@@ -41,5 +36,6 @@
 
 @push('js')
     @livewireScripts()
+
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 @endpush

@@ -181,13 +181,16 @@ return [
     */
 
     'attributes' => [
-        'offers_add.*' => 'new offer :position',
-        'subs_name' => 'name',
-        'offers.*' => 'offer :position',
-        'qualifications.1' => 'qualification',
-        'qualifications.*' => 'qualification',
-        'requirements.1' => 'requirement',
-        'requirements.*' => 'requirement',
+        
+        'exercice' => 'exercice',
+        'nom' => 'nom',
+        'name' => 'nom',
+        'localisation' => 'localisation',
+        'zone_id' => 'zone',
+        'details.*.essence_id' => 'essence :position',
+        'details.*.forme_id' => 'forme :position',
+        'details.*.type_id' => 'type :position',
+        'details.*.volume' => 'volume :position',
     ],
 
 ];

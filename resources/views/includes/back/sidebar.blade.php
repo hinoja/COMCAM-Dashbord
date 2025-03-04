@@ -6,12 +6,12 @@
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
             <a href="#">
-                <img alt="image" src="{{ asset('logo.jpg') }}" class="rounded-circle mr-1" width="60">
-                {{ config('app.name', 'COMCAM') }}
+               <span> <img alt="image" src="{{ asset('logo.jpg') }}" class="rounded-circle mr-1" width="60">
+                {{ config('app.name', 'COMCAM') }}</span>
             </a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="#">Mb</a>
+            <a href="#">E&F CC</a>
         </div>
         <ul class="sidebar-menu">
             <li class="@if (Str::contains($currentUri, 'dashboard')) active @endif">

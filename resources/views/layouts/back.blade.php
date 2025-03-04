@@ -35,9 +35,9 @@
 </head>
 
 <body>
-    @if(session('notify'))
-    @notify(session('notify'))
-@endif
+    @if (session('notify'))
+        @notify(session('notify'))
+    @endif
     {{-- @include('sweetalert::alert') --}}
     @include('notify::components.notify')
     {{-- <x:notify-messages /> --}}
@@ -57,10 +57,10 @@
             </div>
             <footer class="main-footer">
                 <div class="container">
-                    <div class="footer-left">2023</div>
+                    <div class="footer-left"> Copyright © {{ date('Y') }} </div>
                     <div class="footer-right">
                         <div class="bullet"></div> @lang('Made By') <a href="https://bvision-lte.com"
-                            target="_blank">Better Vision</a>
+                            target="_blank">JanohiCorporation</a>
                     </div>
                 </div>
             </footer>
@@ -84,11 +84,11 @@
 
     {{-- <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script> --}}
     <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
-     <!-- Include Toastr CSS (if using Toastr) -->
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-      <!-- Include Toastr JS (if using Toastr) -->
+    <!-- Include Toastr CSS (if using Toastr) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Include Toastr JS (if using Toastr) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-  
+
 
     {{-- @livewireScripts --}}
 

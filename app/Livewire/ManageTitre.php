@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Models\Titre;
+use App\Models\Essence;
+use App\Models\Forme;
+use App\Models\Type;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+class ManageTitre extends Component
+{
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
+    public $search = '';
+    public $perPage = 10;
+    public $essenceFilter = '';
+    public $formeFilter = '';
+    public $typeFilter = '';
+    public $selectedTitre = null; // Pour stocker les détails du titre sélectionné
+
+    public function delete($id)
+    {
+        $titre = Titre::findOrFail($id);
+        $titre->delete();
+        // $this->alert('success', 'Titre supprimé avec succès !');
+
+        session()->flash('message', 'Titre supprimé avec succès!');
+    }
+    // Méthode pour afficher les détails d'un titre
+    public function showDetails($id)
+    {
+        $this->selectedTitre = Titre::with(['zone', 'essence', 'forme', 'type'])->findOrFail($id);
+    }
+
+    // Méthode pour fermer la modale
+    public function closeDetails()
+    {
+        $this->selectedTitre = null;
+    }
+    public function render()
+    {
+        $titres = Titre::with(['zone', 'essence', 'forme', 'type'])
+            ->when($this->search, function ($query) {
+                $query->where('nom', 'like', '%' . $this->search . '%');
+            })
+            ->when($this->essenceFilter, function ($query) {
+                $query->where('essence_id', $this->essenceFilter);
+            })
+            ->when($this->formeFilter, function ($query) {
+                $query->where('forme_id', $this->formeFilter);
+            })
+            ->when($this->typeFilter, function ($query) {
+                $query->where('type_id', $this->typeFilter);
+            })
+            ->paginate($this->perPage);
+
+        return view('livewire.manage-titre', [
+            'titres' => $titres,
+            'essences' =>  Essence::query()->get(['id', 'nom_local']),
+            'formes' => Forme::query()->get(['id', 'designation']),
+            'types' => Type::query()->get(['id', 'code']),
+        ]);
+    }
+}

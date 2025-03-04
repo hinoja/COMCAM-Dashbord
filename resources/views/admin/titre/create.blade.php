@@ -5,173 +5,24 @@
 @section('content')
     <div class="section-body mt-4">
         <div class="container">
-            <h2 class="section-title text-primary">Liste des Titres</h2>
+            <div class="d-flex justify-content-between align-items-center p-3 rounded"
+                style="background-color: #2d6a4f; color: white;">
+                <!-- Logo et titre -->
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-book-open fa-2x mr-3"></i> <!-- Icône pour "Titres" -->
+                    <h2 class="m-0">Gestion des Titres</h2>
+                </div>
+                <!-- Badge avec le total des titres -->
+                <span class="badge badge-light p-2" style="background-color: #a8d5ba; color: black;">
+                    Total: {{ $totalTitres ?? 'N/A' }} titres
+                </span>
+            </div>
             <hr class="my-4">
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-10 col-12">
                     <div class="card shadow">
                         <!-- Premier formulaire : Ajout d'un Nouveau Titre -->
-                        <form method="POST" action="{{ route('admin.titre.store') }}">
-                            @csrf
-                            @foreach ($errors as $error)
-                                <div class="alert alert-danger">{{ $error }}</div>
-                            @endforeach
-                            <div class="card-header bg-white">
-                                <h4 class="card-title text-primary"><i class="fas fa-plus-circle mr-2"></i>Ajout d'un
-                                    Nouveau Titre</h4>
-                            </div>
-
-                            <div class="card-body">
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="exercice" class="font-weight-bold"><i
-                                                class="far fa-calendar-alt mr-1"></i> Exercice (Année)</label>
-                                        <select id="exercice" name="exercice"
-                                            class="form-control select-custom @error('exercice') is-invalid @enderror"
-                                            required>
-                                            <option value="" disabled>Sélectionner une année</option>
-                                            @php
-                                                $currentYear = date('Y'); // Année en cours
-                                                $startYear = $currentYear - 2; // Début de la plage d'années
-                                                $endYear = $currentYear + 3; // Fin de la plage d'années
-                                            @endphp
-                                            @for ($year = $startYear; $year <= $endYear; $year++)
-                                                <option value="{{ $year }}"
-                                                    {{ old('exercice', $currentYear) == $year ? 'selected' : '' }}>
-                                                    {{ $year }}
-                                                </option>
-                                            @endfor
-                                        </select>
-                                        @error('exercice')
-                                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group col-md-6">
-                                        <label for="nom" class="font-weight-bold"><i class="far fa-file-alt mr-1"></i>
-                                            Nom</label>
-                                        <input type="text" id="nom" name="nom"
-                                            class="form-control shadow-sm @error('nom') is-invalid @enderror"
-                                            value="{{ old('nom') }}" placeholder="UFA 07004 AAC 1" required>
-                                        @error('nom')
-                                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="localisation" class="font-weight-bold"><i
-                                            class="fas fa-map-marker-alt mr-1"></i> Localisation</label>
-                                    <input type="text" id="localisation" name="localisation"
-                                        class="form-control shadow-sm @error('localisation') is-invalid @enderror"
-                                        value="{{ old('localisation') }}" placeholder="Nkondjock-nkongsamba" required>
-                                    @error('localisation')
-                                        <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="zone" class="font-weight-bold"><i
-                                                class="fas fa-globe-africa mr-1"></i> Zone</label>
-                                        <select id="zone" name="zone_id"
-                                            class="form-control select-custom @error('zone') is-invalid @enderror" required>
-                                            <option value="" selected disabled>Sélectionner une zone</option>
-                                            @foreach ($zones as $zone)
-                                                <option value="{{ $zone->id }}"
-                                                    {{ old('zone') == $zone->id ? 'selected' : '' }}>
-                                                    {{ $zone->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('zone')
-                                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group col-md-6">
-                                        <label for="essence" class="font-weight-bold"><i class="fas fa-tree mr-1"></i>
-                                            Essence</label>
-                                        <select id="essence" name="essence_id"
-                                            class="form-control select-custom @error('essence') is-invalid @enderror"
-                                            required>
-                                            <option value="" disabled>Sélectionner une essence</option>
-                                            @foreach ($essences as $essence)
-                                                <option value="{{ $essence->id }}"
-                                                    {{ old('essence') == $essence->id ? 'selected' : '' }}>
-                                                    {{ $essence->nom_local }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('essence')
-                                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="forme" class="font-weight-bold"><i class="fas fa-shapes mr-1"></i>
-                                            Forme</label>
-                                        <select id="forme" name="forme_id"
-                                            class="form-control select-custom @error('forme') is-invalid @enderror"
-                                            required>
-                                            <option value="" selected disabled>Sélectionner une forme</option>
-                                            @foreach ($formes as $forme)
-                                                <option value="{{ $forme->id }}"
-                                                    {{ old('forme') == $forme->id ? 'selected' : '' }}>
-                                                    {{ $forme->designation }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('forme')
-                                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group col-md-6">
-                                        <label for="type" class="font-weight-bold"><i class="fas fa-tag mr-1"></i>
-                                            Type</label>
-                                        <select id="type" name="type_id"
-                                            class="form-control select-custom @error('type') is-invalid @enderror" required>
-                                            <option value="" selected disabled>Sélectionner un type</option>
-                                            @foreach ($types as $type)
-                                                <option value="{{ $type->id }}"
-                                                    {{ old('type') == $type->id ? 'selected' : '' }}>
-                                                    {{ $type->code }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('type')
-                                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="volume" class="font-weight-bold"><i class="fas fa-cubes mr-1"></i>
-                                        Volume</label>
-                                    <div class="input-group">
-                                        <input type="number" id="volume" name="volume"
-                                            class="form-control shadow-sm @error('volume') is-invalid @enderror"
-                                            value="{{ old('volume') }}" min="0" placeholder="500" required>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">m³</span>
-                                        </div>
-                                    </div>
-                                    @error('volume')
-                                        <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="card-footer bg-white text-right py-3">
-                                <button type="submit" class="btn btn-primary px-4 shadow-sm">
-                                    <i class="fas fa-plus-circle mr-1"></i> Ajouter
-                                </button>
-                            </div>
-                        </form>
-
+                        @livewire('add-titre')
                     </div>
 
                     <!-- Deuxième formulaire : Upload de fichier Excel -->
@@ -242,81 +93,81 @@
             color: #28a745;
         }
     </style>
+    @livewireStyles()
 @endpush
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
     <script>
-        // Configuration commune pour tous les select TomSelect
-        const tomSelectConfig = {
-            plugins: ['remove_button'],
-            render: {
-                option: function(data, escape) {
-                    return '<div class="py-2 px-3">' + escape(data.text) + '</div>';
-                },
-                item: function(data, escape) {
-                    return '<div>' + escape(data.text) + '</div>';
-                }
-            }
-        };
-
-        // Initialisation de tous les champs select avec la classe select-custom
-        document.querySelectorAll('.select-custom').forEach(function(element) {
-            let config = {
-                ...tomSelectConfig
-            };
-
-            // Configuration spécifique pour le champ essence
-            if (element.id === 'essence') {
-                config.create = true;
-                config.sortField = {
+        document.addEventListener('livewire:load', function() {
+            // Configuration globale de TomSelect (déjà définie ci-dessus)
+            const tomSelectConfig = {
+                create: false,
+                sortField: {
                     field: "text",
                     direction: "asc"
-                };
-                config.placeholder = "Sélectionner une essence...";
-            }
-
-            new TomSelect(element, config);
-        });
-
-        // Afficher le nom du fichier sélectionné
-        document.querySelector('.custom-file-input').addEventListener('change', function() {
-            var fileName = this.value.split('\\').pop();
-            document.querySelector('.custom-file-label').textContent = fileName || 'Choisir un fichier';
-        });
-    </script>
-    <script>
-        // Définition des relations forme-type
-        const typeRelations = {
-            'Grume': ['5N'],
-            'Débité': ['6.1', '6.2'],
-            'PS': ['PS']
-        };
-
-        // Lorsque la page est chargée
-        $(document).ready(function() {
-            // Écouteur d'événement sur le changement de forme
-            $('#forme').on('change', function() {
-                const selectedForme = $(this).find('option:selected').text();
-                const typeSelect = $('#type');
-
-                // Vider les options actuelles
-                typeSelect.empty();
-                typeSelect.append('<option value="" disabled selected>Sélectionner un type</option>');
-
-                // Ajouter les nouvelles options en fonction de la forme sélectionnée
-                if (typeRelations[selectedForme]) {
-                    typeRelations[selectedForme].forEach(type => {
-                        // Rechercher l'ID correspondant dans la collection $types
-                        undefined
-                        if ('{{ $type->designation }}' === type) {
-                            typeSelect.append(
-                                `<option value="{{ $type->id }}">${type}</option>`);
-                        }
-
+                },
+                placeholder: "Sélectionner...",
+                allowEmptyOption: true,
+                onChange: function(value) {
+                    Livewire.dispatch('updateSelect', {
+                        name: this.input.name,
+                        value: value
                     });
                 }
-            });
+            };
+
+            const customConfigs = {
+                'exercice': {
+                    placeholder: "Sélectionner une année..."
+                },
+                'zone_id': {
+                    placeholder: "Sélectionner une zone..."
+                },
+                'details.essence_id': {
+                    create: true,
+                    placeholder: "Sélectionner une essence...",
+                    render: {
+                        option: function(data, escape) {
+                            return '<div class="py-2 px-3">' + escape(data.text) + '</div>';
+                        },
+                        item: function(data, escape) {
+                            return '<div>' + escape(data.text) + '</div>';
+                        }
+                    }
+                },
+                'details.forme_id': {
+                    placeholder: "Sélectionner une forme..."
+                },
+                'details.type_id': {
+                    placeholder: "Sélectionner un type..."
+                }
+            };
+
+            // function initTomSelect() {
+            //     document.querySelectorAll('.select-custom').forEach(function(element) {
+            //         const fieldName = element.getAttribute('name') || element.id.replace(/-/g, '.');
+            //         let config = {
+            //             ...tomSelectConfig
+            //         };
+
+            //         if (customConfigs[fieldName]) {
+            //             config = {
+            //                 ...config,
+            //                 ...customConfigs[fieldName]
+            //             };
+            //         }
+
+            //         if (element.tomselect) {
+            //             element.tomselect.destroy();
+            //         }
+
+            //         new TomSelect(element, config);
+            //     });
+            // }
+
+            // initTomSelect();
+            // Livewire.hook('message.processed', () => initTomSelect());
         });
     </script>
 @endpush
