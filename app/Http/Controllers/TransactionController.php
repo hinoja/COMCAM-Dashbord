@@ -86,18 +86,17 @@ class TransactionController extends Controller
         // Cas 2 à 5 : Conversion de Grume vers d'autres formes
         elseif ($forme_type_titre === 'Grume') {
             switch ($forme_type_transaction) {
-                case 'Débité5N': //*2.5
-                    $depassement = $transaction->titre->volume - ($transaction->volume / 2.5);
+                case 'Débité5N':
+                    $depassement = $transaction->titre->volume - ($transaction->volume * 2.5); // De débité à grume
                     break;
-                case 'Débité6.1': //
-                    $depassement = $transaction->titre->volume - ($transaction->volume / 1.82);
-                    break;
+                case 'Débité6.1':
+                    $depassement = $transaction->titre->volume - ($transaction->volume * 1.5); // Selon texte
+                    break; // Note : Si basé sur 80%, utiliser * 1.25
                 case 'Débité6.2':
-                    $depassement = $transaction->titre->volume - ($transaction->volume / 1.67);
-                    break;
-                case 'PS':
-                    $depassement = $transaction->titre->volume - ($transaction->volume / 1.54);
-                    break;
+                    $depassement = $transaction->titre->volume - ($transaction->volume * 1.5); // Selon texte
+                    break; // Note : Si basé sur 80%, utiliser * 1.25
+                    // case 'PS':
+
             }
         }
         // Cas 6 à 9 : Conversion d'autres formes vers Grume
@@ -112,9 +111,8 @@ class TransactionController extends Controller
                 case 'Débité6.2': //*0.8
                     $depassement = $transaction->titre->volume - ($transaction->volume * 0.8);
                     break;
-                case 'PS':
-                    $depassement = $transaction->titre->volume - ($transaction->volume * 1.54);
-                    break;
+                    // case 'PS':
+
             }
         }
 
@@ -142,38 +140,6 @@ class TransactionController extends Controller
         return redirect()->back();
     }
 
-    private function calculDepassement($transaction) {}
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 
     public function confirm(Request $request)
     {

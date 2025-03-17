@@ -15,7 +15,7 @@
         </div>
         <ul class="sidebar-menu">
             <li class="@if (Str::contains($currentUri, 'dashboard')) active @endif">
-                <a class="nav-link" href="#"><i class="fas fa-home"></i>
+                <a class="nav-link" href="{{ route('dashboard.titres') }}"><i class="fas fa-home"></i>
                     <span>@lang('Dashboard')</span></a>
             </li>
             <li class="@if (Str::contains($currentUri, 'users')) active @endif">

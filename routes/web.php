@@ -1,13 +1,14 @@
 <?php
 
+use App\Livewire\DashboardTitres;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TitreController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocieteController;
-use App\Http\Controllers\TitreController;
 use App\Http\Controllers\TransactionController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', function () {
@@ -51,4 +52,5 @@ Route::controller(TransactionController::class)->prefix('transaction')->name('ad
 // Route::view('/admin/titres', 'admin.titre.index');
 Route::post('/import/titres', [TitreController::class, 'import'])->name('import.titre.post');
 
+Route::view( '/dashboard/titres' ,'admin.dashboard')->name('dashboard.titres');
 require __DIR__ . '/auth.php';

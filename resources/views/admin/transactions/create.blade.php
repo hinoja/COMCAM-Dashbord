@@ -10,7 +10,7 @@
                 <!-- Logo et titre -->
                 <div class="d-flex align-items-center">
                     <i class="fas fa-book-open fa-2x mr-3"></i> <!-- Icône pour "Titres" -->
-                    <h2 class="m-0">Gestion des Transactions</h2>
+                    <h2 class="m-0">Ajout Transaction(s)</h2>
                 </div>
                 <!-- Badge avec le total des titres -->
                 <span class="badge badge-light p-2" style="background-color: #a8d5ba; color: black;">
@@ -28,8 +28,8 @@
                                 Détails de la Transaction
                             </h4>
                         </div>
-
-                        <form method="POST" action="{{ route('admin.transaction.store') }}" class="needs-validation">
+                        @livewire('add-transaction')
+                        {{-- <form method="POST" action="{{ route('admin.transaction.store') }}" class="needs-validation">
                             @csrf
                             <div class="card-body">
                                 <!-- Alertes d'erreur -->
@@ -61,7 +61,7 @@
                                                     <option disabled value="">Sélectionner une année</option>
                                                     @php
                                                         $currentYear = date('Y'); // Année en cours
-                                                        $startYear = $currentYear - 2; // Début de la plage d'années
+                                                        $startYear = $currentYear - 0; // Début de la plage d'années
                                                         $endYear = $currentYear + 3; // Fin de la plage d'années
                                                     @endphp
                                                     @for ($year = $startYear; $year <= $endYear; $year++)
@@ -309,12 +309,12 @@
                             </div>
 
                             <div class="card-footer  border-top-0 text-right py-3">
-                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <button type="submit" style="background: green"  class="btn btn-primary btn-lg px-5">
                                     <i class="fas fa-save mr-2"></i>
                                     Enregistrer
                                 </button>
                             </div>
-                        </form>
+                        </form> --}}
                     </div>
 
                     <!-- Card Import Excel -->
@@ -340,7 +340,7 @@
                             </div>
 
                             <div class="card-footer  border-top-0 text-right py-3">
-                                <button type="submit" class="btn btn-success btn-lg px-5">
+                                <button type="submit" style="background:green; color:white" class="btn   btn-lg px-5">
                                     <i class="fas fa-upload mr-2"></i>
                                     Importer
                                 </button>

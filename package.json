@@ -17,6 +17,7 @@
         "vite": "^6.0.11"
     },
     "dependencies": {
+        "notyf": "^3.10.0",
         "tom-select": "^2.4.3"
     }
 }

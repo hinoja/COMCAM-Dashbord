@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use function Livewire\after;
+
 class TransactionRequest extends FormRequest
 {
     /**
@@ -23,7 +25,7 @@ class TransactionRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'exercice' => ['required', 'int', 'min_digits:4', 'max_digits:4'],
+            'exercice' => ['required', 'int', 'min_digits:4', 'max_digits:4' ,'min:2024'],
             'numero' => ['required', 'numeric', 'min:0'],
             'titre_id' => ['required', 'int', 'exists:titres,id'],
             'type_id' => ['required', 'int', 'exists:types,id'],

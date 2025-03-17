@@ -43,6 +43,9 @@ class ManageTitre extends Component
     }
     public function render()
     {
+        // foreach ($essences ){
+
+        // }
         $titres = Titre::with(['zone', 'essence', 'forme', 'type'])
             ->when($this->search, function ($query) {
                 $query->where('nom', 'like', '%' . $this->search . '%');

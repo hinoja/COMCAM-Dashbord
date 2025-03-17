@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <!-- Scripts -->
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
@@ -35,10 +35,12 @@
 </head>
 
 <body>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if (session('notify'))
         @notify(session('notify'))
     @endif
-    {{-- @include('sweetalert::alert') --}}
+    @include('sweetalert::alert')
     @include('notify::components.notify')
     {{-- <x:notify-messages /> --}}
     <div id="app">
@@ -57,7 +59,7 @@
             </div>
             <footer class="main-footer">
                 <div class="container">
-                    <div class="footer-left"> Copyright © {{ date('Y') }} </div>
+                    <div class="footer-left"> Copyright © COMCAM {{ date('Y') }} </div>
                     <div class="footer-right">
                         <div class="bullet"></div> @lang('Made By') <a href="https://bvision-lte.com"
                             target="_blank">JanohiCorporation</a>
@@ -67,7 +69,13 @@
         </div>
     </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    @if (session()->has('success'))
+        <script>
+            const notyf = new Notyf();
+            notyf.success('{{ session('success') }}');
+        </script>
+    @endif
 
     <!-- General JS Scripts -->
     <script src="{{ asset('back/modules/popper.js') }}"></script>
@@ -88,7 +96,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- Include Toastr JS (if using Toastr) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     {{-- @livewireScripts --}}
 

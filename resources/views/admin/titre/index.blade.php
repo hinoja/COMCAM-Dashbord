@@ -3,6 +3,8 @@
 @section('subtitle', __('Liste des Titres'))
 
 @section('content')
+
+
     <div class="section-body mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="section-title text-primary">Liste des Titres</h2>
@@ -36,6 +38,7 @@
 
 @push('js')
     @livewireScripts()
-
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <x-livewire-alert::scripts />
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 @endpush

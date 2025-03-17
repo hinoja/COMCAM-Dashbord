@@ -13,9 +13,10 @@
                     <h2 class="m-0">Gestion des Titres</h2>
                 </div>
                 <!-- Badge avec le total des titres -->
-                <span class="badge badge-light p-2" style="background-color: #a8d5ba; color: black;">
-                    Total: {{ $totalTitres ?? 'N/A' }} titres
-                </span>
+                <a class="badge badge-light p-2" href="{{ route('admin.titre.index') }}"
+                    style="background-color: #a8d5ba; color: black;">
+                    Liste des Titres
+                </a>
             </div>
             <hr class="my-4">
             <div class="row justify-content-center">
@@ -38,9 +39,8 @@
                                     <label for="file" class="font-weight-bold"><i class="fas fa-upload mr-1"></i>
                                         Fichier Excel</label>
                                     <div class="custom-file">
-                                        <input type="file"
-                                            class="custom-file-input @error('file') is-invalid @enderror" id="file"
-                                            name="file" accept=".xlsx,.xls,.csv">
+                                        <input type="file" class="custom-file-input @error('file') is-invalid @enderror"
+                                            id="file" name="file" accept=".xlsx,.xls,.csv">
                                         <label class="custom-file-label" for="file">Choisir un fichier</label>
                                         @error('file')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -49,7 +49,7 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-white text-right py-3">
-                                <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <button type="submit" class="btn px-4" style="color: white; background:green;">
                                     <i class="fas fa-upload mr-1"></i> Importer
                                 </button>
                             </div>

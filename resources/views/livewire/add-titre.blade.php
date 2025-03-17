@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <form wire:submit.prevent="save" class="space-y-8 fade-in" style="animation-delay: 0.2s;">
+    <form form wire:submit.prevent="save" class="space-y-8 fade-in">
         @csrf
 
         <!-- Champs principaux -->
@@ -94,7 +94,8 @@
             </h3>
 
             <!-- Bouton -->
-            <button type="button" wire:click="addDetail"
+            <button type="button" wire:click="addDetail" style="color: white; background:green;"
+                style="color: white; background:green;"
                 class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
                 <i class="fas fa-plus mr-2"></i>
                 Ajouter
@@ -121,6 +122,7 @@
                     <div class="col-md-4 mr-0">
                         <label>Sélectionner une forme</label>
                         <select wire:model="details.{{ $index }}.forme_id"
+                            wire:change="resetType({{ $index }})"
                             class="select-custom w-full p-3 border rounded-lg">
                             <option value="" disabled selected>Sélectionner une forme</option>
                             @foreach ($formes as $forme)
@@ -132,19 +134,34 @@
                         @enderror
                     </div>
 
+                    <!-- Modifier la section du select des types -->
                     <div class="col-md-3">
                         <label>Sélectionner un type</label>
-                        <select wire:model="details.{{ $index }}.type_id"
-                            class="select-custom w-full p-3 border rounded-lg">
-                            <option value="" disabled selected>Sélectionner un type</option>
-                            @foreach ($types as $type)
-                                <option value="{{ $type->id }}">{{ $type->code }}</option>
-                            @endforeach
-                        </select>
-                        @error('details.' . $index . '.type_id')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
+                        <div class="relative">
+                            <select
+                                wire:model="details.{{ $index }}.type_id"
+                                class="select-custom w-full p-3 border rounded-lg pr-8"
+                                wire:key="type-select-{{ $index }}-{{ $detail['forme_id'] }}"
+                                @if($detail['forme_id'] == 1) disabled @endif
+                            >
+                                @if($detail['forme_id'] == 1)
+                                    <option value="1" selected>Non applicable</option>
+                                @else
+                                    <option value="" disabled selected>Sélectionner un type</option>
+                                    @if($detail['forme_id'] == 2)
+                                        @foreach ($types->whereIn('id', [2, 3, 4, 5]) as $type)
+                                            <option value="{{ $type->id }}">{{ $type->code }}</option>
+                                        @endforeach
+                                    @else
+                                        @foreach ($types as $type)
+                                            <option value="{{ $type->id }}">{{ $type->code }}</option>
+                                        @endforeach
+                                    @endif
+                                @endif
+                            </select>
+                        </div>
                     </div>
+
                 </div>
 
                 <!-- Volume avec unité et bouton de suppression -->
@@ -162,10 +179,11 @@
                     </div>
 
                     <!-- Bouton de suppression -->
-                    <button wire:click="removeDetail({{ $index }})"
+                    <button wire:click="removeDetail({{ $index }})" type="button"
                         class="p-3 ml-5 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg focus:outline-none transition-all duration-300">
                         <i class="fas fa-trash"></i>
                     </button>
+
                 </div>
             </div>
         @endforeach
@@ -219,10 +237,19 @@
             </div>
         </div>
 
+        <!-- Bouton de soumission amélioré -->
         <div class="card-footer text-right py-3">
-            <button style="color: white; background:green;" type="submit" class="btn px-4">
-                <i class="fas fa-save mr-1"></i> Enregistrer
+            <button style="background: green" type="submit"
+                class="btn px-4 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+                wire:loading.attr="disabled" wire:target="save">
+                <span wire:loading.remove wire:target="save">
+                    <i class="fas fa-save mr-1"></i> Enregistrer
+                </span>
+                <span wire:loading wire:target="save">
+                    <i class="fas fa-spinner fa-spin mr-1"></i> Enregistrement...
+                </span>
             </button>
         </div>
     </form>
+
 </div>

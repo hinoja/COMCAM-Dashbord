@@ -137,6 +137,7 @@
         <table class="table table-hover table-striped align-middle mb-0">
             <thead class="bg-primary text-white">
                 <tr class="text-xs text-white font-semibold text-gray-600 uppercase tracking-wider">
+                    <th style="color: white" class="p-3 text-nowrap">N°</th>
                     <th style="color: white" class="p-3 text-nowrap">Exercice</th>
                     <th style="color: white" class="p-3 text-nowrap">Nom</th>
                     <th style="color: white" class="p-3 text-nowrap">Localisation</th>
@@ -153,6 +154,7 @@
             <tbody>
                 @forelse($titres as $titre)
                     <tr class="transition-all hover:bg-gray-50">
+                        <td class="p-3">{{ $loop->iteration }}</td>
                         <td class="p-3">{{ $titre->exercice }}</td>
                         <td class="p-3">{{ $titre->nom }}</td>
                         <td class="p-3">{{ $titre->localisation }}</td>
@@ -164,16 +166,17 @@
                         <td class="p-3">{{ $titre->VolumeRestant ?? '-' }}</td>
                         <td class="p-3">
                             <div class="btn-group" role="group">
-                                <button wire:click="showDetails({{ $titre->id }})" class="btn btn-sm btn-info"
+                                {{-- <button wire:click="showDetails({{ $titre->id }})" class="btn btn-sm btn-info mr-2"
                                     title="Voir les détails">
                                     <i class="fas fa-eye"></i>
-                                </button>
+                                </button> --}}
                                 <a href="{{ route('admin.titre.edit', $titre) }}"
                                     class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button wire:click="delete({{ $titre->id }})" class="btn btn-sm btn-danger"
-                                    title="Supprimer" onclick="return confirm('Confirmer la suppression ?')">
+                                <button wire:click="delete({{ $titre->id }})"
+                                    class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
+                                    onclick="return confirm('Confirmer la suppression ?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -208,15 +211,17 @@
     <!-- Modale pour afficher les détails du titre -->
     @if ($selectedTitre)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
-             wire:ignore.self>
+            wire:ignore.self>
             <div class="bg-white rounded-xl shadow-2xl w-11/12 md:w-1/2 p-6 transform transition-all duration-300 scale-100 animate-fadeIn"
-                 role="dialog" aria-labelledby="modal-title">
+                role="dialog" aria-labelledby="modal-title">
                 <!-- En-tête de la modale -->
                 <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-                    <h3 id="modal-title" class="text-xl font-bold text-gray-800 bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
+                    <h3 id="modal-title"
+                        class="text-xl font-bold text-gray-800 bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
                         Détails du Titre : {{ $selectedTitre->nom }}
                     </h3>
-                    <button wire:click="closeDetails" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-all duration-300">
+                    <button wire:click="closeDetails"
+                        class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-all duration-300">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -254,11 +259,14 @@
                         </div>
                         <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
                             <label class="font-medium text-gray-700">Volume :</label>
-                            <p class="text-success mt-1">{{ number_format((float) $selectedTitre->volume, 2, ',', ' ') }} m³</p>
+                            <p class="text-success mt-1">
+                                {{ number_format((float) $selectedTitre->volume, 2, ',', ' ') }} m³</p>
                         </div>
                         <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
                             <label class="font-medium text-gray-700">Volume Restant :</label>
-                            <p class="text-success mt-1">{{ $selectedTitre->VolumeRestant ? number_format((float) $selectedTitre->VolumeRestant, 2, ',', ' ') . ' m³' : '-' }}</p>
+                            <p class="text-success mt-1">
+                                {{ $selectedTitre->VolumeRestant ? number_format((float) $selectedTitre->VolumeRestant, 2, ',', ' ') . ' m³' : '-' }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -266,7 +274,7 @@
                 <!-- Pied de la modale -->
                 <div class="flex justify-end mt-6">
                     <button wire:click="closeDetails"
-                            class="px-4 py-2 bg-gradient-primary text-white rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        class="px-4 py-2 bg-gradient-primary text-white rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                         Fermer
                     </button>
                 </div>
@@ -276,33 +284,44 @@
     <style>
         /* Styles spécifiques à la modale des détails du titre */
         #titreDetailsModal .modal-content {
-            border-radius: 0.75rem; /* Bordures arrondies plus prononcées */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Ombre plus marquée */
-            transition: all 0.3s ease; /* Transition fluide pour les interactions */
+            border-radius: 0.75rem;
+            /* Bordures arrondies plus prononcées */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            /* Ombre plus marquée */
+            transition: all 0.3s ease;
+            /* Transition fluide pour les interactions */
         }
 
         #titreDetailsModal .modal-header {
-            border-radius: 0.75rem 0.75rem 0 0; /* Bordures arrondies uniquement en haut */
-            background: linear-gradient(45deg, #2d6a4f 0%, #1cc88a 100%); /* Gradient vert du thème */
-            padding: 1.5rem; /* Espacement intérieur plus large */
+            border-radius: 0.75rem 0.75rem 0 0;
+            /* Bordures arrondies uniquement en haut */
+            background: linear-gradient(45deg, #2d6a4f 0%, #1cc88a 100%);
+            /* Gradient vert du thème */
+            padding: 1.5rem;
+            /* Espacement intérieur plus large */
         }
 
         #titreDetailsModal .modal-body {
-            padding: 1.5rem; /* Espacement intérieur plus large */
+            padding: 1.5rem;
+            /* Espacement intérieur plus large */
         }
 
         #titreDetailsModal .modal-footer {
-            border-radius: 0 0 0.75rem 0.75rem; /* Bordures arrondies uniquement en bas */
-            background-color: #f8f9fc; /* Gris clair pour le footer */
-            padding: 1.5rem; /* Espacement intérieur plus large */
+            border-radius: 0 0 0.75rem 0.75rem;
+            /* Bordures arrondies uniquement en bas */
+            background-color: #f8f9fc;
+            /* Gris clair pour le footer */
+            padding: 1.5rem;
+            /* Espacement intérieur plus large */
         }
 
         #titreDetailsModal .form-group {
-            margin-bottom: 1rem; /* Espacement entre les groupes */
+            margin-bottom: 1rem;
+            /* Espacement entre les groupes */
         }
 
         /* Cartes pour les sections */
-        #titreDetailsModal .form-group > div {
+        #titreDetailsModal .form-group>div {
             display: flex;
             flex-direction: column;
             padding: 1rem;
@@ -311,42 +330,51 @@
             transition: all 0.3s ease;
         }
 
-        #titreDetailsModal .form-group > div:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Ombre plus prononcée au survol */
-            transform: translateY(-2px); /* Légère élévation au survol */
+        #titreDetailsModal .form-group>div:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            /* Ombre plus prononcée au survol */
+            transform: translateY(-2px);
+            /* Légère élévation au survol */
         }
 
         /* Cartes vertes (titres et volumes) */
-        #titreDetailsModal .form-group:nth-child(odd) > div,
-        #titreDetailsModal .form-group:nth-child(8) > div,
-        #titreDetailsModal .form-group:nth-child(9) > div {
-            background-color: #e8f5e9; /* Vert clair pour les cartes vertes */
-            border: 1px solid #2d6a4f; /* Bordure verte */
+        #titreDetailsModal .form-group:nth-child(odd)>div,
+        #titreDetailsModal .form-group:nth-child(8)>div,
+        #titreDetailsModal .form-group:nth-child(9)>div {
+            background-color: #e8f5e9;
+            /* Vert clair pour les cartes vertes */
+            border: 1px solid #2d6a4f;
+            /* Bordure verte */
         }
 
         /* Cartes grises (autres sections) */
-        #titreDetailsModal .form-group:nth-child(even) > div {
-            background-color: #f8f9fc; /* Gris clair pour les cartes grises */
-            border: 1px solid #d1d3e2; /* Bordure grise */
+        #titreDetailsModal .form-group:nth-child(even)>div {
+            background-color: #f8f9fc;
+            /* Gris clair pour les cartes grises */
+            border: 1px solid #d1d3e2;
+            /* Bordure grise */
         }
 
         /* Labels et valeurs */
         #titreDetailsModal .control-label {
             font-weight: bold;
-            color: #000000; /* Noir pour les labels */
+            color: #000000;
+            /* Noir pour les labels */
             font-size: 1rem;
             margin-bottom: 0.5rem;
         }
 
         #titreDetailsModal .text-gray-900,
         #titreDetailsModal .text-success {
-            color: #000000; /* Noir pour les valeurs */
+            color: #000000;
+            /* Noir pour les valeurs */
             font-size: 1rem;
             line-height: 1.5;
         }
 
         #titreDetailsModal .text-success {
-            color: #1cc88a; /* Vert pour les volumes */
+            color: #1cc88a;
+            /* Vert pour les volumes */
         }
 
         /* Grille responsive */
@@ -358,20 +386,23 @@
 
         @media (min-width: 768px) {
             #titreDetailsModal .modal-body .grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur desktop */
+                grid-template-columns: repeat(2, 1fr);
+                /* 2 colonnes sur desktop */
             }
         }
 
         /* Bouton "Fermer" */
         #titreDetailsModal .btn-primary {
-            background: linear-gradient(45deg, #4e73df 0%, #224abe 100%); /* Gradient violet */
+            background: linear-gradient(45deg, #4e73df 0%, #224abe 100%);
+            /* Gradient violet */
             border: none;
             padding: 0.75rem 1.5rem;
             font-size: 1rem;
         }
 
         #titreDetailsModal .btn-primary:hover {
-            background: linear-gradient(45deg, #3f5ed1 0%, #1a3aa0 100%); /* Violet plus sombre au survol */
+            background: linear-gradient(45deg, #3f5ed1 0%, #1a3aa0 100%);
+            /* Violet plus sombre au survol */
             box-shadow: 0 6px 12px rgba(78, 115, 223, 0.3);
             transform: translateY(-2px);
         }
@@ -386,11 +417,12 @@
                 opacity: 0;
                 transform: scale(0.95);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1);
             }
         }
     </style>
-    Expli
+
 </div>
