@@ -24,8 +24,11 @@ class ManageTitre extends Component
 
     public function delete($id)
     {
-        $titre = Titre::findOrFail($id);
+        $titre = Titre::findOrFail($id); // Récupérer le titre
+        //faire une suppression en cascade
+        $titre->transactions()->delete();
         $titre->delete();
+
         // $this->alert('success', 'Titre supprimé avec succès !');
 
         session()->flash('message', 'Titre supprimé avec succès!');

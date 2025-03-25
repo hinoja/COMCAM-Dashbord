@@ -27,10 +27,10 @@ class TitreController extends Controller
 
     public function create(Request $request)
     {
-        $zones = Zone::query()->get(['id','name']);
-        $formes = Forme::query()->get(['id','designation']);
-        $types = Type::query()->get('id','code');
-        $essences = Essence::query()->get(['id','nom_local']);
+        $zones = Zone::query()->get(['id', 'name']);
+        $formes = Forme::query()->get(['id', 'designation']);
+        $types = Type::query()->get('id', 'code');
+        $essences = Essence::query()->get(['id', 'nom_local']);
 
         return view('admin.titre.create', ['zones' => $zones, 'formes' => $formes, 'types' => $types, 'essences' => $essences]);
     }
@@ -76,10 +76,10 @@ class TitreController extends Controller
     {
         $titre = Titre::findOrFail($id);
         // Récupérer les données nécessaires pour le formulaire (zones, essences, formes, types, etc.)
-        $zones = Zone::query()->get(['id','name']);
-        $formes = Forme::query()->get(['id','designation']);
-        $types = Type::query()->get('id','code');
-        $essences = Essence::query()->get(['id','nom_local']);
+        $zones = Zone::query()->get(['id', 'name']);
+        $formes = Forme::query()->get(['id', 'designation']);
+        $types = Type::query()->get('id', 'code');
+        $essences = Essence::query()->get(['id', 'nom_local']);
 
 
         return view('admin.titre.edit', compact('titre', 'zones', 'essences', 'formes', 'types'));

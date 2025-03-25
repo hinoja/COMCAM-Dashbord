@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('subtitle') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
+    <title>@lang('Log in') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
 
     <!-- Favicon -->
     <link href="{{ asset('favicon.png') }}" rel="icon">
@@ -22,10 +22,11 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('back/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('back/css/components.css') }}">
- 
+
 </head>
 
 <body>
+
     <div id="app">
         <section class="section">
             <div class="container mt-5">

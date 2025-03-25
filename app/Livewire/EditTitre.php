@@ -12,7 +12,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class EditTitre extends Component
 {
-    use LivewireAlert;
+
 
     public $titreId;
     public $exercice;
@@ -65,7 +65,7 @@ class EditTitre extends Component
             'volume' => $data['volume'],
         ]);
 
-        $this->alert('success', 'Titre mis à jour avec succès !');
+        // $this->alert('success', 'Titre mis à jour avec succès !');
         return redirect()->route('admin.titre.index');
     }
 

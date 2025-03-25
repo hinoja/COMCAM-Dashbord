@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
 
     <title>@yield('subtitle') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
 
@@ -27,6 +28,7 @@
     <link rel="stylesheet" href="{{ asset('back/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('back/css/components.css') }}">
 
+    <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
 
     {{-- @livewireStyles --}}
 
@@ -99,7 +101,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     {{-- @livewireScripts --}}
-
+    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
+    {!! Toastr::message() !!}
     @stack('js')
 
     @notifyJs

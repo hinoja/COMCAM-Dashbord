@@ -163,20 +163,22 @@
                         <td class="p-3">{{ $titre->forme->designation ?? '-' }}</td>
                         <td class="p-3">{{ $titre->type->code ?? '-' }}</td>
                         <td class="p-3">{{ $titre->volume }}</td>
-                        <td class="p-3">{{ $titre->VolumeRestant ?? '-' }}</td>
+                        <td class="p-3 @if ($titre->VolumeRestant <= 0) text-danger @endif" >{{ $titre->VolumeRestant ?? '-' }}</td>
                         <td class="p-3">
                             <div class="btn-group" role="group">
-                                {{-- <button wire:click="showDetails({{ $titre->id }})" class="btn btn-sm btn-info mr-2"
+                                <button wire:click="showDetails({{ $titre->id }})" class="btn btn-sm btn-info mr-2"
                                     title="Voir les détails">
                                     <i class="fas fa-eye"></i>
-                                </button> --}}
+                                </button>
                                 <a href="{{ route('admin.titre.edit', $titre) }}"
                                     class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button wire:click="delete({{ $titre->id }})"
                                     class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                                    onclick="return confirm('Confirmer la suppression ?')">
+                                    {{-- inclure le message comme quoi cela supprimera toutes les transactions associées à ce titre --}}
+
+                                    onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -210,7 +212,7 @@
 
     <!-- Modale pour afficher les détails du titre -->
     @if ($selectedTitre)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+        <div class="modal fade fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
             wire:ignore.self>
             <div class="bg-white rounded-xl shadow-2xl w-11/12 md:w-1/2 p-6 transform transition-all duration-300 scale-100 animate-fadeIn"
                 role="dialog" aria-labelledby="modal-title">

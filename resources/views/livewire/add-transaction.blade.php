@@ -1,7 +1,33 @@
 <div>
     <form wire:submit.prevent="save" class="needs-validation">
+        <style>
+            /* Dans votre fichier CSS principal */
+            .modal-backdrop {
+                opacity: 0.5 !important;
+                background-color: #000;
+            }
+
+            .alert-success {
+                border-left: 4px solid #28a745;
+            }
+
+            .modal-header.bg-warning {
+                background-color: #ffc107;
+                color: #856404;
+            }
+        </style>
         @csrf
         <div class="card-body">
+            <!-- Alerte de succès -->
+            @if ($showSuccessAlert)
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Transaction enregistrée avec succès !
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
             <!-- Alertes d'erreur -->
             @if ($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -65,7 +91,7 @@
                         <div class="form-group">
                             <label class="font-weight-bold text-muted">
                                 <i class="fas fa-hashtag mr-1"></i>
-                                d
+                                Numero
                             </label>
                             <input wire:model="numero" type="number" placeholder="423"
                                 class="form-control @error('numero') is-invalid @enderror">
@@ -87,17 +113,31 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="font-weight-bold text-muted">
-                                <i class="fas fa-tag mr-1"></i>
-                                Titre
+                                <i class="fas fa-tree mr-1"></i>
+                                Essence
                             </label>
-                            <select wire:model="titre_id"
-                                class="form-control select2 @error('titre_id') is-invalid @enderror">
-                                <option value="">Sélectionner un titre</option>
-                                @foreach ($titres as $titre)
-                                    <option value="{{ $titre->id }}">{{ $titre->nom }}</option>
+                            <select wire:model="essence_id"
+                                class="form-control select2 @error('essence_id') is-invalid @enderror">
+                                <option value="">Sélectionner une essence</option>
+                                @foreach ($essences as $essence)
+                                    <option value="{{ $essence->id }}">{{ $essence->nom_local }}</option>
                                 @endforeach
                             </select>
-                            @error('titre_id')
+                            @error('essence_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold text-muted">
+                                <i class="fas fa-globe mr-1"></i>
+                                Pays
+                            </label>
+                            <input wire:model="pays" type="text" placeholder="Nigeria"
+                                class="form-control @error('pays') is-invalid @enderror">
+                            @error('pays')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -118,12 +158,17 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="font-weight-bold text-muted">
-                                <i class="fas fa-globe mr-1"></i>
-                                Pays
+                                <i class="fas fa-tag mr-1"></i>
+                                Titre
                             </label>
-                            <input wire:model="pays" type="text" placeholder="Nigeria"
-                                class="form-control @error('pays') is-invalid @enderror">
-                            @error('pays')
+                            <select wire:model="titre_id"
+                                class="form-control select2 @error('titre_id') is-invalid @enderror">
+                                <option value="">Sélectionner un titre</option>
+                                @foreach ($titres as $titre)
+                                    <option value="{{ $titre->id }}">{{ $titre->nom }}</option>
+                                @endforeach
+                            </select>
+                            @error('titre_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -192,7 +237,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    {{-- <div class="col-md-6">
                         <div class="form-group">
                             <label class="font-weight-bold text-muted">
                                 <i class="fas fa-tree mr-1"></i>
@@ -209,7 +254,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="row">
 
@@ -221,17 +266,11 @@
                                 <i class="fas fa-tag mr-1"></i>
                                 Type
                             </label>
-                            <select wire:model="type_id"
-                                class="form-control select2 @error('type_id') is-invalid @enderror"
-                                @if ($forme_id == 1) disabled @endif>
-                                @if ($forme_id == 1)
-                                    <option value="1" selected disabled>Non applicable</option>
-                                @else
-                                    <option value="" disabled selected>Sélectionner un type</option>
-                                    @foreach ($filteredTypes as $type)
-                                        <option value="{{ $type->id }}">{{ $type->code }}</option>
-                                    @endforeach
-                                @endif
+                            <select wire:model="type_id" class="form-control @error('type_id') is-invalid @enderror">
+                                <option value="">Sélectionner un type</option>
+                                @foreach ($filteredTypes as $type)
+                                    <option value="{{ $type->id }}">{{ $type->code }}</option>
+                                @endforeach
                             </select>
                             @error('type_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -257,43 +296,7 @@
                 {{-- </div> --}}
             </div>
 
-            <!-- Section: Synthèse des Informations -->
-            <div class="p-3 bg-light rounded-lg mb-4">
-                <h5 class="text-primary mb-3">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Synthèse des Informations
-                </h5>
-                <div class="row col-10">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="font-weight-bold text-muted">
-                                <i class="fas fa-hashtag mr-1"></i>
-                                Volume Restant(Débité)
-                            </label>
-                            <input wire:model="volumeRestant" type="number" readonly class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="font-weight-bold text-muted">
-                                <i class="fas fa-hashtag mr-1"></i>
-                                Volume Restant(Grume)
-                            </label>
-                            <input wire:model="volumeRestant" type="number" readonly class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="font-weight-bold text-muted">
-                                <i class="fas fa-hashtag mr-1"></i>
-                                Dépassement
-                            </label>
-                            <input wire:model="depassement" type="text" readonly class="form-control"
-                                style="background: red; color:white">
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <div class="card-footer border-top-0 text-right py-3">
@@ -303,4 +306,47 @@
             </button>
         </div>
     </form>
+
+    <!-- Modal de dépassement -->
+    @if ($showDepassementModal)
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Avertissement</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Attention ! Vous avez un dépassement de <strong>{{ $depassementValue }} m³</strong>.</p>
+                        @if ($volumeRestantGrume !== null)
+                            <p>Volume restant en Grume [initalement] : <strong>{{ number_format($volumeRestantGrume, 2) }}
+                                    m³</strong></p>
+                        @endif
+                        @if ($volumeRestantDebite !== null)
+                            <p>Volume restant en Débité (5N) [initalement] : <strong>{{ number_format($volumeRestantDebite, 2) }}
+                                    m³</strong></p>
+                        @endif
+                        <p>Voulez-vous vraiment continuer ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" style="background: gray" class="btn btn-secondary"
+                            wire:click="$set('showDepassementModal', false)">
+                            Annuler
+                        </button>
+                        <button type="button" style="background-color: #ffc107;" class="btn btn-warning"
+                            wire:click="confirmSaveWithDepassement">
+                            Confirmer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    @endif
 </div>
+@push('js')
+    <script>
+        $('.select2').on('change', function() {
+            @this.set($(this).attr('wire:model'), this.value);
+        });
+    </script>
+@endpush

@@ -16,6 +16,15 @@ class AddTransaction extends Component
 {
     // use LivewireAlert;
 
+    public $showSuccessAlert = false;
+    public $showDepassementModal = false;
+    public $depassementValue;
+
+    public $volumeRestantDebite;
+    public $volumeRestantGrume;
+
+    public $formeTitre; // Nouvelle propriété
+    public $volumeRestantTitre; // Nouvelle propriété
     // Propriétés du formulaire
     public $date = '';
     public $exercice = 2024;
@@ -23,6 +32,7 @@ class AddTransaction extends Component
     public $forme_id;
     public $type_id;
     public $titre_id = 1;
+    public $titres = [];
     public $essence_id = 1;
     public $conditionnemment_id = 1;
     public $societe_id = 1;
@@ -40,6 +50,14 @@ class AddTransaction extends Component
         $this->date = now()->format('Y-m-d');
         $this->updateFilteredTypes(); // Initialiser les types filtrés
     }
+    public function updatedEssenceId($value)
+    {
+        // Rafraîchir les titres lorsque l'essence change
+        $this->titres = Titre::where('essence_id', $value)
+            ->orderBy('nom')
+            ->get(['id', 'nom'])
+            ->unique('nom');
+    }
 
     /**
      * Règles de validation des champs
@@ -50,13 +68,32 @@ class AddTransaction extends Component
             'date' => ['required', 'date'],
             'exercice' => ['required', 'int', 'digits:4', 'min:2024'],
             'numero' => ['required', 'numeric', 'min:0'],
-            'titre_id' => ['required', 'int', 'exists:titres,id'],
+            'titre_id' => [
+                'required',
+                'int',
+                'exists:titres,id',
+                function ($attribute, $value, $fail) {
+                    $valid = Titre::where('id', $value)
+                        ->where('essence_id', $this->essence_id)
+                        ->exists();
+
+                    // if (!$valid) {
+                    //     $fail('Ce titre ne correspond pas à l\'essence sélectionnée.');
+                    // }
+                }
+            ],
             'type_id' => [
-                'required_if:forme_id,!=,1',
+                'required',
                 'exists:types,id',
                 function ($attribute, $value, $fail) {
+                    // For Grume (forme_id = 1)
+                    if ($this->forme_id == 1 && $value != 1) {
+                        $fail('Pour la forme Grume, seul le type Non Applicable est autorisé.');
+                    }
+
+                    // For Débité (forme_id = 2)
                     if ($this->forme_id == 2 && !in_array($value, [2, 3, 4, 5])) {
-                        $fail('Type invalide pour la forme Débité');
+                        $fail('Pour la forme Débité, seuls les types 2, 3, 4, 5 sont autorisés.');
                     }
                 }
             ],
@@ -91,15 +128,16 @@ class AddTransaction extends Component
      */
     private function updateFilteredTypes()
     {
-        if ($this->forme_id == 2) {
-            $this->filteredTypes = Type::whereIn('id', [1])->get(['id', 'code']);
-        }
-        elseif ($this->forme_id == 2) {
-            $this->filteredTypes = Type::whereIn('id', [2, 3, 4, 5])->get(['id', 'code']);
-        } else {
-            $this->filteredTypes = Type::all(['id', 'code']);
-        }
+        $this->filteredTypes = Type::query()
+            ->when($this->forme_id == 1, function ($query) {
+                return $query->where('id', 1);
+            })
+            ->when($this->forme_id == 2, function ($query) {
+                return $query->whereIn('id', [2, 3, 4, 5]);
+            })
+            ->get(['id', 'code']);
     }
+
     /**
      * Gestion de la soumission du formulaire
      */
@@ -107,10 +145,13 @@ class AddTransaction extends Component
     {
 
         $this->validate();
+        $titre = Titre::where('id', $this->titre_id)->where('essence_id', $this->essence_id)->first();
+
         $transaction = new Transaction($this->prepareTransactionData());
+        // dd($this->titre_id, $this->essence_id,$transaction );
 
         // Vérification de la cohérence titre/essence
-        if (!$titre = $this->getRelatedTitre($transaction)) {
+        if ($titre != $this->getRelatedTitre($transaction)) {
             $this->addError('titre_id', 'Combinaison titre/essence invalide');
             return;
         }
@@ -152,7 +193,7 @@ class AddTransaction extends Component
     /**
      * Récupère le titre associé avec vérification de l'essence
      */
-    private function getRelatedTitre(Transaction $transaction): ?Titre
+    private function getRelatedTitre(Transaction $transaction)
     {
         return Titre::where('nom', $transaction->titre->nom)
             ->where('essence_id', $transaction->essence_id)
@@ -253,15 +294,51 @@ class AddTransaction extends Component
     {
         return Forme::find($formeId)->designation . Type::find($typeId)->code;
     }
-
+    private function calculateVolumeRestantDebite(Titre $titre, Transaction $transaction): float
+    {
+        $volumeRestant = $this->getVolumeRestant($titre);
+        $conversionFactor = 2.5; // Ajustez selon vos règles
+        return ($volumeRestant / $conversionFactor) - $transaction->volume;
+    }
+    private function calculateVolumeRestantGrume(Titre $titre, Transaction $transaction): float
+    {
+        $volumeRestant = $this->getVolumeRestant($titre);
+        $conversionFactor = 0.4; // Ajustez selon vos règles
+        return ($volumeRestant * $conversionFactor) - $transaction->volume;
+    }
     /**
      * Gère l'alerte de dépassement
      */
+
     private function handleDepassementWarning(Transaction $transaction, float $depassement): void
     {
-        session()->flash('transaction_data', $transaction->toArray());
-        session()->flash('depassement', $depassement);
-        $this->dispatch('show-confirmation-modal');
+        $titre = Titre::find($this->titre_id);
+        $this->depassementValue = abs($depassement);
+
+        // Calcul du volume restant actuel (avant la transaction en cours)
+        $volumeRestantActuel = $this->getVolumeRestant($titre);
+
+        // Selon la forme du titre
+        if ($titre->forme_id == 1) { // Grume
+            $this->volumeRestantGrume = $volumeRestantActuel;
+            $this->volumeRestantDebite = $this->convertirGrumeEnDebite($volumeRestantActuel);
+        } else { // Débité
+            $this->volumeRestantDebite = $volumeRestantActuel;
+            $this->volumeRestantGrume = $this->convertirDebiteEnGrume($volumeRestantActuel);
+        }
+
+        $this->showDepassementModal = true;
+    }
+    private function convertirGrumeEnDebite(float $volumeGrume): float
+    {
+        // Exemple : coefficient de conversion de Grume à Débité (5N) = 0.4
+        return $volumeGrume * 0.4;
+    }
+
+    private function convertirDebiteEnGrume(float $volumeDebite): float
+    {
+        // Exemple : coefficient de conversion de Débité (5N) à Grume =2.5
+        return $volumeDebite * 2.5;
     }
 
     /**
@@ -272,7 +349,23 @@ class AddTransaction extends Component
         $transaction->save();
         $titre->update(['VolumeRestant' => $depassement]);
         $this->resetForm();
-        $this->alert('success', 'Transaction enregistrée avec succès !');
+        $this->showSuccessAlert = true; // Activer l'alerte de succès
+    }
+    // Ajouter cette méthode pour la confirmation
+    public function confirmSaveWithDepassement()
+    {
+        $this->validate(); // Re-valider les données
+
+        // Logique de sauvegarde avec dépassement
+        $transaction = new Transaction($this->prepareTransactionData());
+        $titre = Titre::find($this->titre_id);
+
+        $transaction->save();
+        $titre->update(['VolumeRestant' => -$this->depassementValue]);
+
+        $this->showDepassementModal = false;
+        $this->resetForm();
+        $this->showSuccessAlert = true;
     }
 
     /**
@@ -311,7 +404,12 @@ class AddTransaction extends Component
             'essences' => Essence::all(['id', 'nom_local']),
             'formes' => Forme::all(['id', 'designation']),
             'types' => Type::all(['id', 'code']),
-            'titres' => Titre::orderBy('nom')->get(['id', 'nom'])->unique('nom'),
+            'titres' =>  $this->essence_id ? Titre::where('essence_id', $this->essence_id)
+                ->orderBy('nom')
+                ->get(['id', 'nom'])
+                ->unique('nom')
+                : collect(),
+            // 'titres' => $this->titres,
             'conditionnements' => Conditionnemment::all(['id', 'code']),
             'societes' => Societe::all(['id', 'acronym']),
             'filteredTypes' => $this->filteredTypes, // Passer les types filtrés à la vue
