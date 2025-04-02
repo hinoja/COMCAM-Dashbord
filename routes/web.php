@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     });
     //Transactions
     Route::controller(TransactionController::class)->prefix('transaction')->name('admin.transaction')->group(function () {
+        Route::get('/', 'index')->name('.index');
         Route::get('/create', 'create')->name('.create');
         Route::post('/store', 'store')->name('.store');
         Route::post('/confirm', 'confirm')->name('.confirm');  // Modified confirm route

@@ -24,7 +24,7 @@
             </li>
 
             <li class="@if (Str::contains($currentUri, 'transaction')) active @endif">
-                <a class="nav-link" href="{{ route('admin.transaction.create') }}"><i class="fas fa-th"></i>
+                <a class="nav-link" href="{{ route('admin.transaction.index') }}"><i class="fas fa-th"></i>
                     <span>@lang('Transactions')</span></a>
             </li>
 
