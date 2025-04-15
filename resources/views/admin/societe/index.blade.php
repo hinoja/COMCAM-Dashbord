@@ -11,7 +11,7 @@
                     <i class="fas fa-building mr-2 text-gold"></i>Gestion des Sociétés
                 </h2>
                 <span class="badge badge-emerald px-3 py-2 shadow-sm">
-                    {{ __('Total: ') }} 301 sociétés
+                    {{ __('Total: ') }} ... sociétés
                 </span>
             </div>
 
@@ -38,7 +38,7 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-white border-top py-3 mt-auto">
-                                <button type="submit" class="btn btn-action-visible btn-lg btn-block">
+                                <button type="submit" style="background: rgb(69,132,103)" class="btn btn-action-visible btn-lg btn-block">
                                     <i class="fas fa-plus-circle mr-1"></i> Ajouter
                                 </button>
                             </div>
@@ -75,7 +75,7 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-white border-top py-3 mt-auto">
-                                <button type="submit" class="btn btn-action-visible btn-lg btn-block">
+                                <button type="submit" style="background:rgb(69,132,103)"  class="btn btn-action-visible btn-lg btn-block">
                                     <i class="fas fa-upload mr-1"></i> Importer
                                 </button>
                             </div>

@@ -19,9 +19,8 @@ class AddTransaction extends Component
     public $showSuccessAlert = false;
     public $showDepassementModal = false;
     public $depassementValue;
-
-    public $volumeRestantDebite;
     public $volumeRestantGrume;
+    public $volumeRestantDebite;
 
     public $formeTitre; // Nouvelle propriété
     public $volumeRestantTitre; // Nouvelle propriété
@@ -41,6 +40,8 @@ class AddTransaction extends Component
     public $volume = 0;
     public $depassement = false;
     public $filteredTypes = []; // Nouvelle propriété pour les types filtrés
+
+    protected $listeners = ['refreshComponent' => '$refresh'];
 
     /**
      * Initialisation du composant
@@ -328,6 +329,7 @@ class AddTransaction extends Component
         }
 
         $this->showDepassementModal = true;
+        $this->dispatch('showDepassementModal');
     }
     private function convertirGrumeEnDebite(float $volumeGrume): float
     {
@@ -354,18 +356,61 @@ class AddTransaction extends Component
     // Ajouter cette méthode pour la confirmation
     public function confirmSaveWithDepassement()
     {
-        $this->validate(); // Re-valider les données
+        try {
+            $this->validate();
 
-        // Logique de sauvegarde avec dépassement
-        $transaction = new Transaction($this->prepareTransactionData());
-        $titre = Titre::find($this->titre_id);
+            $transaction = new Transaction($this->prepareTransactionData());
+            $titre = Titre::find($this->titre_id);
 
-        $transaction->save();
-        $titre->update(['VolumeRestant' => -$this->depassementValue]);
+            $transaction->save();
+            $titre->update(['VolumeRestant' => -$this->depassementValue]);
 
+            $this->closeDepassementModal();
+            $this->resetForm();
+            $this->showSuccessAlert = true;
+
+            // Rafraîchir le composant
+            $this->dispatch('refreshComponent');
+
+        } catch (\Exception $e) {
+            $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Méthode pour fermer le modal
+     */
+    public function closeDepassementModal()
+    {
         $this->showDepassementModal = false;
-        $this->resetForm();
-        $this->showSuccessAlert = true;
+        $this->depassementValue = null;
+        $this->volumeRestantGrume = null;
+        $this->volumeRestantDebite = null;
+        $this->dispatch('hideDepassementModal');
+    }
+
+    public function showDepassementModal($depassement)
+    {
+        $this->depassementValue = abs($depassement);
+        $this->calculateVolumesRestants();
+        $this->showDepassementModal = true;
+        $this->dispatch('showDepassementModal');
+    }
+
+    private function calculateVolumesRestants()
+    {
+        $titre = Titre::find($this->titre_id);
+        if (!$titre) return;
+
+        $volumeRestantActuel = $this->getVolumeRestant($titre);
+
+        if ($titre->forme_id == 1) { // Grume
+            $this->volumeRestantGrume = $volumeRestantActuel;
+            $this->volumeRestantDebite = $this->convertirGrumeEnDebite($volumeRestantActuel);
+        } else { // Débité
+            $this->volumeRestantDebite = $volumeRestantActuel;
+            $this->volumeRestantGrume = $this->convertirDebiteEnGrume($volumeRestantActuel);
+        }
     }
 
     /**
@@ -416,3 +461,8 @@ class AddTransaction extends Component
         ]);
     }
 }
+
+
+
+
+

@@ -1184,7 +1184,7 @@ h6 .badge {
       padding-left: 10px; }
   .btn:not(.btn-social):not(.btn-social-icon):active, .btn:not(.btn-social):not(.btn-social-icon):focus, .btn:not(.btn-social):not(.btn-social-icon):hover {
     border-color: transparent !important;
-    background-color: white; }
+    }
   .btn > i {
     margin-left: 0 !important; }
   .btn.btn-lg {

@@ -61,13 +61,43 @@ class TitreController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv'
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240', // 10MB max
         ]);
-        Excel::import(
-            new TitreImport,
-            $request->file('file')->store('files')
-        );
-        notify()->success('Importation de la liste des titres réussie !'); // this is a package for notifications
+
+        try {
+            $import = new TitreImport();
+            Excel::import($import, $request->file('file')->store('files'));
+
+            // Check if the getResultStats method exists
+            if (method_exists($import, 'getResultStats')) {
+                $stats = [
+                    'success_count' => 0,
+                    'error_count' => 1
+                ];
+            } else {
+                // If the method doesn't exist, provide default values
+                $stats = [
+                    'success_count' => 0,
+                    'error_count' => 0
+                ];
+            }
+
+            $message = $stats['success_count'] . ' titres importés avec succès.';
+            if ($stats['error_count'] > 0) {
+                $message .= ' ' . $stats['error_count'] . ' erreurs rencontrées.';
+            }
+
+            notify()->success($message);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = collect($failures)->map(function ($failure) {
+                return "Ligne {$failure->row()}: {$failure->errors()[0]}";
+            })->join("\n");
+
+            notify()->error('Erreurs de validation dans le fichier: ' . $errors);
+        } catch (\Exception $e) {
+            notify()->error("Erreur lors de l'importation: " . $e->getMessage());
+        }
 
         return redirect()->back();
     }
@@ -112,3 +142,4 @@ class TitreController extends Controller
         return Excel::download(new TitreExport, 'titres_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
 }
+

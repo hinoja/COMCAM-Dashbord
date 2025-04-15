@@ -6,6 +6,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <title>@yield('subtitle') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
 
@@ -30,13 +31,13 @@
 
     <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
 
-    {{-- @livewireStyles --}}
+    @livewireStyles
 
     @stack('css')
     @notifyCss
 </head>
 
-<body>
+<body>""
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if (session('notify'))
@@ -56,9 +57,32 @@
             <!-- Main Content -->
             <div class="main-content">
                 <section class="section">
+                    <!-- Alertes Bootstrap pour les messages flash -->
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                        </div>
+                    @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if (session('message'))
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle me-2"></i> {{ session('message') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    <!-- Contenu principal -->
                     @yield('content')
                 </section>
             </div>
+
             <footer class="main-footer">
                 <div class="container">
                     <div class="footer-left"> Copyright © COMCAM {{ date('Y') }} </div>
@@ -100,7 +124,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    {{-- @livewireScripts --}}
+    @livewireScripts
     <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
     {!! Toastr::message() !!}
@@ -111,3 +135,5 @@
 </body>
 
 </html>
+
+

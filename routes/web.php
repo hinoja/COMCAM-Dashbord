@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UsersController;
 use App\Livewire\DashboardTitres;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TitreController;
@@ -18,11 +19,19 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // _____________________________ADMIN_______________________________________________________________________
+
 Route::middleware('auth')->group(function () {
+    Route::prefix('users')->name('admin.users.')->controller(UsersController::class)->group(function () {
+        Route::get('', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('', 'store')->name('store');
+        Route::patch('status/{user}', 'updateStatus')->name('status');
+    });
 
     Route::view('/admin/societes', 'admin.societe.index')->name('admin.societe.index');
     Route::post('/import/societe', [SocieteController::class, 'import'])->name('import.societe.post');

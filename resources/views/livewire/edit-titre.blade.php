@@ -1,24 +1,12 @@
 <div class="max-w-4xl mx-auto p-2 bg-white rounded-xl shadow-xl card hover:shadow-2xl transition-all duration-300">
-    <!-- Header avec logo et titre -->
-    <div class="flex items-center justify-between mb-6 border-b border-gray-200 pb-4 relative overflow-hidden group">
-        <div
-            class="flex items-center space-x-4 bg-gradient-primary p-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl">
-            <div class="flex items-center space-x-3">
-                <i
-                    class="fas fa-file-alt text-white text-3xl transform transition-transform duration-300 group-hover:scale-110"></i>
-                <h2
-                    class="ml-3 text-2xl font-bold text-white bg-clip-text bg-gradient-to-r from-white to-purple-200 transition-colors duration-300 group-hover:text-purple-300">
-                    Édition d'un Titre
-                </h2>
-            </div>
+    @if($hasTransactions)
+        <div class="alert alert-warning mb-4">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            Ce titre a des transactions associées. Certaines modifications sont restreintes.
+            <br>
+            Volume total des transactions : {{ number_format($totalTransactionVolume, 2) }} m³
         </div>
-        <div class="flex items-center space-x-2">
-            <button
-                class="p-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center">
-                <i class="fas fa-ellipsis-v"></i>
-            </button>
-        </div>
-    </div>
+    @endif
 
     <form wire:submit.prevent="update" class="space-y-6 fade-in" style="animation-delay: 0.2s;">
         @csrf
@@ -199,3 +187,4 @@
         </div>
     </form>
 </div>
+

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -21,25 +22,29 @@ class DatabaseSeeder extends Seeder
             ConditionnementSeeder::class,
             ExportateurSeeder::class,
             ZoneSeeder::class,
+            RoleSeeder::class,
         ]);
 
-        User::factory(10)->create();
-
+        if (!app()->environment('production')) {
+            User::factory(2)->create();
+        }
         User::factory()->create([
             'name' => 'Comcam',
             'email' => 'comcam@gmail.com',
-            'password'=>Hash::make("password")
+            'role_id' => 2,
+            'password' => Hash::make("password")
         ]);
         User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
-            'password'=>Hash::make("password")
+            'role_id' => 1,
+            'password' => Hash::make("p@ssword")
         ]);
         User::factory()->create([
             'name' => 'Delmas Lemoula',
             'email' => 'delmas.lemoula@yahoo.com',
-            'password'=>Hash::make("password")
+            'role_id' => 2,
+            'password' => Hash::make("password")
         ]);
-
     }
 }

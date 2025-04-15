@@ -1,4 +1,75 @@
 <div>
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+        }
+
+        .modal-custom {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1060;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header.bg-warning {
+            background-color: #ffc107;
+            color: #856404;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 1rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-confirm {
+            background-color: #ffc107;
+            color: #856404;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
+
     <form wire:submit.prevent="save" class="needs-validation">
         <style>
             /* Dans votre fichier CSS principal */
@@ -309,40 +380,62 @@
 
     <!-- Modal de dépassement -->
     @if ($showDepassementModal)
-        <div class="modal fade show d-block" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                        <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2"></i>Avertissement</h5>
-                    </div>
-                    <div class="modal-body">
-                        <p>Attention ! Vous avez un dépassement de <strong>{{ $depassementValue }} m³</strong>.</p>
+    <div class="modal-overlay">
+        <div class="modal-custom">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Avertissement
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <p class="alert alert-warning">
+                        <strong>Attention !</strong> La transaction que vous essayez d'enregistrer dépasse le volume disponible.
+                    </p>
+                    <p>Détails du dépassement :</p>
+                    <ul>
+                        <li>Volume en excès : <strong>{{ number_format($depassementValue, 2) }} m³</strong></li>
                         @if ($volumeRestantGrume !== null)
-                            <p>Volume restant en Grume [initalement] : <strong>{{ number_format($volumeRestantGrume, 2) }}
-                                    m³</strong></p>
+                            <li>Volume initial restant en Grume : <strong>{{ number_format($volumeRestantGrume, 2) }} m³</strong></li>
                         @endif
                         @if ($volumeRestantDebite !== null)
-                            <p>Volume restant en Débité (5N) [initalement] : <strong>{{ number_format($volumeRestantDebite, 2) }}
-                                    m³</strong></p>
+                            <li>Volume initial restant en Débité (5N) : <strong>{{ number_format($volumeRestantDebite, 2) }} m³</strong></li>
                         @endif
-                        <p>Voulez-vous vraiment continuer ?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" style="background: gray" class="btn btn-secondary"
-                            wire:click="$set('showDepassementModal', false)">
-                            Annuler
-                        </button>
-                        <button type="button" style="background-color: #ffc107;" class="btn btn-warning"
+                    </ul>
+                    <p class="font-weight-bold">Êtes-vous sûr de vouloir poursuivre cette opération malgré le dépassement ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn-cancel"
+                            wire:click="closeDepassementModal">
+                        Annuler
+                    </button>
+                    <button type="button"
+                            class="btn-confirm"
                             wire:click="confirmSaveWithDepassement">
-                            Confirmer
-                        </button>
-                    </div>
+                        Confirmer
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="modal-backdrop fade show"></div>
+    </div>
     @endif
 </div>
+@push('scripts')
+<script>
+document.addEventListener('livewire:load', function () {
+    Livewire.on('showDepassementModal', function () {
+        document.body.classList.add('modal-open');
+    });
+
+    Livewire.on('hideDepassementModal', function () {
+        document.body.classList.remove('modal-open');
+    });
+});
+</script>
+@endpush
+
 @push('js')
     <script>
         $('.select2').on('change', function() {
@@ -350,3 +443,5 @@
         });
     </script>
 @endpush
+
+

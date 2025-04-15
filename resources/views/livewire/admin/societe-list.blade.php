@@ -28,10 +28,10 @@
                                     <td>{{ $societe->acronym }}</td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <button wire:click="showEditForm({{ $societe }})" type="button"
+                                            <button style="background: blue" wire:click="showEditForm({{ $societe }})" type="button"
                                                 class="btn btn-sm btn-primary mr-1" data-toggle="tooltip"
                                                 title="Modifier"><i class="fas fa-edit"></i></button>
-                                            <button wire:click="showDeleteForm({{ $societe }})" type="button"
+                                            <button style="background: red" wire:click="showDeleteForm({{ $societe }})" type="button"
                                                 class="btn btn-sm btn-danger" data-toggle="tooltip" title="Supprimer"><i
                                                     class="fas fa-trash"></i></button>
                                         </div>

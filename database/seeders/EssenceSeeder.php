@@ -875,6 +875,8 @@ class EssenceSeeder extends Seeder
             ['nom_local' => 'Charbon', 'code' => 'XX'],
             ['nom_local' => 'Yohimbé', 'code' => 'XXX'],
             ['nom_local' => 'Voacanga', 'code' => 'XXXX'],
+            ['nom_local' => 'Limbali', 'code' => '1331'],
+            ['nom_local' => 'Sapelli ', 'code' => '1122'],
         ];
 
         foreach ($essences as $essence) {

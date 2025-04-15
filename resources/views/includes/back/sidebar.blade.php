@@ -18,10 +18,14 @@
                 <a class="nav-link" href="{{ route('dashboard.titres') }}"><i class="fas fa-home"></i>
                     <span>@lang('Dashboard')</span></a>
             </li>
-            <li class="@if (Str::contains($currentUri, 'users')) active @endif">
-                <a class="nav-link" href="#"><i class="fas fa-users"></i>
-                    <span>@lang('Users')</span></a>
-            </li>
+            @auth
+                {{-- @if (Auth::user()->role_id < 2) --}}
+                    <li class="@if (Str::contains($currentUri, 'users')) active @endif">
+                        <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
+                            <span>@lang('Users')</span></a>
+                    </li>
+                {{-- @endif --}}
+            @endauth
 
             <li class="@if (Str::contains($currentUri, 'transaction')) active @endif">
                 <a class="nav-link" href="{{ route('admin.transaction.index') }}"><i class="fas fa-th"></i>
@@ -35,6 +39,10 @@
             <li class="@if (Str::contains($currentUri, 'societe')) active @endif">
                 <a class="nav-link" href="{{ route('admin.societe.index') }}"><i class="fas fa-tags"></i>
                     <span>@lang('Societes')</span></a>
+            </li>
+            <li class="@if (Str::contains($currentUri, 'profile')) active @endif">
+                <a class="nav-link" href="{{ route('profile.edit') }}"><i class="fas fa-user"></i>
+                    <span>@lang('Profile')</span></a>
             </li>
 
 
