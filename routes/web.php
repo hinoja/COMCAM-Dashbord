@@ -7,6 +7,7 @@ use App\Http\Controllers\TitreController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocieteController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\EssenceController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -60,4 +61,20 @@ Route::middleware('auth')->group(function () {
     Route::view('/dashboard/titres', 'admin.dashboard')->name('dashboard.titres');
 });
 
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/essences', [EssenceController::class, 'index'])->name('essence.index');
+    Route::post('/essences', [EssenceController::class, 'store'])->name('essence.store');
+    Route::get('/essences/export', [EssenceController::class, 'export'])->name('essence.export');
+    Route::post('/essences/import', [EssenceController::class, 'import'])->name('essence.import');
+});
+
+// Supprimer ou commenter ce bloc car il crée une duplication
+// Route::middleware(['auth', 'admin'])->group(function () {
+//     Route::get('admin/essence/export', [EssenceController::class, 'export'])->name('admin.essence.export');
+//     Route::post('admin/essence/import', [EssenceController::class, 'import'])->name('admin.essence.import');
+// });
+
 require __DIR__ . '/auth.php';
+
+
+

@@ -36,6 +36,14 @@
                 <a class="nav-link" href="{{ route('admin.titre.index') }}"><i class="fas fa-layer-group"></i>
                     <span>@lang('Titres')</span></a>
             </li>
+            <li class="@if (Str::contains($currentUri, 'essence')) active @endif">
+                <a class="nav-link" href="{{ route('admin.essence.index') }}"><i class="fas fa-tree"></i>
+                    <span>@lang('Essences')</span></a>
+                    </li>
+
+
+
+
             <li class="@if (Str::contains($currentUri, 'societe')) active @endif">
                 <a class="nav-link" href="{{ route('admin.societe.index') }}"><i class="fas fa-tags"></i>
                     <span>@lang('Societes')</span></a>
