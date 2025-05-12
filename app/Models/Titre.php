@@ -12,7 +12,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Titre extends Model
 {
-    public $fillable = ['exercice', 'nom', 'localisation', 'zone_id', 'essence_id', 'forme_id', 'type_id', 'volume','VolumeRestant'];
+    public $fillable = ['exercice', 'nom', 'localisation', 'zone_id'];
+    // , 'volume','VolumeRestant'
     /** @use HasFactory<\Database\Factories\TitreFactory> */
     use HasFactory;
     public function zone()
@@ -21,16 +22,20 @@ class Titre extends Model
     }
     public function essence()
     {
-        return $this->belongsTo(Essence::class);
+        // return $this->belongsToMany(Essence::class,'titre_id','essence_id');
+        return $this->belongsToMany(Essence::class)
+        ->withPivot('volume', 'VolumeRestant')
+        ->withTimestamps();
     }
+
     public function forme()
     {
         return $this->belongsTo(Forme::class);
     }
-    public function type()
-    {
-        return $this->belongsTo(Type::class);
-    }
+    // public function type()
+    // {
+    //     return $this->belongsTo(Type::class);
+    // }
 
     public function transactions()
     {
