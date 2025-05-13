@@ -70,7 +70,7 @@
         }
     </style>
 
-    <form wire:submit.prevent="save" class="needs-validation">
+    <form wire:submit.prevent="update" class="needs-validation">
         <style>
             /* Dans votre fichier CSS principal */
             .modal-backdrop {
@@ -93,7 +93,7 @@
             @if ($showSuccessAlert)
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle mr-2"></i>
-                    Transaction enregistrée avec succès !
+                    Transaction mise à jour avec succès !
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -136,8 +136,8 @@
                                 <option disabled value="">Sélectionner une année</option>
                                 @php
                                     $currentYear = date('Y');
-                                    $startYear = $currentYear - 0;
-                                    $endYear = $currentYear + 2;
+                                    $startYear = $currentYear - 5;
+                                    $endYear = $currentYear + 5;
                                 @endphp
                                 @for ($year = $startYear; $year <= $endYear; $year++)
                                     <option value="{{ $year }}">{{ $year }}</option>
@@ -311,27 +311,6 @@
                             @enderror
                         </div>
                     </div>
-                    {{-- <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold text-muted">
-                                <i class="fas fa-tree mr-1"></i>
-                                Essence
-                            </label>
-                            <select wire:model="essence_id"
-                                class="form-control select2 @error('essence_id') is-invalid @enderror">
-                                <option value="">Sélectionner une essence</option>
-                                @foreach ($essences as $essence)
-                                    <option value="{{ $essence->id }}">{{ $essence->nom_local }}</option>
-                                @endforeach
-                            </select>
-                            @error('essence_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div> --}}
-                </div>
-                <div class="row">
-
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -340,7 +319,8 @@
                                 <i class="fas fa-tag mr-1"></i>
                                 Type
                             </label>
-                            <select wire:model="type_id" class="form-control @error('type_id') is-invalid @enderror">
+                            <select wire:model="type_id" class="form-control @error('type_id') is-invalid @enderror"
+                                @if ($forme_id == 1) disabled @endif>
                                 <option value="">Sélectionner un type</option>
                                 @foreach ($filteredTypes as $type)
                                     <option value="{{ $type->id }}">{{ $type->code }}</option>
@@ -355,7 +335,7 @@
                         <div class="form-group mb-0">
                             <label class="font-weight-bold text-muted">
                                 <i class="fas fa-cubes mr-1"></i>
-                                Volume (m³/Kg)
+                                Volume (m³)
                             </label>
                             <input type="number" wire:model="volume" placeholder="500"
                                 class="form-control @error('volume') is-invalid @enderror" step="0.00001">
@@ -365,18 +345,16 @@
                         </div>
                     </div>
                 </div>
-                {{-- <div class="row"> --}}
-
-                {{-- </div> --}}
             </div>
-
-
         </div>
 
         <div class="card-footer border-top-0 text-right py-3">
-            <button type="submit" style="background: green" class="btn btn-primary btn-lg px-5">
+            <a href="{{ route('admin.transaction.index') }}" class="btn btn-secondary mr-2">
+                <i class="fas fa-times mr-1"></i> Annuler
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg px-5" style="background: green">
                 <i class="fas fa-save mr-2"></i>
-                Enregistrer
+                Mettre à jour
             </button>
         </div>
     </form>
@@ -394,22 +372,14 @@
                     </div>
                     <div class="modal-body">
                         <p class="alert alert-warning">
-                            <strong>Attention !</strong> La transaction que vous essayez d'enregistrer dépasse le volume
+                            <strong>Attention !</strong> La transaction que vous essayez de mettre à jour dépasse le volume
                             disponible.
                         </p>
                         <p>Détails du dépassement :</p>
                         <ul>
-                            <li>Volume en excès : <strong>{{ number_format($depassementValue, 2) }} m³</strong></li>
-                            @if ($volumeRestantGrume !== null)
-                                <li>Volume initial restant en Grume :
-                                    <strong>{{ number_format($volumeRestantGrume, 2) }} m³</strong>
-                                </li>
-                            @endif
-                            @if ($volumeRestantDebite !== null)
-                                <li>Volume initial restant en Débité (5N) :
-                                    <strong>{{ number_format($volumeRestantDebite, 2) }} m³</strong>
-                                </li>
-                            @endif
+                            <li>Volume en excès : <strong>{{ number_format($depassementValue, 2, ',', ' ') }} m³</strong></li>
+                            <li>Volume restant (Grume) : <strong>{{ number_format($volumeRestantGrume, 2, ',', ' ') }} m³</strong></li>
+                            <li>Volume restant (Débité) : <strong>{{ number_format($volumeRestantDebite, 2, ',', ' ') }} m³</strong></li>
                         </ul>
                         <p class="font-weight-bold">Êtes-vous sûr de vouloir poursuivre cette opération malgré le
                             dépassement ?</p>
@@ -427,6 +397,7 @@
         </div>
     @endif
 </div>
+
 @push('scripts')
     <script>
         document.addEventListener('livewire:load', function() {

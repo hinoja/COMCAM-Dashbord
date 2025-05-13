@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('essences', function (Blueprint $table) {
+        Schema::create('forme_essences', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_local');
-            $table->string('code')->unique();
-             $table->timestamps();
+            $table->timestamps();
+            $table->foreignId('forme_id')->constrained();
+            $table->foreignId('type_id')->constrained();
+            $table->foreignId('essence_id')->constrained();
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('essences');
+        Schema::dropIfExists('forme_essences');
     }
 };

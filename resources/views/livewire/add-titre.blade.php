@@ -16,6 +16,34 @@
         </div>
     </div>
 
+    <!-- Messages d'alerte -->
+    @if (session()->has('success'))
+        <div class="alert alert-success bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="alert alert-danger bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if (session()->has('warning'))
+        <div class="alert alert-warning bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded shadow-sm">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                <span>{{ session('warning') }}</span>
+            </div>
+        </div>
+    @endif
+
     <form form wire:submit.prevent="save" class="space-y-8 fade-in">
         @csrf
 
@@ -48,7 +76,7 @@
                     <select name="zone_id" wire:model="zone_id"
                         class="select-custom w-full p-3 border rounded-lg @error('zone_id') is-invalid @enderror"
                         required>
-                        <option value="" disabled selected>Sélectionner une zone</option>
+                        <option value="" disabled>Sélectionner une zone</option>
                         @foreach ($zones as $zone)
                             <option value="{{ $zone->id }}">{{ $zone->name }}</option>
                         @endforeach
@@ -138,17 +166,15 @@
                     <div class="col-md-3">
                         <label>Sélectionner un type</label>
                         <div class="relative">
-                            <select
-                                wire:model="details.{{ $index }}.type_id"
+                            <select wire:model="details.{{ $index }}.type_id"
                                 class="select-custom w-full p-3 border rounded-lg pr-8"
                                 wire:key="type-select-{{ $index }}-{{ $detail['forme_id'] }}"
-                                @if($detail['forme_id'] == 1) disabled @endif
-                            >
-                                @if($detail['forme_id'] == 1)
+                                @if ($detail['forme_id'] == 1) disabled @endif>
+                                @if ($detail['forme_id'] == 1)
                                     <option value="1" selected>Non applicable</option>
                                 @else
                                     <option value="" disabled selected>Sélectionner un type</option>
-                                    @if($detail['forme_id'] == 2)
+                                    @if ($detail['forme_id'] == 2)
                                         @foreach ($types->whereIn('id', [2, 3, 4, 5]) as $type)
                                             <option value="{{ $type->id }}">{{ $type->code }}</option>
                                         @endforeach

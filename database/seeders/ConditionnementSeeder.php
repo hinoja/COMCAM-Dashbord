@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 
-use App\Models\Conditionnement;
+
 use Illuminate\Database\Seeder;
 use App\Models\Conditionnemment;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 
 class ConditionnementSeeder extends Seeder
 {

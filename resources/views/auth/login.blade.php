@@ -40,7 +40,7 @@
 
                         <div class="card card-primary">
                             <div class="card-header">
-                                <h1 class="text-primary text-center ">@lang('Log in')</h1>
+                                <h1 class="text-primary text-center">@lang('Log in')</h1>
                             </div>
 
                             <div class="card-body">
@@ -54,7 +54,6 @@
                                         <x-text-input id="email" class="block mt-1 w-full" type="email"
                                             name="email" :value="old('email')" required autofocus
                                             autocomplete="username" />
-                                        {{-- <input id="email" type="email" class="form-control" name="email" tabindex="1" required autofocus> --}}
                                         @error('email')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -70,40 +69,43 @@
                                                         {{ __('Forgot your password?') }}
                                                     </a>
                                                 @endif
-
                                             </div>
                                         </div>
                                         <x-input-label for="password" :value="__('Password')" />
-                                        <x-text-input id="password" class=" " type="password" name="password"
-                                            required autocomplete="current-password" />
-
-
+                                        <div class="input-group">
+                                            <x-text-input id="password" class="form-control" type="password"
+                                                name="password" required autocomplete="current-password" />
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                    id="togglePassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                         @error('password')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <!-- Remember Me -->
-
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
                                             <label for="remember_me" class="inline-flex items-center">
                                                 <input id="remember_me" type="checkbox"
                                                     class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                                     name="remember">
-
                                                 <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-
+                                            </label>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                                            @lang('Submit')
+                                        <button type="submit" style="background: rgb(69,132,103); color:white"
+                                            class="btn btn-lg btn-block" tabindex="4">
+                                            @lang('Log in to get started')
                                         </button>
                                     </div>
                                 </form>
-
                             </div>
                         </div>
                         <div class="simple-footer">
@@ -114,7 +116,6 @@
             </div>
         </section>
     </div>
-
 
     <!-- General JS Scripts -->
     <script src="{{ asset('back/modules/popper.js') }}"></script>
@@ -129,9 +130,20 @@
     <script src="{{ asset('back/js/scripts.js') }}"></script>
     <script src="{{ asset('back/js/custom.js') }}"></script>
 
+    <!-- Password Visibility Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
 
-
-
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
 
 </body>
 

@@ -43,7 +43,15 @@ class ManageTransaction extends Component
 
     public function showDetails($id)
     {
-        $this->selectedTransaction = Transaction::with(['essence', 'forme', 'type', 'societe', 'titre'])->findOrFail($id);
+        $this->selectedTransaction = Transaction::with([
+            'essence' => function($query) {
+                $query->with(['formeEssence' => function($query) {
+                    $query->with(['forme', 'type']);
+                }]);
+            },
+            'societe',
+            'titre'
+        ])->findOrFail($id);
 
         $this->dispatch('showTransactionDetails'); // Émet l'événement pour JS
     }
@@ -56,7 +64,15 @@ class ManageTransaction extends Component
 
     public function render()
     {
-        $transactions = Transaction::with(['essence', 'forme', 'type', 'societe', 'titre'])
+        $transactions = Transaction::with([
+                'essence' => function($query) {
+                    $query->with(['formeEssence' => function($query) {
+                        $query->with(['forme', 'type']);
+                    }]);
+                },
+                'societe',
+                'titre'
+            ])
             ->when($this->search, function ($query) {
                 $query->where('destination', 'like', '%' . $this->search . '%')
                     ->orWhere('pays', 'like', '%' . $this->search . '%');
@@ -65,10 +81,14 @@ class ManageTransaction extends Component
                 $query->where('essence_id', $this->essenceFilter);
             })
             ->when($this->formeFilter, function ($query) {
-                $query->where('forme_id', $this->formeFilter);
+                $query->whereHas('essence.formeEssence', function ($query) {
+                    $query->where('forme_id', $this->formeFilter);
+                });
             })
             ->when($this->typeFilter, function ($query) {
-                $query->where('type_id', $this->typeFilter);
+                $query->whereHas('essence.formeEssence', function ($query) {
+                    $query->where('type_id', $this->typeFilter);
+                });
             })
             ->when($this->societeFilter, function ($query) {
                 $query->where('societe_id', $this->societeFilter);

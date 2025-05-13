@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionExport;
 use App\Models\Type;
 use App\Models\Zone;
 use App\Models\Forme;
@@ -14,7 +15,8 @@ use App\Models\Conditionnemment;
 use App\Imports\TransactionImport;
 use App\Http\Requests\TransactionRequest;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Maatwebsite\Excel\Jobs\ExportJob;
+use Illuminate\Support\Str;
 
 class TransactionController extends Controller
 {
@@ -23,7 +25,10 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        return view('admin.transactions.index');
+        $transactions = Transaction::with(['titre', 'essence', 'societe', 'conditionnemment'])
+            ->orderBy('date', 'desc')
+            ->paginate(10);
+        return view('admin.transactions.index', compact('transactions'));
     }
 
     /**
@@ -53,15 +58,34 @@ class TransactionController extends Controller
     public function importTransactions(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv'
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240', // 10MB max
         ]);
 
-        Excel::import(
-            new TransactionImport,
-            $request->file('file')->store('files')
-        );
+        try {
+            $import = new TransactionImport();
+            Excel::import($import, $request->file('file')->store('files'));
 
-        return redirect()->back()->with('success', 'Importation des transactions réussie !');
+            // Récupérer les statistiques d'importation
+            $stats = $import->getResultStats();
+
+            $message = $stats['success_count'] . ' transactions importées avec succès.';
+            if ($stats['error_count'] > 0) {
+                $message .= ' ' . $stats['error_count'] . ' erreurs rencontrées.';
+            }
+
+            notify()->success($message);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = collect($failures)->map(function ($failure) {
+                return "Ligne {$failure->row()}: {$failure->errors()[0]}";
+            })->join("\n");
+
+            notify()->error('Erreurs de validation dans le fichier: ' . $errors);
+        } catch (\Exception $e) {
+            notify()->error("Erreur lors de l'importation: " . $e->getMessage());
+        }
+
+        return redirect()->back();
     }
 
 
@@ -85,4 +109,62 @@ class TransactionController extends Controller
         notify()->success('Transaction enregistrée avec succès !');
         return redirect()->back();
     }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+
+        return view('admin.transactions.edit', [
+            'transaction' => $transaction
+        ]);
+    }
+
+
+    public function exportByTitre($titre_id)
+    {
+        $titre = Titre::findOrFail($titre_id);
+
+        $query = Transaction::query()
+            ->where('titre_id', $titre_id)
+            ->with([
+                'titre',
+                'essence' => function($query) {
+                    $query->with(['formeEssence' => function($query) {
+                        $query->with(['forme', 'type']);
+                    }]);
+                },
+                'societe',
+                'conditionnemment'
+            ]);
+
+        $filename = 'transactions_' . Str::slug($titre->nom) . '_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new TransactionExport($query), $filename);
+    }
+    // return Excel::download(new TransactionExport, 'transactionexport_' . date('Y-m-d_H-i-s') . '.xlsx');
+
+    public function exportAll()
+    {
+        $query = Transaction::query()
+            ->with([
+                'titre',
+                'essence' => function ($query) {
+                    $query->with(['formeEssence' => function ($query) {
+                        $query->with(['forme', 'type']);
+                    }]);
+                },
+                'societe',
+                'conditionnemment'
+            ]);
+
+        $filename = 'transactions_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new TransactionExport($query), $filename);
+    }
 }
+
+
+

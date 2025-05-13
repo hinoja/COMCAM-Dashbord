@@ -9,6 +9,7 @@ use App\Models\Essence;
 use App\Models\Societe;
 use Livewire\Component;
 use App\Models\Transaction;
+use App\Models\FormeEssence;
 use App\Models\Conditionnemment;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -54,7 +55,9 @@ class AddTransaction extends Component
     public function updatedEssenceId($value)
     {
         // Rafraîchir les titres lorsque l'essence change
-        $this->titres = Titre::where('essence_id', $value)
+        $this->titres = Titre::whereHas('essence', function ($query) use ($value) {
+            $query->where('essences.id', $value);
+        })
             ->orderBy('nom')
             ->get(['id', 'nom'])
             ->unique('nom');
@@ -75,7 +78,9 @@ class AddTransaction extends Component
                 'exists:titres,id',
                 function ($attribute, $value, $fail) {
                     $valid = Titre::where('id', $value)
-                        ->where('essence_id', $this->essence_id)
+                        ->whereHas('essence', function ($query) {
+                            $query->where('essences.id', $this->essence_id);
+                        })
                         ->exists();
 
                     // if (!$valid) {
@@ -144,18 +149,29 @@ class AddTransaction extends Component
      */
     public function save()
     {
-
         $this->validate();
-        $titre = Titre::where('id', $this->titre_id)->where('essence_id', $this->essence_id)->first();
+        $titre = Titre::where('id', $this->titre_id)
+            ->whereHas('essence', function ($query) {
+                $query->where('essences.id', $this->essence_id);
+            })
+            ->first();
 
+        // Créer la transaction sans forme_id et type_id
         $transaction = new Transaction($this->prepareTransactionData());
-        // dd($this->titre_id, $this->essence_id,$transaction );
+
+        // Stocker les valeurs de forme_id et type_id dans des propriétés temporaires
+        // pour les utiliser dans les calculs, mais ne pas les sauvegarder dans la base de données
+        $transaction->forme_id = $this->forme_id;
+        $transaction->type_id = $this->type_id;
 
         // Vérification de la cohérence titre/essence
         if ($titre != $this->getRelatedTitre($transaction)) {
             $this->addError('titre_id', 'Combinaison titre/essence invalide');
             return;
         }
+
+        // Mettre à jour ou créer l'entrée dans FormeEssence
+        $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
 
         // Calcul du dépassement
         $depassement = $this->calculateDepassement($transaction, $titre);
@@ -184,11 +200,34 @@ class AddTransaction extends Component
             'pays' => strtoupper($this->pays),
             'titre_id' => $this->titre_id,
             'essence_id' => $this->essence_id,
-            'forme_id' => $this->forme_id,
+            // 'forme_id' et 'type_id' ne sont pas présents dans la table transactions
             'conditionnemment_id' => $this->conditionnemment_id,
-            'type_id' => $this->type_id,
             'volume' => (float)$this->volume,
         ];
+    }
+
+    /**
+     * Crée ou met à jour l'entrée dans la table FormeEssence
+     */
+    private function updateFormeEssence(int $essenceId, int $formeId, int $typeId): void
+    {
+        // Vérifier si une entrée existe déjà
+        $formeEssence = FormeEssence::where('essence_id', $essenceId)->first();
+
+        if ($formeEssence) {
+            // Mettre à jour l'entrée existante
+            $formeEssence->update([
+                'forme_id' => $formeId,
+                'type_id' => $typeId
+            ]);
+        } else {
+            // Créer une nouvelle entrée
+            FormeEssence::create([
+                'essence_id' => $essenceId,
+                'forme_id' => $formeId,
+                'type_id' => $typeId
+            ]);
+        }
     }
 
     /**
@@ -197,7 +236,9 @@ class AddTransaction extends Component
     private function getRelatedTitre(Transaction $transaction)
     {
         return Titre::where('nom', $transaction->titre->nom)
-            ->where('essence_id', $transaction->essence_id)
+            ->whereHas('essence', function ($query) use ($transaction) {
+                $query->where('essences.id', $transaction->essence_id);
+            })
             ->first();
     }
 
@@ -231,7 +272,20 @@ class AddTransaction extends Component
     private function calculateDepassement(Transaction $transaction, Titre $titre): float
     {
         $volumeRestant = $this->getVolumeRestant($titre);
-        $formeTypeTitre = $this->getFormeType($titre->forme_id, $titre->type_id);
+
+        // Récupérer l'essence associée à la transaction
+        $essence = Essence::find($this->essence_id);
+
+        // Récupérer forme_id et type_id à partir de formeEssence si disponible
+        $formeId = null;
+        $typeId = null;
+
+        if ($essence && $essence->formeEssence) {
+            $formeId = $essence->formeEssence->forme_id;
+            $typeId = $essence->formeEssence->type_id;
+        }
+
+        $formeTypeTitre = $this->getFormeType($formeId, $typeId);
         $formeTypeTransaction = $this->getFormeType($transaction->forme_id, $transaction->type_id);
 
         // Cas 1 : Mêmes caractéristiques
@@ -281,19 +335,49 @@ class AddTransaction extends Component
      */
     private function getVolumeRestant(Titre $titre): float
     {
-        return Transaction::where('titre_id', $titre->id)
-            ->where('essence_id', $titre->essence_id)
-            ->exists()
-            ? $titre->VolumeRestant
-            : $titre->volume;
+        // Récupérer l'essence associée à la transaction en cours
+        $essence = Essence::find($this->essence_id);
+        if (!$essence) {
+            return 0.0; // Retourner 0 si l'essence n'est pas trouvée
+        }
+
+        // Récupérer l'entrée dans la table pivot pour ce titre et cette essence
+        $pivotEntry = $titre->essence()
+            ->where('essences.id', $this->essence_id)
+            ->first();
+
+        if (!$pivotEntry) {
+            return 0.0; // Retourner 0 si aucune entrée n'est trouvée
+        }
+
+        // Vérifier si des transactions existent pour ce titre et cette essence
+        $hasTransactions = Transaction::where('titre_id', $titre->id)
+            ->where('essence_id', $this->essence_id)
+            ->exists();
+
+        // Retourner le volume restant ou le volume initial
+        return $hasTransactions
+            ? (float)($pivotEntry->pivot->VolumeRestant ?? 0.0)
+            : (float)($pivotEntry->pivot->volume ?? 0.0);
     }
 
     /**
      * Génère la clé de type de forme (ex: Grume5N)
      */
-    private function getFormeType(int $formeId, int $typeId): string
+    private function getFormeType(?int $formeId, ?int $typeId): string
     {
-        return Forme::find($formeId)->designation . Type::find($typeId)->code;
+        if ($formeId === null || $typeId === null) {
+            return "Inconnu"; // Valeur par défaut si forme_id ou type_id est null
+        }
+
+        $forme = Forme::find($formeId);
+        $type = Type::find($typeId);
+
+        if (!$forme || !$type) {
+            return "Inconnu"; // Valeur par défaut si forme ou type n'est pas trouvé
+        }
+
+        return $forme->designation . ($type->code ?? '');
     }
     private function calculateVolumeRestantDebite(Titre $titre, Transaction $transaction): float
     {
@@ -319,8 +403,17 @@ class AddTransaction extends Component
         // Calcul du volume restant actuel (avant la transaction en cours)
         $volumeRestantActuel = $this->getVolumeRestant($titre);
 
-        // Selon la forme du titre
-        if ($titre->forme_id == 1) { // Grume
+        // Récupérer l'essence associée à la transaction
+        $essence = Essence::find($this->essence_id);
+
+        // Récupérer la forme depuis FormeEssence
+        $formeId = null;
+        if ($essence && $essence->formeEssence) {
+            $formeId = $essence->formeEssence->forme_id;
+        }
+
+        // Selon la forme de l'essence
+        if ($formeId == 1) { // Grume
             $this->volumeRestantGrume = $volumeRestantActuel;
             $this->volumeRestantDebite = $this->convertirGrumeEnDebite($volumeRestantActuel);
         } else { // Débité
@@ -329,7 +422,13 @@ class AddTransaction extends Component
         }
 
         $this->showDepassementModal = true;
-        $this->dispatch('showDepassementModal');
+
+        // Passer les données au modal via l'événement
+        $this->dispatch('showDepassementModal', [
+            'depassementValue' => $this->depassementValue,
+            'volumeRestantGrume' => $this->volumeRestantGrume,
+            'volumeRestantDebite' => $this->volumeRestantDebite
+        ]);
     }
     private function convertirGrumeEnDebite(float $volumeGrume): float
     {
@@ -348,8 +447,20 @@ class AddTransaction extends Component
      */
     private function finalizeTransaction(Transaction $transaction, Titre $titre, float $depassement): void
     {
+        // Sauvegarder la transaction
         $transaction->save();
-        $titre->update(['VolumeRestant' => $depassement]);
+
+        // Mettre à jour la table pivot essence_titre avec le nouveau volume restant
+        $pivotEntry = $titre->essence()
+            ->where('essences.id', $this->essence_id)
+            ->first();
+
+        if ($pivotEntry) {
+            $titre->essence()->updateExistingPivot($this->essence_id, [
+                'VolumeRestant' => $depassement
+            ]);
+        }
+
         $this->resetForm();
         $this->showSuccessAlert = true; // Activer l'alerte de succès
     }
@@ -359,11 +470,25 @@ class AddTransaction extends Component
         try {
             $this->validate();
 
+            // Créer la transaction sans forme_id et type_id
             $transaction = new Transaction($this->prepareTransactionData());
             $titre = Titre::find($this->titre_id);
 
+            // Mettre à jour ou créer l'entrée dans FormeEssence
+            $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
+
+            // Mettre à jour la table pivot essence_titre avec le nouveau volume restant
+            $pivotEntry = $titre->essence()
+                ->where('essences.id', $this->essence_id)
+                ->first();
+
+            if ($pivotEntry) {
+                $titre->essence()->updateExistingPivot($this->essence_id, [
+                    'VolumeRestant' => -$this->depassementValue
+                ]);
+            }
+
             $transaction->save();
-            $titre->update(['VolumeRestant' => -$this->depassementValue]);
 
             $this->closeDepassementModal();
             $this->resetForm();
@@ -371,7 +496,6 @@ class AddTransaction extends Component
 
             // Rafraîchir le composant
             $this->dispatch('refreshComponent');
-
         } catch (\Exception $e) {
             $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }
@@ -394,7 +518,13 @@ class AddTransaction extends Component
         $this->depassementValue = abs($depassement);
         $this->calculateVolumesRestants();
         $this->showDepassementModal = true;
-        $this->dispatch('showDepassementModal');
+
+        // Passer les données au modal via l'événement
+        $this->dispatch('showDepassementModal', [
+            'depassementValue' => $this->depassementValue,
+            'volumeRestantGrume' => $this->volumeRestantGrume,
+            'volumeRestantDebite' => $this->volumeRestantDebite
+        ]);
     }
 
     private function calculateVolumesRestants()
@@ -404,7 +534,16 @@ class AddTransaction extends Component
 
         $volumeRestantActuel = $this->getVolumeRestant($titre);
 
-        if ($titre->forme_id == 1) { // Grume
+        // Récupérer l'essence associée à la transaction
+        $essence = Essence::find($this->essence_id);
+
+        // Récupérer la forme depuis FormeEssence
+        $formeId = null;
+        if ($essence && $essence->formeEssence) {
+            $formeId = $essence->formeEssence->forme_id;
+        }
+
+        if ($formeId == 1) { // Grume
             $this->volumeRestantGrume = $volumeRestantActuel;
             $this->volumeRestantDebite = $this->convertirGrumeEnDebite($volumeRestantActuel);
         } else { // Débité
@@ -449,7 +588,9 @@ class AddTransaction extends Component
             'essences' => Essence::all(['id', 'nom_local']),
             'formes' => Forme::all(['id', 'designation']),
             'types' => Type::all(['id', 'code']),
-            'titres' =>  $this->essence_id ? Titre::where('essence_id', $this->essence_id)
+            'titres' =>  $this->essence_id ? Titre::whereHas('essence', function ($query) {
+                $query->where('essences.id', $this->essence_id);
+            })
                 ->orderBy('nom')
                 ->get(['id', 'nom'])
                 ->unique('nom')
@@ -461,8 +602,3 @@ class AddTransaction extends Component
         ]);
     }
 }
-
-
-
-
-

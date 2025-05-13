@@ -1,5 +1,5 @@
 <div>
-    @if(session()->has('success'))
+    @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -13,17 +13,16 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h4>{{ $isEditing ? "Modifier l'essence" : "Ajouter une essence" }}</h4>
+                    <h4> <i class="fas fa-plus"></i> {{ $isEditing ? "Modifier l'essence" : 'Ajouter une essence' }}
+                    </h4>
                 </div>
 
                 <form wire:submit.prevent="{{ $isEditing ? 'update' : 'save' }}">
                     <div class="card-body">
                         <div class="form-group">
                             <label for="code">Code <span class="text-danger">*</span></label>
-                            <input type="text"
-                                   class="form-control @error('code') is-invalid @enderror"
-                                   wire:model="code"
-                                   placeholder="Ex: SAP">
+                            <input type="text" class="form-control @error('code') is-invalid @enderror"
+                                wire:model="code" placeholder="Ex: SAP">
                             @error('code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -31,10 +30,8 @@
 
                         <div class="form-group">
                             <label for="nom_local">Nom Local <span class="text-danger">*</span></label>
-                            <input type="text"
-                                   class="form-control @error('nom_local') is-invalid @enderror"
-                                   wire:model="nom_local"
-                                   placeholder="Ex: Sapelli">
+                            <input type="text" class="form-control @error('nom_local') is-invalid @enderror"
+                                wire:model="nom_local" placeholder="Ex: Sapelli">
                             @error('nom_local')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -42,16 +39,18 @@
                     </div>
 
                     <div class="card-footer">
-                        @if($isEditing)
+                        @if ($isEditing)
                             <button type="button" class="btn btn-secondary" wire:click="cancel">
                                 <i class="fas fa-times mr-1"></i>Annuler
                             </button>
                         @endif
-                        <button type="submit" class="btn btn-primary float-right">
+                        <button style="background: rgb(69,132,103);" type="submit"
+                            class="btn btn-primary  float-right">
                             <i class="fas fa-save mr-1"></i>
                             {{ $isEditing ? 'Mettre à jour' : 'Enregistrer' }}
-                        </button>
+                        </button> <br>
                     </div>
+                    <br>
                 </form>
             </div>
 
@@ -71,14 +70,15 @@
                         @csrf
                         <div class="form-group mb-3">
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="file" name="file" accept=".xlsx,.xls,.csv">
+                                <input type="file" class="custom-file-input" id="file" name="file"
+                                    accept=".xlsx,.xls,.csv">
                                 <label class="custom-file-label" for="file">Choisir un fichier</label>
                             </div>
                             @error('file')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">
+                        <button type="submit" class="btn btn-primary btn-block" style="background:rgb(69,132,103);">
                             <i class="fas fa-upload mr-2"></i>Importer Excel
                         </button>
                     </form>
@@ -93,10 +93,8 @@
                     <h4>Liste des Essences</h4>
                     <div class="card-header-form">
                         <div class="input-group">
-                            <input type="text"
-                                   class="form-control"
-                                   placeholder="Rechercher..."
-                                   wire:model.live="search">
+                            <input type="text" class="form-control" placeholder="Rechercher..."
+                                wire:model.live="search">
                             <div class="input-group-btn">
                                 <button class="btn btn-primary"><i class="fas fa-search"></i></button>
                             </div>
@@ -123,11 +121,11 @@
                                         <td>{{ $essence->nom_local }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-primary"
-                                                    wire:click="edit({{ $essence->id }})">
+                                                wire:click="edit({{ $essence->id }})">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn btn-sm btn-danger"
-                                                    wire:click="confirmDelete({{ $essence->id }})">
+                                                wire:click="confirmDelete({{ $essence->id }})">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -148,6 +146,3 @@
         </div>
     </div>
 </div>
-
-
-

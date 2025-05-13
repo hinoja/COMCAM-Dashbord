@@ -32,7 +32,28 @@
     <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
 
     @livewireStyles
+    <style>
+        /* Styles pour les notifications */
+        .swal2-container {
+            z-index: 9999 !important;
+        }
 
+        .notyf {
+            z-index: 9998 !important;
+        }
+
+        .toast-container {
+            z-index: 9997 !important;
+        }
+
+        #notify {
+            z-index: 9996 !important;
+        }
+
+        .alert {
+            z-index: 9995 !important;
+        }
+    </style>
     @stack('css')
     @notifyCss
 </head>
@@ -43,10 +64,9 @@
     @if (session('notify'))
         @notify(session('notify'))
     @endif
-    @include('sweetalert::alert')
-    @include('notify::components.notify')
-    {{-- <x:notify-messages /> --}}
+
     <div id="app">
+
         <div class="main-wrapper main-wrapper-1">
             <div class="navbar-bg"></div>
 
@@ -57,22 +77,43 @@
             <!-- Main Content -->
             <div class="main-content">
                 <section class="section">
+                    <style>
+
+                    </style>
                     <!-- Alertes Bootstrap pour les messages flash -->
+
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                        <div class="notification alert-dismissible fade show mt-1 shadow-sm rounded-lg" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle me-2"></i>
+                                {{ session('success') }}
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
                         </div>
                     @endif
+
                     @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
+                        <div class="notification alert-danger alert-dismissible fade show mt-1 shadow-sm rounded-lg"
+                            role="alert">
+                            <div class="d-flex align-items-center">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                {{ session('error') }}
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"
                                 aria-label="Close"></button>
                         </div>
                     @endif
                     @if (session('message'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <i class="fas fa-info-circle me-2"></i> {{ session('message') }}
+                        <div class="notification alert-success alert-dismissible fade show mt-1 shadow-sm rounded-lg"
+                            role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle me-2"></i>
+                                {{ session('message') }}
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"
                                 aria-label="Close"></button>
                         </div>
@@ -111,7 +152,39 @@
     <script src="{{ asset('back/modules/nicescroll/jquery.nicescroll.min.js') }}"></script>
     <script src="{{ asset('back/modules/moment.min.js') }}"></script>
     <script src="{{ asset('back/js/stisla.js') }}"></script>
+    <script>
+        // Configuration globale de Toastr
+        toastr.options = {
+            positionClass: 'toast-top-right',
+            preventDuplicates: true,
+            closeButton: true,
+            progressBar: true,
+            timeOut: 5000,
+            extendedTimeOut: 2000,
+            zIndex: 9997
+        };
 
+        // Configuration de Notyf
+        const notyf = new Notyf({
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            types: [{
+                    type: 'success',
+                    className: 'notyf__toast--success',
+                    backgroundColor: '#28a745',
+                    icon: false
+                },
+                {
+                    type: 'error',
+                    className: 'notyf__toast--error',
+                    backgroundColor: '#dc3545',
+                    icon: false
+                }
+            ]
+        });
+    </script>
     <!-- Template JS File -->
     <script src="{{ asset('back/js/scripts.js') }}"></script>
     <script src="{{ asset('back/js/custom.js') }}"></script>
@@ -135,5 +208,3 @@
 </body>
 
 </html>
-
-

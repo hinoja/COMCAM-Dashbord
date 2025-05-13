@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('essences', function (Blueprint $table) {
+        Schema::create('essence_titre', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_local');
-            $table->string('code')->unique();
-             $table->timestamps();
+            $table->foreignId('titre_id')->constrained();
+            $table->foreignId('essence_id')->constrained();
+            $table->float('volume');
+            $table->float('VolumeRestant')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('essences');
+        Schema::dropIfExists('essence_titre');
     }
 };

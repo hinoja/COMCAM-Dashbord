@@ -36,7 +36,14 @@ class ManageTitre extends Component
     // Méthode pour afficher les détails d'un titre
     public function showDetails($id)
     {
-        $this->selectedTitre = Titre::with(['zone', 'essence', 'forme', 'type'])->findOrFail($id);
+        $this->selectedTitre = Titre::with([
+            'zone',
+            'essence' => function($query) {
+                $query->with(['formeEssence' => function($query) {
+                    $query->with(['forme', 'type']);
+                }]);
+            }
+        ])->findOrFail($id);
     }
 
     // Méthode pour fermer la modale
@@ -49,18 +56,31 @@ class ManageTitre extends Component
         // foreach ($essences ){
 
         // }
-        $titres = Titre::with(['zone', 'essence', 'forme', 'type'])
+        $titres = Titre::with([
+                'zone',
+                'essence' => function($query) {
+                    $query->with(['formeEssence' => function($query) {
+                        $query->with(['forme', 'type']);
+                    }]);
+                }
+            ])
             ->when($this->search, function ($query) {
                 $query->where('nom', 'like', '%' . $this->search . '%');
             })
             ->when($this->essenceFilter, function ($query) {
-                $query->where('essence_id', $this->essenceFilter);
+                $query->whereHas('essence', function ($query) {
+                    $query->where('essences.id', $this->essenceFilter);
+                });
             })
             ->when($this->formeFilter, function ($query) {
-                $query->where('forme_id', $this->formeFilter);
+                $query->whereHas('essence.formeEssence', function ($query) {
+                    $query->where('forme_id', $this->formeFilter);
+                });
             })
             ->when($this->typeFilter, function ($query) {
-                $query->where('type_id', $this->typeFilter);
+                $query->whereHas('essence.formeEssence', function ($query) {
+                    $query->where('type_id', $this->typeFilter);
+                });
             })
             ->paginate($this->perPage);
 

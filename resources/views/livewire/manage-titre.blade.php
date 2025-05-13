@@ -1,14 +1,7 @@
 <div class="card-body p-4">
     <!-- Messages -->
-    @if (session('message'))
-        <div class="alert alert-success alert-dismissible fade show mt-1 shadow-sm rounded-lg" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle me-2"></i>
-                {{ session('message') }}
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+
+
     <style>
         /* Reset et styles de base */
         * {
@@ -95,7 +88,7 @@
                 </select>
             </div>
         </div>
-        <div class="col-md col-6 mt-4">
+        <div class="col-md col-6">
             <div class="form-group">
                 <label class="form-label fw-bold mb-2">Forme</label>
                 <select wire:model.live="formeFilter" class="form-select">
@@ -106,9 +99,7 @@
                 </select>
             </div>
         </div>
-
-
-        <div class="col-md col-6 mt-4">
+        <div class="col-md col-6">
             <div class="form-group">
                 <label class="form-label fw-bold mb-2">Type</label>
                 <select wire:model.live="typeFilter" class="form-select">
@@ -119,7 +110,7 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-2 col-6 mt-4">
+        <div class="col-md-2 col-6">
             <div class="form-group">
                 <label class="form-label fw-bold mb-2">Par page</label>
                 <select wire:model.live="perPage" class="form-select">
@@ -134,9 +125,9 @@
 
     <!-- Tableau -->
     <div class="table-responsive shadow-sm rounded-lg bg-white">
-        <table class="table table-hover table-striped align-middle mb-0">
-            <thead class="bg-primary text-white">
-                <tr class="text-xs text-white font-semibold text-gray-600 uppercase tracking-wider">
+        <table class="table table-hover table-striped table-bordered align-middle mb-0">
+            <thead class="bg-primary">
+                <tr class="text-xs text-white font-semibold uppercase tracking-wider">
                     <th style="color: white" class="p-3 text-nowrap">N°</th>
                     <th style="color: white" class="p-3 text-nowrap">Exercice</th>
                     <th style="color: white" class="p-3 text-nowrap">Nom</th>
@@ -145,47 +136,99 @@
                     <th style="color: white" class="p-3 text-nowrap">Essence</th>
                     <th style="color: white" class="p-3 text-nowrap">Forme</th>
                     <th style="color: white" class="p-3 text-nowrap">Type</th>
-                    <th style="color: white" class="p-3 text-nowrap">Volume</th>
-                    <th style="color: white" class="p-3 text-nowrap">Volume Rest.</th>
+                    <th style="color: white" class="p-3 text-nowrap">Volume (m³)</th>
+                    <th style="color: white" class="p-3 text-nowrap">Volume Restant (m³)</th>
                     <th style="color: white" class="pe-4 py-3 align-middle text-end">Actions</th>
                 </tr>
             </thead>
 
             <tbody>
                 @forelse($titres as $titre)
-                    <tr class="transition-all hover:bg-gray-50">
-                        <td class="p-3">{{ $loop->iteration }}</td>
-                        <td class="p-3">{{ $titre->exercice }}</td>
-                        <td class="p-3">{{ $titre->nom }}</td>
-                        <td class="p-3">{{ $titre->localisation }}</td>
-                        <td class="p-3">{{ $titre->zone->name ?? '-' }}</td>
-                        <td class="p-3">{{ $titre->essence->nom_local ?? '-' }}</td>
-                        <td class="p-3">{{ $titre->forme->designation ?? '-' }}</td>
-                        <td class="p-3">{{ $titre->type->code ?? '-' }}</td>
-                        <td class="p-3">{{ $titre->volume }}</td>
-                        <td class="p-3 @if ($titre->VolumeRestant <= 0) text-danger @endif" >{{ $titre->VolumeRestant ?? '-' }}</td>
-                        <td class="p-3">
-                            <div class="btn-group" role="group">
-                                <button wire:click="showDetails({{ $titre->id }})" class="btn btn-sm btn-info mr-2"
-                                    title="Voir les détails">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <a href="{{ route('admin.titre.edit', $titre) }}"
-                                    class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button wire:click="delete({{ $titre->id }})"
-                                    class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                     
-                                    onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    @php
+                        $essenceCount = $titre->essence->count();
+                        $rowspan = $essenceCount > 0 ? $essenceCount : 1;
+                    @endphp
+
+                    @if ($essenceCount > 0)
+                        @foreach ($titre->essence as $index => $essence)
+                            <tr
+                                class="transition-all hover:bg-gray-50 @if ($index % 2 == 1) bg-light @endif">
+                                @if ($index === 0)
+                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $loop->parent->iteration }}</td>
+                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->exercice }}</td>
+                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->nom }}</td>
+                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->localisation }}</td>
+                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->zone->name ?? '-' }}
+                                    </td>
+                                @endif
+                                <td class="p-3">{{ $essence->nom_local }}</td>
+                                <td class="p-3">{{ $essence->formeEssence->forme->designation ?? '-' }}</td>
+                                <td class="p-3">{{ $essence->formeEssence->type->code ?? '-' }}</td>
+                                <td class="p-3">{{ number_format($essence->pivot->volume, 3) }}</td>
+                                <td class="p-3">
+                                    @php
+                                        $volumeRestant = $essence->pivot->VolumeRestant;
+                                    @endphp
+                                    <span
+                                        class="@if ($volumeRestant <= 0) text-danger font-weight-bold @elseif ($volumeRestant < 10) text-warning font-weight-bold @else text-success @endif">
+                                        {{ number_format($volumeRestant, 3) }}
+                                    </span>
+                                </td>
+                                @if ($index === 0)
+                                    <td class="p-3" rowspan="{{ $rowspan }}">
+                                        <div class="btn-group" role="group">
+                                            {{-- <button wire:click="showDetails({{ $titre->id }})"
+                                                class="btn btn-sm btn-info mr-2" title="Voir les détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button> --}}
+                                            <a href="{{ route('admin.titre.edit', $titre) }}"
+                                                class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button wire:click="delete({{ $titre->id }})"
+                                                class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
+                                                onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr class="transition-all hover:bg-gray-50">
+                            <td class="p-3">{{ $loop->iteration }}</td>
+                            <td class="p-3">{{ $titre->exercice }}</td>
+                            <td class="p-3">{{ $titre->nom }}</td>
+                            <td class="p-3">{{ $titre->localisation }}</td>
+                            <td class="p-3">{{ $titre->zone->name ?? '-' }}</td>
+                            <td class="p-3">-</td>
+                            <td class="p-3">-</td>
+                            <td class="p-3">-</td>
+                            <td class="p-3">-</td>
+                            <td class="p-3">-</td>
+                            <td class="p-3">
+                                <div class="btn-group" role="group">
+                                    <button wire:click="showDetails({{ $titre->id }})"
+                                        class="btn btn-sm btn-info mr-2" title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ route('admin.titre.edit', $titre) }}"
+                                        class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button wire:click="delete({{ $titre->id }})"
+                                        class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
+                                        onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 @empty
                     <tr>
-                        <td colspan="10" class="text-center py-5">
+                        <td colspan="11" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fas fa-search fa-2x mb-3 opacity-75"></i>
                                 <p class="fs-5">Aucun titre trouvé avec ces critères</p>
@@ -246,28 +289,56 @@
                             <label class="font-medium text-gray-700">Zone :</label>
                             <p class="text-gray-900 mt-1">{{ $selectedTitre->zone->name ?? '-' }}</p>
                         </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Essence :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->essence->nom_local ?? '-' }}</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Forme :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->forme->designation ?? '-' }}</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Type :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->type->code ?? '-' }}</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Volume :</label>
-                            <p class="text-success mt-1">
-                                {{ number_format((float) $selectedTitre->volume, 2, ',', ' ') }} m³</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Volume Restant :</label>
-                            <p class="text-success mt-1">
-                                {{ $selectedTitre->VolumeRestant ? number_format((float) $selectedTitre->VolumeRestant, 2, ',', ' ') . ' m³' : '-' }}
-                            </p>
+                    </div>
+
+                    <!-- Tableau des essences -->
+                    <div class="mt-6">
+                        <h4 class="text-lg font-semibold mb-3">Essences associées</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-gray-300 rounded-lg">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="border border-gray-300 p-2 text-left">Essence</th>
+                                        <th class="border border-gray-300 p-2 text-left">Volume</th>
+                                        <th class="border border-gray-300 p-2 text-left">Volume Restant</th>
+                                        <th class="border border-gray-300 p-2 text-left">Forme</th>
+                                        <th class="border border-gray-300 p-2 text-left">Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($selectedTitre->essence as $essence)
+                                        <tr>
+                                            <td class="border border-gray-300 p-2">{{ $essence->nom_local }}</td>
+                                            <td class="border border-gray-300 p-2">
+                                                {{ number_format($essence->pivot->volume, 2, ',', ' ') }} m³</td>
+                                            <td
+                                                class="border border-gray-300 p-2 @if ($essence->pivot->VolumeRestant <= 0) text-danger @endif">
+                                                {{ number_format($essence->pivot->VolumeRestant, 2, ',', ' ') }} m³
+                                            </td>
+                                            <td class="border border-gray-300 p-2">
+                                                {{ $essence->formeEssence->forme->designation ?? '-' }}</td>
+                                            <td class="border border-gray-300 p-2">
+                                                {{ $essence->formeEssence->type->code ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="border border-gray-300 p-2 text-center">Aucune
+                                                essence associée</td>
+                                        </tr>
+                                    @endforelse
+                                    <tr class="bg-gray-100 font-semibold">
+                                        <td class="border border-gray-300 p-2">Total</td>
+                                        <td class="border border-gray-300 p-2">
+                                            {{ number_format($selectedTitre->essence->sum('pivot.volume'), 2, ',', ' ') }}
+                                            m³</td>
+                                        <td class="border border-gray-300 p-2">
+                                            {{ number_format($selectedTitre->essence->sum('pivot.VolumeRestant'), 2, ',', ' ') }}
+                                            m³</td>
+                                        <td class="border border-gray-300 p-2">-</td>
+                                        <td class="border border-gray-300 p-2">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

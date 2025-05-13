@@ -6,60 +6,46 @@ use Illuminate\Http\Request;
 use App\Models\Titre;
 use App\Models\Essence;
 use App\Models\Societe;
-use Livewire\Component;
 use App\Models\Transaction;
-use App\Models\Conditionnement;
 use App\Models\Conditionnemment;
 
 class DashboarddController extends Controller
 {
-    public function loadData()
+    public function loadData(Request $request)
     {
-        public $year = 2023;
-        public $monthlyVolumes = [];
-        public $totalVolume = 0;
-        public $titresCount = 0;
-        public $essencesCount = 0;
-        public $destinationsCount = 0;
-        public $exportateursCount = 0;
-        public $portsCount = 0;
-        public $paysCount = 0;
-        public $topEssences = [];
-        public $topExportateurs = [];
-        public $topDestinations = [];
-        public $conditionnementDistribution = [];
-        
+        $year = $request->input('year', date('Y'));
+
         // Filtrer les transactions pour l'année spécifiée
-        $transactions = Transaction::whereYear('date', $this->year)->get();
+        $transactions = Transaction::whereYear('date', $year)->get();
 
         // Volume total exporté
-        $this->totalVolume = $transactions->sum('volume');
+        $totalVolume = $transactions->sum('volume');
 
         // Volume mensuel (par mois)
-        $this->monthlyVolumes = $transactions->groupBy(function ($transaction) {
+        $monthlyVolumes = $transactions->groupBy(function ($transaction) {
             return $transaction->date->format('F'); // Nom du mois (ex. January)
         })->map->sum('volume')->toArray();
 
         // Nombre de titres
-        $this->titresCount = Titre::whereIn('id', $transactions->pluck('titre_id')->unique())->count();
+        $titresCount = Titre::whereIn('id', $transactions->pluck('titre_id')->unique())->count();
 
         // Nombre d'essences uniques
-        $this->essencesCount = Essence::whereIn('id', $transactions->pluck('essence_id')->unique())->count();
+        $essencesCount = Essence::whereIn('id', $transactions->pluck('essence_id')->unique())->count();
 
         // Nombre de destinations uniques
-        $this->destinationsCount = $transactions->pluck('destination')->unique()->count();
+        $destinationsCount = $transactions->pluck('destination')->unique()->count();
 
         // Nombre d'exportateurs (sociétés uniques)
-        $this->exportateursCount = Societe::whereIn('id', $transactions->pluck('societe_id')->unique())->count();
+        $exportateursCount = Societe::whereIn('id', $transactions->pluck('societe_id')->unique())->count();
 
         // Nombre de ports uniques (supposé dans `destination` ou un champ spécifique si disponible)
-        $this->portsCount = $transactions->pluck('destination')->unique()->count(); // À ajuster si un champ `port` existe
+        $portsCount = $transactions->pluck('destination')->unique()->count(); // À ajuster si un champ `port` existe
 
         // Nombre de pays uniques
-        $this->paysCount = $transactions->pluck('pays')->unique()->count();
+        $paysCount = $transactions->pluck('pays')->unique()->count();
 
         // Top 10 des essences (par volume)
-        $this->topEssences = $transactions
+        $topEssences = $transactions
             ->groupBy('essence_id')
             ->map->sum('volume')
             ->sortDesc()
@@ -69,7 +55,7 @@ class DashboarddController extends Controller
             })->toArray();
 
         // Top 10 des exportateurs (par volume)
-        $this->topExportateurs = $transactions
+        $topExportateurs = $transactions
             ->groupBy('societe_id')
             ->map->sum('volume')
             ->sortDesc()
@@ -79,7 +65,7 @@ class DashboarddController extends Controller
             })->toArray();
 
         // Top 10 des destinations (par volume)
-        $this->topDestinations = $transactions
+        $topDestinations = $transactions
             ->groupBy('destination')
             ->map->sum('volume')
             ->sortDesc()
@@ -87,12 +73,28 @@ class DashboarddController extends Controller
             ->toArray();
 
         // Répartition des conditionnements (par exemple, conteneur vs conventionnel)
-        $this->conditionnementDistribution = $transactions
+        $conditionnementDistribution = $transactions
             ->groupBy('conditionnemment_id')
             ->map->count()
             ->mapWithKeys(function ($count, $conditionnementId) {
                 $conditionnement = Conditionnemment::find($conditionnementId);
                 return [$conditionnement->designation ?? $conditionnement->code => $count];
             })->toArray();
+
+        return response()->json([
+            'year' => $year,
+            'totalVolume' => $totalVolume,
+            'monthlyVolumes' => $monthlyVolumes,
+            'titresCount' => $titresCount,
+            'essencesCount' => $essencesCount,
+            'destinationsCount' => $destinationsCount,
+            'exportateursCount' => $exportateursCount,
+            'portsCount' => $portsCount,
+            'paysCount' => $paysCount,
+            'topEssences' => $topEssences,
+            'topExportateurs' => $topExportateurs,
+            'topDestinations' => $topDestinations,
+            'conditionnementDistribution' => $conditionnementDistribution
+        ]);
     }
 }

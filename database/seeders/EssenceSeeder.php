@@ -877,9 +877,28 @@ class EssenceSeeder extends Seeder
             ['nom_local' => 'Voacanga', 'code' => 'XXXX'],
             ['nom_local' => 'Limbali', 'code' => '1331'],
             ['nom_local' => 'Sapelli ', 'code' => '1122'],
-        ];
+            ['nom_local' => 'Kosso', 'code' => '2000'],
+            ['nom_local' => 'Albizia d\'Asie', 'code' => '1951'],
+            ['nom_local' => 'Alchornea', 'code' => '3014'],
+            ['nom_local' => 'Anchomanes', 'code' => '3022'],
+            ['nom_local' => 'Ancistrophyllum', 'code' => '3219'],
+            ['nom_local' => 'Asparagus', 'code' => '3196'],
+            ['nom_local' => 'Aspilia', 'code' => '3021'],
+            ['nom_local' => 'Fagara', 'code' => '3145'],
+            ['nom_local' => 'Lophira', 'code' => '3100'],
+            ['nom_local' => 'Microglosa', 'code' => '3070'],
+            ['nom_local' => 'Mimosa', 'code' => '3147'],
+            ['nom_local' => 'Niangon', 'code' => '1211'],
+            ['nom_local' => 'Pygeum / Mueri', 'code' => '1734'],
+            ['nom_local' => 'Sarcophrenium', 'code' => '3172'],
+            ['nom_local' => 'Scleria1', 'code' => '3148'],
+            ['nom_local' => 'Scleria2', 'code' => '3150'],
+            ['nom_local' => 'Scoparia', 'code' => '3164'],
+            ['nom_local' => 'Seberodendron', 'code' => '3165'],
+            ['nom_local' => 'Toningia sp.', 'code' => '3149'],
 
-        foreach ($essences as $essence) {
+        ];
+              foreach ($essences as $essence) {
             Essence::create([
                 'nom_local' => $essence['nom_local'],
                 'code' => $essence['code'],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SocieteExport;
 use App\Models\Societe;
 use Illuminate\Http\Request;
 use App\Imports\SocieteImport;
@@ -10,13 +11,17 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SocieteController extends Controller
 {
+    public function index()
+    {
+        return view('admin.societe.index', ['total' => count(Societe::all())]);
+    }
     public function store(Request $request)
     {
         $request->validate([
             'acronym' => ['required', 'string', 'max:255']
         ]);
         $societe = new Societe([
-            'acronym' =>strtoupper($request->acronym)
+            'acronym' => strtoupper($request->acronym)
         ]);
         $societe->save();
         notify()->success('Ajout d\'une nouvelle société avec succès !'); // this is a package for notifications
@@ -35,8 +40,8 @@ class SocieteController extends Controller
 
         return redirect()->back();
     }
-    public function exportUsers(Request $request)
+    public function export(Request $request)
     {
-        return Excel::download(new SocieteImport, 'users.xlsx');
+        return Excel::download(new SocieteExport, 'societes.xlsx');
     }
 }

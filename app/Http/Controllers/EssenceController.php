@@ -53,4 +53,6 @@ class EssenceController extends Controller
 
         return redirect()->back();
     }
+ 
 }
+

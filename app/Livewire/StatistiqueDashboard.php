@@ -10,6 +10,9 @@ class StatistiqueDashboard extends Component
 {
     public $monthlyChartData;
     public $destinationsChartData;
+    public $essencesChartData;
+    public $exportateursChartData;
+    public $conditionnementChartData;
 
     public function mount()
     {
@@ -57,6 +60,72 @@ class StatistiqueDashboard extends Component
                 'categories' => $destinationsData->keys()->toArray()
             ]
         ];
+
+        // Données des essences
+        $essencesData = $transactions->groupBy('essence_id')
+            ->map(function($group) {
+                return $group->sum('volume');
+            })
+            ->sortDesc()
+            ->take(10);
+
+        $essenceNames = [];
+        foreach ($essencesData as $essenceId => $volume) {
+            $essence = $transactions->where('essence_id', $essenceId)->first()->essence ?? null;
+            $essenceNames[$essenceId] = $essence ? $essence->nom_local : 'Inconnu';
+        }
+
+        $this->essencesChartData = [
+            'series' => [[
+                'name' => 'Volume',
+                'data' => $essencesData->values()->toArray()
+            ]],
+            'xaxis' => [
+                'categories' => collect($essenceNames)->values()->toArray()
+            ]
+        ];
+
+        // Données des exportateurs
+        $exportateursData = $transactions->groupBy('societe_id')
+            ->map(function($group) {
+                return $group->sum('volume');
+            })
+            ->sortDesc()
+            ->take(10);
+
+        $exportateurNames = [];
+        foreach ($exportateursData as $societeId => $volume) {
+            $societe = $transactions->where('societe_id', $societeId)->first()->societe ?? null;
+            $exportateurNames[$societeId] = $societe ? ($societe->acronym ?? $societe->nom) : 'Inconnu';
+        }
+
+        $this->exportateursChartData = [
+            'series' => [[
+                'name' => 'Volume',
+                'data' => $exportateursData->values()->toArray()
+            ]],
+            'xaxis' => [
+                'categories' => collect($exportateurNames)->values()->toArray()
+            ]
+        ];
+
+        // Données des conditionnements
+        $conditionnementData = $transactions->groupBy('conditionnemment_id')
+            ->map(function($group) {
+                return $group->count();
+            })
+            ->sortDesc();
+
+        $conditionnementNames = [];
+        foreach ($conditionnementData as $conditionnementId => $count) {
+            $conditionnement = $transactions->where('conditionnemment_id', $conditionnementId)->first()->conditionnemment ?? null;
+            $conditionnementNames[$conditionnementId] = $conditionnement ? ($conditionnement->designation ?? $conditionnement->code) : 'Inconnu';
+        }
+
+        $this->conditionnementChartData = [
+            'series' => $conditionnementData->values()->toArray(),
+            'labels' => collect($conditionnementNames)->values()->toArray()
+        ];
     }
 
     public function render()
@@ -64,6 +133,3 @@ class StatistiqueDashboard extends Component
         return view('livewire.statistique-dashboard');
     }
 }
-
-
-

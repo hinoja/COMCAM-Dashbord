@@ -21,40 +21,43 @@
             <hr class="my-4">
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-10 col-12">
-                    <div class="card shadow">
+                    <div class="card shadow p-3">
                         <!-- Premier formulaire : Ajout d'un Nouveau Titre -->
                         @livewire('add-titre')
                     </div>
 
-                    <!-- Deuxième formulaire : Upload de fichier Excel -->
-                    <div class="card shadow mt-4 mb-5">
-                        <form method="POST" action="{{ route('import.titre.post') }}" enctype="multipart/form-data">
-                            @csrf
-                            <div class="card-header bg-white">
-                                <h4 class="card-title text-primary"><i class="fas fa-file-excel mr-2"></i>Importer depuis
-                                    Excel</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group mb-0">
-                                    <label for="file" class="font-weight-bold"><i class="fas fa-upload mr-1"></i>
-                                        Fichier Excel</label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input @error('file') is-invalid @enderror"
-                                            id="file" name="file" accept=".xlsx,.xls,.csv">
-                                        <label class="custom-file-label" for="file">Choisir un fichier</label>
-                                        @error('file')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                    @if (auth()->user() && auth()->user()->role_id === 1)
+                        <!-- Deuxième formulaire : Upload de fichier Excel -->
+                        <div class="card shadow mt-4 mb-5">
+                            <form method="POST" action="{{ route('import.titre.post') }}" enctype="multipart/form-data">
+                                @csrf
+                                <div class="card-header bg-white">
+                                    <h4 class="card-title text-primary"><i class="fas fa-file-excel mr-2"></i>Importer
+                                        depuis Excel</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group mb-0">
+                                        <label for="file" class="font-weight-bold"><i class="fas fa-upload mr-1"></i>
+                                            Fichier Excel</label>
+                                        <div class="custom-file">
+                                            <input type="file"
+                                                class="custom-file-input @error('file') is-invalid @enderror" id="file"
+                                                name="file" accept=".xlsx,.xls,.csv">
+                                            <label class="custom-file-label" for="file">Choisir un fichier</label>
+                                            @error('file')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card-footer bg-white text-right py-3">
-                                <button type="submit" class="btn px-4" style="color: white; background:green;">
-                                    <i class="fas fa-upload mr-1"></i> Importer
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                                <div class="card-footer bg-white text-right py-3">
+                                    <button type="submit" class="btn px-4" style="color: white; background:green;">
+                                        <i class="fas fa-upload mr-1"></i> Importer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

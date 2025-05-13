@@ -17,12 +17,12 @@ return new class extends Migration
             $table->string('nom');
             $table->string('localisation');
             $table->foreignId('zone_id')->constrained();
-            // $table->integer('code');
-            $table->foreignId('essence_id')->constrained();
-            $table->foreignId('forme_id')->constrained();
-            $table->foreignId('type_id')->constrained();
-            $table->float('volume');
-            $table->float('VolumeRestant')->nullable();
+
+            // $table->foreignId('essence_id')->constrained();
+            // $table->foreignId('forme_id')->constrained();
+            // $table->foreignId('type_id')->constrained();
+            // $table->float('volume');
+            // $table->float('VolumeRestant')->nullable();
             $table->timestamps();
         });
     }

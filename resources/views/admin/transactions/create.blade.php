@@ -40,35 +40,38 @@
                     </div>
 
                     <!-- Card Import Excel -->
-                    <div class="card shadow-lg rounded-lg border-0 mt-4">
-                        <div class="card-header bg-gradient-success text-white py-3">
-                            <h4 class="card-title mb-0">
-                                <i class="fas fa-file-excel mr-2"></i>
-                                Import Excel
-                            </h4>
-                        </div>
+                    @if (auth()->user()->role_id === 1)
+                        <div class="card shadow-lg rounded-lg border-0 mt-4">
+                            <div class="card-header bg-gradient-success text-white py-3">
+                                <h4 class="card-title mb-0">
+                                    <i class="fas fa-file-excel mr-2"></i>
+                                    Import Excel
+                                </h4>
+                            </div>
 
-                        <form method="POST" action="{{ route('admin.transaction.import') }}" enctype="multipart/form-data">
-                            @csrf
-                            <div class="card-body">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input @error('file') is-invalid @enderror"
-                                        id="file" name="file" accept=".xlsx,.xls,.csv">
-                                    <label class="custom-file-label" for="file">Choisir un fichier</label>
-                                    @error('file')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                            <form method="POST" action="{{ route('admin.transaction.import') }}"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <div class="card-body">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input @error('file') is-invalid @enderror"
+                                            id="file" name="file" accept=".xlsx,.xls,.csv">
+                                        <label class="custom-file-label" for="file">Choisir un fichier</label>
+                                        @error('file')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="card-footer  border-top-0 text-right py-3">
-                                <button type="submit" style="background:green; color:white" class="btn   btn-lg px-5">
-                                    <i class="fas fa-upload mr-2"></i>
-                                    Importer
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                                <div class="card-footer  border-top-0 text-right py-3">
+                                    <button type="submit" style="background:green; color:white" class="btn   btn-lg px-5">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Importer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

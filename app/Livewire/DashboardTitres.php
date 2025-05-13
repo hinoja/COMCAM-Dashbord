@@ -83,7 +83,9 @@ class DashboardTitres extends Component
             ->orderByDesc('total_volume')
             ->limit(10)
             ->get()
-            ->toArray();
+            ->mapWithKeys(function ($transaction) {
+                return [$transaction->destination => $transaction->total_volume];
+            })->toArray();
     }
 
     public function getConditionnementDistribution()
@@ -93,7 +95,7 @@ class DashboardTitres extends Component
             ->groupBy('conditionnemment_id')
             ->get()
             ->mapWithKeys(function ($transaction) {
-                $conditionnement = $transaction->conditionnement;
+                $conditionnement = $transaction->conditionnemment;
                 return [$conditionnement->designation ?? $conditionnement->code => $transaction->count];
             })->toArray();
     }

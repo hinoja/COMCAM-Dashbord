@@ -21,9 +21,9 @@ return new class extends Migration
             $table->string('pays');
             $table->foreignId('titre_id')->constrained();
             $table->foreignId('essence_id')->constrained();
-            $table->foreignId('forme_id')->constrained();
+            // $table->foreignId('forme_id')->constrained();
             $table->foreignId('conditionnemment_id')->constrained();
-            $table->foreignId('type_id')->constrained()->nullable();
+            // $table->foreignId('type_id')->constrained()->nullable();
             $table->float('volume');
             $table->timestamps();
         });

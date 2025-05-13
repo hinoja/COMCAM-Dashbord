@@ -1,0 +1,142 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Titre;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithProperties;
+
+class TitreExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithProperties
+{
+    /**
+     * @param Worksheet $sheet
+     * @return array
+     */
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            // Styler la première ligne (en-têtes)
+            1 => [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF']
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '2D6A4F']
+                ]
+            ],
+            'A1:J1' => [
+                'borders' => [
+                    'outline' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ]
+            ]
+        ];
+    }
+    
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function collection()
+    {
+        // Charger les titres avec leurs relations
+        $titres = Titre::with([
+            'zone',
+            'essence' => function($query) {
+                $query->with(['formeEssence' => function($query) {
+                    $query->with(['forme', 'type']);
+                }]);
+            }
+        ])->get();
+        
+        // Transformer les titres pour inclure les détails de chaque essence
+        $result = collect();
+        
+        foreach ($titres as $titre) {
+            foreach ($titre->essence as $essence) {
+                $result->push((object)[
+                    'id' => $titre->id,
+                    'exercice' => $titre->exercice,
+                    'nom' => $titre->nom,
+                    'localisation' => $titre->localisation,
+                    'zone' => $titre->zone,
+                    'essence' => $essence,
+                    'volume' => $essence->pivot->volume,
+                    'volumeRestant' => $essence->pivot->VolumeRestant,
+                ]);
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Définit les en-têtes des colonnes dans le fichier Excel
+     */
+    public function headings(): array
+    {
+        return [
+            'ID',
+            'Exercice',
+            'Nom',
+            'Localisation',
+            'Zone',
+            'Essence',
+            'Forme',
+            'Type',
+            'Volume (m³)',
+            'Volume Restant (m³)',
+        ];
+    }
+    
+    /**
+     * Mappe les données de chaque titre pour l'export
+     */
+    public function map($item): array
+    {
+        $forme = null;
+        $type = null;
+        
+        if ($item->essence->formeEssence) {
+            $forme = $item->essence->formeEssence->forme;
+            $type = $item->essence->formeEssence->type;
+        }
+        
+        return [
+            $item->id,
+            $item->exercice,
+            $item->nom,
+            $item->localisation,
+            $item->zone->name ?? 'N/A',
+            $item->essence->nom_local ?? 'N/A',
+            $forme ? $forme->designation : 'N/A',
+            $type ? $type->code : 'N/A',
+            number_format((float) $item->volume, 2, ',', ' '),
+            number_format((float) $item->volumeRestant, 2, ',', ' '),
+        ];
+    }
+    
+    /**
+     * @return array
+     */
+    public function properties(): array
+    {
+        return [
+            'creator'        => config('app.name'),
+            'title'          => 'Liste des Titres',
+            'description'    => 'Liste des titres forestiers avec leurs essences',
+            'subject'        => 'Titres',
+            'keywords'       => 'titres,foret,essence',
+            'category'       => 'Titres',
+            'company'        => config('app.name'),
+        ];
+    }
+}

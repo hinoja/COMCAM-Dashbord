@@ -46,10 +46,10 @@
                     </h2>
 
 
-                    <a class="badge badge-emerald px-3 py-2 shadow-sm" href="{{ route('admin.users.create') }}"
+                    <button class="badge badge-emerald px-3 py-2 shadow-sm" href="{{ route('admin.users.create') }}"
                         class="btn btn-add">
                         <i class="fas fa-user-plus mr-2"></i>@lang('Add User')
-                    </a>
+                    </button>
                 </div>
             </div>
             <div class="col-12">
@@ -64,6 +64,7 @@
                                         <th>@lang('Name')</th>
                                         <th>@lang('Email')</th>
                                         <th>@lang('Role')</th>
+                                        <th>@lang('Status')</th>
                                         <th>@lang('Action')</th>
                                     </tr>
                                 </thead>
@@ -73,51 +74,89 @@
                                             <td class="text-center">{{ $loop->iteration }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-sm mr-3">
-                                                        <i class="fas fa-user-circle"></i>
+                                                    <div class="avatar avatar-sm mr-3 bg-primary text-white rounded-circle">
+                                                        {{ strtoupper(substr($user->name, 0, 2)) }}
                                                     </div>
                                                     <div>
                                                         <h6 class="mb-0">{{ $user->name }}</h6>
-                                                        <small class="text-muted">@lang('Registered')
-                                                            {{ $user->created_at?->diffForHumans() ?? __('N/a') }}</small>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-clock mr-1"></i>
+                                                            Inscrit {{ $user->created_at?->diffForHumans() ?? 'N/A' }}
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td>{{ $user->email }}</td>
                                             <td>
-                                                <div class="d-flex flex-column">
-                                                    <a href="mailto:{{ $user->email }}" class="text-primary">
-                                                        <i class="fas fa-envelope mr-1"></i>{{ $user->email }}
-                                                    </a>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                {{ $user->role_id}}
-                                                <span class="badge badge-admin">
-                                                    <i class="fas fa-shield-alt"></i>
-                                                    {{-- {{ ucfirst($user->role->name) }} --}}
-                                                   {{ $user->role_id === 1 ? 'ADMIN' : 'EDITEUR'}}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                {{-- @if ( $user->role_id >= 1) --}}
-                                                    <div class="d-flex gap-2">
 
-                                                        <form method="POST"
-                                                            action="{{ route('admin.users.status', $user->id) }}">
+                                                @if ($user->role_id === 1)
+                                                    <span class="badge badge-danger">
+                                                        <i class="fas fa-shield-alt mr-1"></i>
+                                                        Administrateur
+                                                    </span>
+                                                @else
+                                                    <span class="badge badge-info">
+                                                        <i class="fas fa-user mr-1"></i>
+                                                        Utilisateur
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($user->is_active)
+                                                    <span class="badge badge-success">
+                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        Actif
+                                                    </span>
+                                                @else
+                                                    <span class="badge badge-danger">
+                                                        <i class="fas fa-ban mr-1"></i>
+                                                        Bloqué
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    @if ($user->id !== auth()->id())
+                                                        @if ($user->is_active)
+                                                            <form method="POST"
+                                                                action="{{ route('admin.users.status', $user->id) }}"
+                                                                class="mr-1">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="submit" class="btn btn-icon "
+                                                                    style="background: yellow;color:white""
+                                                                    data-toggle="tooltip" title="Bloquer l'utilisateur">
+                                                                    <i class="fas fa-lock"></i>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <form method="POST"
+                                                                action="{{ route('admin.users.status', $user->id) }}"
+                                                                class="mr-1">
+                                                                @csrf
+
+                                                                @method('PATCH')
+                                                                <button type="submit" class="btn btn-icon"
+                                                                    style="background: green;color:white"
+                                                                    data-toggle="tooltip" title="Débloquer l'utilisateur">
+                                                                    <i class="fas fa-lock-open"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+
+                                                        {{-- <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}"
+                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
                                                             @csrf
-                                                            @method('PATCH')
+                                                            @method('DELETE')
                                                             <button type="submit"
-                                                                class="btn btn-icon {{ $user->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}"
-                                                                data-toggle="tooltip"
-                                                                title="{{ $user->is_active ? __('Block User') : __('Unblock User') }}">
-                                                                <i
-                                                                 class="fas {{ $user->is_active ? 'fa-lock' : 'fa-lock-open' }}"></i>
+                                                                    class="btn btn-icon btn-danger"
+                                                                    data-toggle="tooltip"
+                                                                    title="Supprimer l'utilisateur">
+                                                                <i class="fas fa-trash"></i>
                                                             </button>
-
-                                                        </form>
-                                                        {{-- @endif --}}
-                                                    </div>
-                                                {{-- @endif --}}
+                                                        </form> --}}
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach

@@ -27,7 +27,7 @@
                             form.method = 'POST';
                             form.innerHTML = `
                             @csrf
-                            @method('DELETE')
+                            undefined
                         `;
                             document.body.appendChild(form);
                             form.submit();

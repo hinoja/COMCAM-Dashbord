@@ -11,7 +11,6 @@ use App\Exports\TitreExport;
 use App\Imports\TitreImport;
 use Illuminate\Http\Request;
 use App\Http\Requests\TitreRequest;
-use Brian2694\Toastr\Facades\Toastr;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TitreController extends Controller
@@ -53,7 +52,8 @@ class TitreController extends Controller
         ]);
         //mettre le texte saisie en majuscule dans la BD
         $titre->save();
-        notify()->success('Ajout d\'un nouveau Titre avec succès !'); // this is a package for notifications
+        session()->flash('success', 'Ajout d\'un nouveau Titre avec succès !');
+        // this is a package for notifications
         return redirect()->back();
     }
 
@@ -68,35 +68,24 @@ class TitreController extends Controller
             $import = new TitreImport();
             Excel::import($import, $request->file('file')->store('files'));
 
-            // Check if the getResultStats method exists
-            if (method_exists($import, 'getResultStats')) {
-                $stats = [
-                    'success_count' => 0,
-                    'error_count' => 1
-                ];
-            } else {
-                // If the method doesn't exist, provide default values
-                $stats = [
-                    'success_count' => 0,
-                    'error_count' => 0
-                ];
-            }
+            // Récupérer les statistiques d'importation
+            $stats = $import->getResultStats();
 
             $message = $stats['success_count'] . ' titres importés avec succès.';
             if ($stats['error_count'] > 0) {
                 $message .= ' ' . $stats['error_count'] . ' erreurs rencontrées.';
             }
 
-            notify()->success($message);
+            session()->flash('success', $message);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             $errors = collect($failures)->map(function ($failure) {
                 return "Ligne {$failure->row()}: {$failure->errors()[0]}";
             })->join("\n");
 
-            notify()->error('Erreurs de validation dans le fichier: ' . $errors);
+            session()->flash('error', 'Erreurs de validation dans le fichier: ' . $errors);
         } catch (\Exception $e) {
-            notify()->error("Erreur lors de l'importation: " . $e->getMessage());
+            session()->flash('error', "Erreur lors de l'importation: " . $e->getMessage());
         }
 
         return redirect()->back();
@@ -136,10 +125,13 @@ class TitreController extends Controller
 
 
 
-    // Cette méthode exporte la liste des titres au format Excel
+
+
+
+
+
     public function export()
     {
         return Excel::download(new TitreExport, 'titres_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
 }
-

@@ -7,14 +7,14 @@ use App\Models\Zone;
 use App\Models\Forme;
 use App\Models\Titre;
 use App\Models\Essence;
+use App\Models\FormeEssence;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 
 class AddTitre extends Component
 {
-    // use LivewireAlert;
+
     protected $paginationTheme = 'bootstrap';
 
     public $exercice;
@@ -116,6 +116,38 @@ class AddTitre extends Component
             ->values()
             ->toArray();
     }
+    /**
+     * Vérifie si une essence existe déjà pour un titre avec le même nom
+     *
+     * @param string $nom Nom du titre
+     * @param int $essenceId ID de l'essence
+     * @return array|null Retourne les informations du titre existant ou null
+     */
+    private function checkExistingEssence($nom, $essenceId)
+    {
+        // Rechercher un titre avec le même nom
+        $existingTitre = Titre::where('nom', strtoupper($nom))
+            ->whereHas('essence', function ($query) use ($essenceId) {
+                $query->where('essences.id', $essenceId);
+            })
+            ->with(['essence' => function ($query) use ($essenceId) {
+                $query->where('essences.id', $essenceId);
+            }])
+            ->first();
+
+        if ($existingTitre) {
+            $essence = Essence::find($essenceId);
+            return [
+                'titre' => $existingTitre->nom,
+                'essence' => $essence->nom_local,
+                'volume' => $existingTitre->essence->first()->pivot->volume,
+                'volumeRestant' => $existingTitre->essence->first()->pivot->VolumeRestant,
+            ];
+        }
+
+        return null;
+    }
+
     public function save()
     {
         // Ajouter cette validation avant la validation principale
@@ -124,10 +156,13 @@ class AddTitre extends Component
                 $this->addError("details.$index.type_id", 'Type invalide pour la forme Débité');
                 return;
             }
+
+            // Nous ne faisons plus de vérification ici car elle sera faite lors de l'enregistrement
         }
+
         // Ajout d'une validation de cohérence des données
         if (empty($this->details)) {
-            $this->alert('error', 'Ajoutez au moins une ressource avant enregistrement !');
+            session()->flash('error', 'Ajoutez au moins une ressource avant enregistrement !');
             return;
         }
 
@@ -136,7 +171,7 @@ class AddTitre extends Component
             ->duplicates(fn($item) => $item['essence_id'] . $item['forme_id'] . $item['type_id']);
 
         if ($uniqueCheck->isNotEmpty()) {
-            $this->alert('error', 'Des ressources en doublon ont été détectées !');
+            session()->flash('error', 'Des ressources en doublon ont été détectées !');
             return;
         }
         $validatedData = $this->validate([
@@ -169,41 +204,90 @@ class AddTitre extends Component
         DB::beginTransaction();
 
         try {
-            $titres = [];
+            // Créer d'abord le titre principal
+            $titre = Titre::create([
+                'exercice' => $validatedData['exercice'],
+                'nom' => strtoupper($validatedData['nom']),
+                'localisation' => strtoupper($validatedData['localisation']),
+                'zone_id' => $validatedData['zone_id'],
+            ]);
+
+
+            // Ensuite, créer les relations essence_titres pour chaque essence
+            $essencesSkipped = []; // Pour stocker les essences ignorées
+
             foreach ($validatedData['details'] as $detail) {
-                $titres[] = [
-                    'exercice' => $validatedData['exercice'],
-                    'nom' => strtoupper($validatedData['nom']),
-                    'localisation' => strtoupper($validatedData['localisation']),
-                    'zone_id' => $validatedData['zone_id'],
-                    'essence_id' => $detail['essence_id'],
-                    'forme_id' => $detail['forme_id'],
-                    'type_id' => $detail['type_id'],
+                // Vérifier si l'essence existe déjà pour un titre avec le même nom
+                $existingEssence = $this->checkExistingEssence($titre->nom, $detail['essence_id']);
+
+                if ($existingEssence) {
+                    // Ajouter à la liste des essences ignorées
+                    $essencesSkipped[] = $existingEssence['essence'];
+                    continue; // Passer à l'essence suivante sans l'enregistrer
+                }
+
+                // Mettre à jour ou créer l'entrée dans FormeEssence
+                $this->updateFormeEssence($detail['essence_id'], $detail['forme_id'], $detail['type_id']);
+
+                // Créer l'entrée dans la table pivot
+                $titre->essence()->attach($detail['essence_id'], [
                     'volume' => $detail['volume'],
+                    'VolumeRestant' => $detail['volume'], // Initialiser le volume restant
                     'created_at' => now(),
                     'updated_at' => now(),
-                ];
+                ]);
             }
 
-            Titre::insert($titres);
+            // Vérifier si toutes les essences ont été ignorées
+            $allEssencesSkipped = count($essencesSkipped) === count($validatedData['details']);
+
+            if ($allEssencesSkipped) {
+                // Si toutes les essences ont été ignorées, supprimer le titre créé
+                $titre->delete();
+                DB::commit();
+
+                $essencesList = implode(', ', $essencesSkipped);
+                session()->flash('error', "Aucune essence n'a été enregistrée car ce titre est déjà associé aux essences suivantes : $essencesList");
+                return;
+            }
+
+            // Si seulement certaines essences ont été ignorées, afficher un message d'avertissement
+            if (!empty($essencesSkipped)) {
+                $essencesList = implode(', ', $essencesSkipped);
+                session()->flash('warning', "Les essences suivantes n'ont pas été enregistrées car ce titre est déjà associé à ces essences : $essencesList");
+            }
 
             DB::commit();
-            // LivewireAlert::title('Success')->success()->text('Titre créé avec succès !') ->toast() ->show();
-
-            // $this->alert('success', 'Titre créé avec succès!', [
-            //     'position' => 'top-end',
-            //     'timer' => 3000,
-            //     'toast' => true,
-            // ]);
-            // toast('Titre créé avec succès!', 'success');
-             $this->resetForm();
+            $this->resetForm();
+            session()->flash('success', __('Titre créé avec succès!!'));
         } catch (\Exception $e) {
             DB::rollBack();
-            // LivewireAlert::title('Success')->error()->text("Erreur lors de l'enregistrement : " . $e->getMessage()) ->toast()->show();
-            //  $this->alert('error', "Erreur lors de l'enregistrement : " . $e->getMessage());
+            session()->flash('error', __("Erreur lors de l\'enregistrement : " . $e->getMessage()));
+        }
+    }
 
-            // toast("Erreur lors de l'enregistrement : " . $e->getMessage(), 'error');
-            }
+    /**
+     * Crée ou met à jour l'entrée dans la table FormeEssence
+     */
+    private function updateFormeEssence(int $essenceId, int $formeId, int $typeId): void
+    {
+        // Vérifier si une entrée existe déjà
+        $formeEssence = FormeEssence::where('essence_id', $essenceId)->first();
+
+        if ($formeEssence) {
+            // Mettre à jour l'entrée existante
+            $formeEssence->update([
+                'forme_id' => $formeId,
+                'type_id' => $typeId
+            ]);
+        } else {
+            // Créer une nouvelle entrée
+            FormeEssence::create([
+                'essence_id' => $essenceId,
+                'forme_id' => $formeId,
+                'type_id' => $typeId
+            ]);
+        }
     }
 
     private function resetForm()

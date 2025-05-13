@@ -13,17 +13,21 @@ class Forme extends Model
     /** @use HasFactory<\Database\Factories\FormeFactory> */
     use HasFactory;
     public $fillable = ['designation'];
-    public function titres()
-    {
-        return $this->hasMany(Titre::class);
-    }
+    // public function titres()
+    // {
+    //     return $this->hasMany(Titre::class);
+    // }
     public function types()
     {
         return $this->hasMany(Type::class);
     }
-
-    public function transactions()
+    public function essences()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->belongsToMany(Essence::class, 'essence_forme', 'forme_id', 'essence_id');
     }
+    // public function transactions()
+    // {
+    //     return $this->hasMany(Transaction::class);
+    // }
+
 }

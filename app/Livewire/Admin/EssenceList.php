@@ -14,7 +14,7 @@ class EssenceList extends Component
     protected $paginationTheme = 'bootstrap';
 
     public $search = '';
-    public $perPage = 10;
+    public $perPage = 8;
 
     // Variables pour le formulaire
     public $essence_id;
@@ -27,8 +27,12 @@ class EssenceList extends Component
     protected function rules()
     {
         return [
-            'code' => ['required', 'string', 'max:50',
-                Rule::unique('essences', 'code')->ignore($this->essence_id)],
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('essences', 'code')->ignore($this->essence_id)
+            ],
             'nom_local' => ['required', 'string', 'max:255'],
         ];
     }
@@ -100,9 +104,9 @@ class EssenceList extends Component
     public function render()
     {
         $essences = Essence::query()
-            ->when($this->search, function($query) {
+            ->when($this->search, function ($query) {
                 $query->where('code', 'like', '%' . $this->search . '%')
-                      ->orWhere('nom_local', 'like', '%' . $this->search . '%');
+                    ->orWhere('nom_local', 'like', '%' . $this->search . '%');
             })
             ->orderBy('nom_local')
             ->paginate($this->perPage);

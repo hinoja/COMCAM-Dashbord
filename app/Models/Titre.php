@@ -28,10 +28,10 @@ class Titre extends Model
         ->withTimestamps();
     }
 
-    public function forme()
-    {
-        return $this->belongsTo(Forme::class);
-    }
+    // public function forme()
+    // {
+    //     return $this->belongsTo(Forme::class);
+    // }
     // public function type()
     // {
     //     return $this->belongsTo(Type::class);
