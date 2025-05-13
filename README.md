@@ -1,103 +1,136 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="logo.jpg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <a href="https://laravel.com" target="_blank">
+    <img src="logo.jpg" width="400" alt="Laravel Logo">
+  </a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/laravel/framework/actions">
+    <img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status">
+  </a>
+  <a href="https://packagist.org/packages/laravel/framework">
+    <img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads">
+  </a>
+  <a href="https://packagist.org/packages/laravel/framework">
+    <img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version">
+  </a>
+  <a href="https://packagist.org/packages/laravel/framework">
+    <img src="https://img.shields.io/packagist/l/laravel/framework" alt="License">
+  </a>
+</p>
 
-# Proposition Technique pour la Modernisation de l'Application de Contrôle des Transactions Forestières
-## About Laravel
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# 🌳 Proposition Technique pour la Modernisation de l'Application de Contrôle des Transactions Forestières
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📝 Résumé du Projet
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Cette **application Laravel 11** vise à moderniser la gestion des transactions forestières. Le projet a pour objectifs :
 
+- ✅ Numériser et optimiser la gestion des transactions forestières  
+- 📊 Faciliter la prise de décision grâce à des outils de reporting visuels  
+- 📜 Assurer le respect de la réglementation forestière  
+- 🌲 Améliorer le suivi et la gestion des titres forestiers  
+- 🧾 Optimiser la production des rapports annuels  
+- 🔍 Renforcer la traçabilité des activités forestières  
 
+### ⚙️ Technologies et Outils
 
-## I. Contexte
+Le projet exploite les fonctionnalités modernes de Laravel :
 
-Le présent projet s’inscrit dans le cadre de l’amélioration et de la modernisation de la gestion des transactions journalières liées aux titres forestiers, dans le respect des réglementations en vigueur. La Délégation des Eaux et Forêts, via le service COMCAM, a constaté des besoins croissants pour une gestion numérique plus performante et une meilleure analyse statistique.
+- Laravel 11
+- Eloquent ORM
+- Laravel Excel (maatwebsite/excel)
+- Middleware & Validation avancée
+- Authentification Laravel Breeze ou Jetstream
+- Tâches planifiées et files d’attente
+- Notifications & gestion des erreurs
+- Visualisation des données (Charts.js, Laravel Charts)
 
-L'application existante, développée il y a plusieurs années, nécessite une mise à jour pour répondre aux nouveaux besoins et enjeux du secteur. Le projet vise principalement à automatiser la vérification des dépassements entre les enregistrements des transactions journalières effectuées par les particuliers et les volumes autorisés dans les titres délivrés par l'État. Cette modernisation permettra un meilleur suivi des activités forestières et une gestion plus efficace des données pour la prise de décision.
+---
 
-## II. Objectifs
+## 🗺️ I. Contexte
 
-Le développement de cette nouvelle version de l'application vise à :
+Le projet s’inscrit dans une volonté de moderniser la gestion quotidienne des titres forestiers.  
+La **Délégation des Eaux et Forêts**, via le service COMCAM, a identifié le besoin :
 
-- **Digitalisation accrue** : Optimiser la gestion numérique des transactions forestières.
-- **Facilitation de la prise de décision** : Intégrer des outils de reporting visuel (graphiques, tableaux de bord) pour des analyses rapides et efficaces.
-- **Optimisation de la conformité** : Simplifier les processus pour aligner les opérations avec les réglementations en vigueur.
-- **Améliorer la gestion des titres forestiers**.
-- **Optimiser la production des rapports annuels**.
-- **Assurer une meilleure traçabilité des activités forestières**.
+- d'une solution numérique plus performante,
+- et d'une analyse statistique facilitée.
 
-## III. Les acteurs
+L’application existante nécessite une refonte complète. La nouvelle version intégrera l’automatisation de la vérification des **dépassements de volumes autorisés**, pour améliorer le suivi et la conformité réglementaire.
 
-Sachant que le site vise une optimisation des calculs pour l’entreprise, il sera composé des acteurs suivants :
+---
 
-- **L’administrateur** : Chargé de la gestion générale du site, principalement la partie administration.
-- **Les utilisateurs internes** : Toute personne inscrite sur le site faisant partie de l’équipe interne.
+## 🎯 II. Objectifs
 
-## IV. Modules fonctionnels
+- **Digitalisation accrue** : Gestion numérique complète des transactions
+- **Aide à la décision** : Tableaux de bord et visualisations analytiques
+- **Conformité réglementaire** : Processus simplifiés
+- **Traçabilité des données** : Meilleur archivage et auditabilité
+- **Production automatisée** : Rapports périodiques
 
-De la présentation faite du projet, nous avons regroupé un ensemble de fonctionnalités par modules (groupes de fonctionnalités) et sous-modules (fonctionnalités). Ceux-ci sont regroupés dans le tableau ci-dessous :
+---
 
-| # | Module/Sous-module | Acteur(s) |
-| --- | --- | --- |
-| M001 | Gestion des comptes |  |
-| M001-SM001 | Ajout d’un Utilisateur | Administrateur |
-| M001-SM002 | Mise à jour de compte | Utilisateur |
-| M001-SM003 | Suppression du compte |  |
-| M001-SM004 | Réinitialisation du mot de passe | * |
-| M001-SM005 | Bloquer un compte | Administrateur |
-| M002 | Authentification | * |
-| M002-SM001 | Connexion |  |
-| M002-SM002 | Déconnexion |  |
-| M003 | Gestion des Titres |  |
-| M003-SM001 | Filtre d’un titre | * |
-| M003-SM0012 | Enregistrement d’un nouveau titre | Utilisateur |
-| M003-SM003 | Mise à jour des informations d’un titre |  |
-| M003-SM004 | Suppression d'un titre |  |
-| M004 | Gestion des Operateurs | Utilisateur |
-| M004-SM001 | Enregistrement des sociétés forestières |  |
-| M004-SM002 | Mise à jour des informations |  |
-| M004-SM003 | Suppression des sociétés |  |
-| M005 | Gestion des Transactions | Utilisateur |
-| M005-SM001 | Enregistrement des transactions journalières |  |
-| M005-SM002 | Mise à jour des transactions |  |
-| M005-SM003 | Détection des dépassements |  |
-| M005-SM004 | Suppression d’une Transaction |  |
-| M006 | Gestion des Essences |  |
-| M006-SM001 | Ajout des Essences | Utilisateur |
-| M006-SM002 | Modifier les essences |  |
-| M006-SM003 | Suppression des essences |  |
-| M009 | Tableau de bord Dynamique (Graphiques dynamiques) | Utilisateur |
-| M010 | Synthèse périodique | Utilisateur |
+## 👥 III. Acteurs
 
-* : Tous les acteurs
+| Acteur           | Rôle                                                                 |
+|------------------|----------------------------------------------------------------------|
+| **Administrateur** | Gère la plateforme (utilisateurs, configuration)                    |
+| **Utilisateurs internes** | Membres autorisés à enregistrer et gérer les transactions        |
 
-## V. Durée estimative
+---
 
-En fonction des fonctionnalités qui seront retenues, le projet pourra être développé et livré sur une période allant de 1 à 2 mois à compter de la date de lancement du projet. Toutefois, le client, vu les contraintes, souhaiterait que la plateforme soit fonctionnelle au plus tard en début Mars.
+## 🧩 IV. Modules Fonctionnels
 
+| #   | Module / Sous-module                                    | Acteur(s)           |
+|-----|----------------------------------------------------------|---------------------|
+| M001 | **Gestion des Comptes**                                 |                     |
+|      | M001-SM001 : Ajout d’un utilisateur                     | Administrateur      |
+|      | M001-SM002 : Mise à jour de compte                      | Utilisateur         |
+|      | M001-SM003 : Suppression de compte                      | Administrateur      |
+|      | M001-SM004 : Réinitialisation de mot de passe           | *                   |
+|      | M001-SM005 : Blocage de compte                          | Administrateur      |
+| M002 | **Authentification**                                    | *                   |
+|      | M002-SM001 : Connexion                                  |                     |
+|      | M002-SM002 : Déconnexion                                |                     |
+| M003 | **Gestion des Titres**                                  |                     |
+|      | M003-SM001 : Filtrer un titre                           | *                   |
+|      | M003-SM002 : Enregistrement d’un nouveau titre          | Utilisateur         |
+|      | M003-SM003 : Mise à jour des informations               |                     |
+|      | M003-SM004 : Suppression d’un titre                     |                     |
+| M004 | **Gestion des Opérateurs**                              | Utilisateur         |
+|      | M004-SM001 : Enregistrement de sociétés forestières     |                     |
+|      | M004-SM002 : Mise à jour des informations               |                     |
+|      | M004-SM003 : Suppression des sociétés                   |                     |
+| M005 | **Gestion des Transactions**                            | Utilisateur         |
+|      | M005-SM001 : Enregistrement des transactions journalières |                   |
+|      | M005-SM002 : Mise à jour des transactions               |                     |
+|      | M005-SM003 : Détection des dépassements                 |                     |
+|      | M005-SM004 : Suppression d’une transaction              |                     |
+| M006 | **Gestion des Essences**                                |                     |
+|      | M006-SM001 : Ajout des essences                         | Utilisateur         |
+|      | M006-SM002 : Modification des essences                  |                     |
+|      | M006-SM003 : Suppression des essences                   |                     |
+| M009 | **Tableau de bord Dynamique** (graphiques dynamiques)   | Utilisateur         |
+| M010 | **Synthèse périodique**                                 | Utilisateur         |
 
-## VI. Livrables
+> 🟰 * : Tous les acteurs
 
-Pour le suivi de l’évolution du projet, divers livrables seraient prévus selon ce qui suit :
+---
 
-- Lien officiel du Site web fonctionnel répondant aux spécifications du cahier de charges.
-- Code source commenté.
-- Séances de prise en main de l’application.
-- Cahier de recettes (tests).
+## ⏳ V. Durée Estimative
 
- 
+La durée estimée pour la réalisation du projet est de **1 à 2 mois** après lancement.  
+📅 Objectif de mise en production : **Début Mars**, selon les contraintes du client.
+
+---
+
+## 📦 VI. Livrables
+
+- 🔗 Lien officiel du site web fonctionnel  
+- 💻 Code source documenté et commenté  
+- 📘 Cahier de recettes (tests de validation)  
+- 🧑‍🏫 Séances de formation et prise en main  
+
+---
+
+> 🔒 Ce projet joue un rôle clé dans la digitalisation du secteur forestier et dans le renforcement de la conformité et de la traçabilité.
+
