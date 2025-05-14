@@ -25,9 +25,21 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = Transaction::with(['titre', 'essence', 'societe', 'conditionnemment'])
-            ->orderBy('date', 'desc')
-            ->paginate(10);
+        $transactions = Transaction::with([
+            'titre',
+            'societe',
+            'conditionnemment',
+            'essence' => function($query) {
+                $query->with(['formeEssence' => function($query) {
+                    $query->with(['forme', 'type']);
+                }]);
+            }
+        ])
+        ->select('id', 'date', 'exercice', 'numero', 'societe_id', 'destination', 'pays',
+                 'titre_id', 'essence_id', 'conditionnemment_id', 'volume', 'created_at')
+        ->orderBy('date', 'desc')
+        ->paginate(15);
+
         return view('admin.transactions.index', compact('transactions'));
     }
 
@@ -165,6 +177,8 @@ class TransactionController extends Controller
         return Excel::download(new TransactionExport($query), $filename);
     }
 }
+
+
 
 
 

@@ -41,4 +41,12 @@ class Titre extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+    public function delete()
+    {
+        // Supprimer d'abord les relations dans la table pivot
+        $this->essence()->detach();
+
+        // Ensuite supprimer le titre
+        return parent::delete();
+    }
 }

@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\Titre;
 use App\Models\Essence;
 use App\Models\Societe;
+use Illuminate\Support\Facades\DB; // Ajoutez cette ligne
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -22,9 +23,7 @@ class Transaction extends Model
         'pays',
         'titre_id',
         'essence_id',
-        // 'forme_id',
         'conditionnemment_id',
-        // 'type_id',
         'volume',
     ];
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
@@ -89,7 +88,7 @@ class Transaction extends Model
 
     public function getDateAttribute($value)
     {
-        return $value ? Carbon::parse($value) : null;
+        return $this->getFormatedDateTime($value);
     }
 
     function getFormatedDateTime($date)
@@ -99,5 +98,82 @@ class Transaction extends Model
         $format = $locale === 'en' ? 'F d, Y' : 'd M Y';
 
         return Carbon::parse($date)->translatedFormat($format);
+    }
+
+    /**
+     * Les événements de modèle.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($transaction) {
+            // Vérifier si la transaction peut être supprimée
+            if (!$transaction->canBeDeleted()) {
+                throw new \Exception('Cette transaction ne peut pas être supprimée.');
+            }
+        });
+    }
+
+    /**
+     * Vérifie si la transaction peut être supprimée
+     */
+    public function canBeDeleted(): bool
+    {
+        // Vérifier si la transaction a des dépendances
+        return !$this->hasRelatedRecords();
+    }
+
+    /**
+     * Vérifie si la transaction a des enregistrements liés
+     */
+    private function hasRelatedRecords(): bool
+    {
+        // Ajouter ici d'autres vérifications si nécessaire
+        return false;
+    }
+
+    /**
+     * Supprime la transaction de manière sécurisée
+     */
+    public function safeDelete(): bool
+    {
+        try {
+            DB::beginTransaction();
+
+            // Mettre à jour les volumes si nécessaire
+            $this->updateVolumes();
+
+            // Supprimer la transaction
+            $deleted = $this->delete();
+
+            DB::commit();
+            return $deleted;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Met à jour les volumes associés lors de la suppression
+     */
+    private function updateVolumes(): void
+    {
+        // Mettre à jour le volume restant du titre si nécessaire
+        if ($this->titre_id && $this->volume) {
+            $titre = $this->titre;
+            $essence = $this->essence;
+
+            if ($titre && $essence) {
+                $pivotRecord = $titre->essence()->where('essence_id', $essence->id)->first();
+                if ($pivotRecord) {
+                    $newVolume = $pivotRecord->pivot->VolumeRestant + $this->volume;
+                    $titre->essence()->updateExistingPivot($essence->id, [
+                        'VolumeRestant' => $newVolume
+                    ]);
+                }
+            }
+        }
     }
 }

@@ -18,7 +18,8 @@
 
     <!-- Messages d'alerte -->
     @if (session()->has('success'))
-        <div class="alert alert-success bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm">
+        <div
+            class="alert alert-success bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm">
             <div class="flex items-center">
                 <i class="fas fa-check-circle text-green-500 mr-2"></i>
                 <span>{{ session('success') }}</span>
@@ -36,7 +37,8 @@
     @endif
 
     @if (session()->has('warning'))
-        <div class="alert alert-warning bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded shadow-sm">
+        <div
+            class="alert alert-warning bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded shadow-sm">
             <div class="flex items-center">
                 <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
                 <span>{{ session('warning') }}</span>
@@ -121,13 +123,7 @@
                 Détails des Ressources
             </h3>
 
-            <!-- Bouton -->
-            <button type="button" wire:click="addDetail" style="color: white; background:green;"
-                style="color: white; background:green;"
-                class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
-                <i class="fas fa-plus mr-2"></i>
-                Ajouter
-            </button>
+
         </div>
 
         @foreach ($details as $index => $detail)
@@ -213,7 +209,19 @@
                 </div>
             </div>
         @endforeach
+        <br>
+        <div class="flex items-right " style="float: right;">
 
+
+
+            <!-- Bouton -->
+            <button type="button" wire:click="addDetail" style="color: white; background:green; float:right"
+                style="color: white; background:green;"
+                class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Ajouter
+            </button>
+        </div>
         <br><br>
         <!-- Tableau récapitulatif -->
         <h3 class="text-lg font-semibold text-gray-800 mb-4 px-3">Liste des Ressources</h3>
@@ -240,7 +248,7 @@
                                 <td class="p-4">{{ $types->find($detail['type_id'])->code ?? 'N/A' }}</td>
                                 <td class="p-4">
                                     <span
-                                        class="text-blue-600 font-medium">{{ number_format((float) $detail['volume'] ?? 0, 2, ',', ' ') }}
+                                        class="text-blue-600 font-medium">{{ number_format((float) $detail['volume'] ?? 0, 3, ',', ' ') }}
                                         m³</span>
                                 </td>
                             </tr>

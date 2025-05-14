@@ -135,8 +135,10 @@
                                         class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button wire:click="confirmDelete({{ $transaction->id }})"
-                                        class="btn btn-sm btn-danger" title="Supprimer">
+                                    <button wire:click="deleteTransaction({{ $transaction->id }})"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')"
+                                        title="Supprimer">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>

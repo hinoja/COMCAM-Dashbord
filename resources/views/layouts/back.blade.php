@@ -85,7 +85,7 @@
                     @if (session('success'))
                         <div class="notification alert-dismissible fade show mt-1 shadow-sm rounded-lg" role="alert">
                             <div class="d-flex align-items-center">
-                                <i class="fas fa-check-circle me-2"></i>
+                                {{-- <i class="fas fa-check-circle me-2"></i> --}}
                                 {{ session('success') }}
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"

@@ -164,14 +164,28 @@
                                 <td class="p-3">{{ $essence->nom_local }}</td>
                                 <td class="p-3">{{ $essence->formeEssence->forme->designation ?? '-' }}</td>
                                 <td class="p-3">{{ $essence->formeEssence->type->code ?? '-' }}</td>
-                                <td class="p-3">{{ number_format($essence->pivot->volume, 3) }}</td>
+                                <td class="p-3">
+                                    {{ number_format($essence->pivot->volume, 3, ',', ' ') }}
+
+                                </td>
                                 <td class="p-3">
                                     @php
+                                        $volumeInitial = $essence->pivot->volume;
                                         $volumeRestant = $essence->pivot->VolumeRestant;
+                                        $pourcentage = ($volumeRestant / $volumeInitial) * 100;
                                     @endphp
-                                    <span
-                                        class="@if ($volumeRestant <= 0) text-danger font-weight-bold @elseif ($volumeRestant < 10) text-warning font-weight-bold @else text-success @endif">
-                                        {{ number_format($volumeRestant, 3) }}
+                                    <span class="@if ($volumeRestant > $volumeInitial || $volumeRestant <= 0)
+                                            text-danger font-weight-bold
+                                         @elseif ($pourcentage <= 30)
+                                            text-warning font-weight-bold
+                                         @else
+                                            text-success font-weight-bold
+                                         @endif">
+                                        {{ number_format($volumeRestant, 3, ',', ' ') }}
+
+                                        <small class="d-block text-muted">
+                                            ({{ number_format($pourcentage, 1) }}%)
+                                        </small>
                                     </span>
                                 </td>
                                 @if ($index === 0)
@@ -209,17 +223,15 @@
                             <td class="p-3">-</td>
                             <td class="p-3">
                                 <div class="btn-group" role="group">
-                                    <button wire:click="showDetails({{ $titre->id }})"
+                                    {{-- <button wire:click="showDetails({{ $titre->id }})"
                                         class="btn btn-sm btn-info mr-2" title="Voir les détails">
                                         <i class="fas fa-eye"></i>
-                                    </button>
-                                    <a href="{{ route('admin.titre.edit', $titre) }}"
-                                        class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <button wire:click="delete({{ $titre->id }})"
-                                        class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                                        onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                                    </button> --}}
+
+                                    <button wire:click="deleteTransaction({{ $titre->id }})"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')"
+                                        title="Supprimer">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -310,10 +322,12 @@
                                         <tr>
                                             <td class="border border-gray-300 p-2">{{ $essence->nom_local }}</td>
                                             <td class="border border-gray-300 p-2">
-                                                {{ number_format($essence->pivot->volume, 2, ',', ' ') }} m³</td>
+                                                {{ number_format($essence->pivot->volume, 3, ',', ' ') }} m³
+
+                                            </td>
                                             <td
                                                 class="border border-gray-300 p-2 @if ($essence->pivot->VolumeRestant <= 0) text-danger @endif">
-                                                {{ number_format($essence->pivot->VolumeRestant, 2, ',', ' ') }} m³
+                                                {{ number_format($essence->pivot->VolumeRestant, 3, '.', ' ') }} m³
                                             </td>
                                             <td class="border border-gray-300 p-2">
                                                 {{ $essence->formeEssence->forme->designation ?? '-' }}</td>
@@ -329,10 +343,11 @@
                                     <tr class="bg-gray-100 font-semibold">
                                         <td class="border border-gray-300 p-2">Total</td>
                                         <td class="border border-gray-300 p-2">
-                                            {{ number_format($selectedTitre->essence->sum('pivot.volume'), 2, ',', ' ') }}
+                                            {{ number_format($selectedTitre->essence->sum('pivot.volume'), 3, ',', ' ') }}
+
                                             m³</td>
                                         <td class="border border-gray-300 p-2">
-                                            {{ number_format($selectedTitre->essence->sum('pivot.VolumeRestant'), 2, ',', ' ') }}
+                                            {{ number_format($selectedTitre->essence->sum('pivot.VolumeRestant'), 3,',', ' ') }}
                                             m³</td>
                                         <td class="border border-gray-300 p-2">-</td>
                                         <td class="border border-gray-300 p-2">-</td>

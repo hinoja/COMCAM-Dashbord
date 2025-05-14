@@ -149,41 +149,60 @@ class AddTransaction extends Component
      */
     public function save()
     {
-        $this->validate();
-        $titre = Titre::where('id', $this->titre_id)
-            ->whereHas('essence', function ($query) {
-                $query->where('essences.id', $this->essence_id);
-            })
-            ->first();
+        try {
+            $this->validate();
 
-        // Créer la transaction sans forme_id et type_id
-        $transaction = new Transaction($this->prepareTransactionData());
+            // Récupérer le titre associé
+            $titre = Titre::where('id', $this->titre_id)
+                ->whereHas('essence', function ($query) {
+                    $query->where('essences.id', $this->essence_id);
+                })
+                ->first();
 
-        // Stocker les valeurs de forme_id et type_id dans des propriétés temporaires
-        // pour les utiliser dans les calculs, mais ne pas les sauvegarder dans la base de données
-        $transaction->forme_id = $this->forme_id;
-        $transaction->type_id = $this->type_id;
+            if (!$titre) {
+                $this->addError('titre_id', 'Combinaison titre/essence invalide');
+                return;
+            }
 
-        // Vérification de la cohérence titre/essence
-        if ($titre != $this->getRelatedTitre($transaction)) {
-            $this->addError('titre_id', 'Combinaison titre/essence invalide');
-            return;
+            // Créer la transaction
+            $transaction = new Transaction($this->prepareTransactionData());
+
+            // Mettre à jour ou créer l'entrée dans FormeEssence
+            $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
+
+            // Calculer le nouveau volume restant
+            $volumeRestant = $this->getVolumeRestant($titre);
+            $nouveauVolumeRestant = $volumeRestant - $transaction->volume;
+
+            // Vérifier s'il y a dépassement
+            if ($nouveauVolumeRestant < 0) {
+                // Gérer le dépassement
+                $this->handleDepassementWarning($transaction, $nouveauVolumeRestant);
+                return;
+            }
+
+            // Sauvegarder la transaction
+            $transaction->save();
+
+            // Mettre à jour le volume restant dans la table pivot
+            $pivotEntry = $titre->essence()
+                ->where('essences.id', $this->essence_id)
+                ->first();
+
+            if ($pivotEntry) {
+                $titre->essence()->updateExistingPivot($this->essence_id, [
+                    'VolumeRestant' => $nouveauVolumeRestant
+                ]);
+            }
+
+            $this->resetForm();
+            $this->showSuccessAlert = true;
+
+            // Rafraîchir le composant
+            $this->dispatch('refreshComponent');
+        } catch (\Exception $e) {
+            $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }
-
-        // Mettre à jour ou créer l'entrée dans FormeEssence
-        $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
-
-        // Calcul du dépassement
-        $depassement = $this->calculateDepassement($transaction, $titre);
-
-        // Gestion des dépassements négatifs
-        if ($depassement < 0) {
-            $this->handleDepassementWarning($transaction, $depassement);
-            return;
-        }
-
-        // Finalisation de la transaction
-        $this->finalizeTransaction($transaction, $titre, $depassement);
     }
 
     /**
@@ -200,7 +219,6 @@ class AddTransaction extends Component
             'pays' => strtoupper($this->pays),
             'titre_id' => $this->titre_id,
             'essence_id' => $this->essence_id,
-            // 'forme_id' et 'type_id' ne sont pas présents dans la table transactions
             'conditionnemment_id' => $this->conditionnemment_id,
             'volume' => (float)$this->volume,
         ];
@@ -602,3 +620,11 @@ class AddTransaction extends Component
         ]);
     }
 }
+
+
+
+
+
+
+
+

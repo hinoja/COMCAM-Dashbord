@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Transaction;
 use App\Models\Essence;
 use App\Models\Forme;
+use Illuminate\Support\Facades\DB;
 use App\Models\Type;
 use App\Models\Societe;
 use App\Models\Titre;
@@ -14,7 +15,6 @@ use Livewire\WithPagination;
 class ManageTransaction extends Component
 {
     use WithPagination;
-
     protected $paginationTheme = 'bootstrap';
 
     public $search = '';
@@ -26,26 +26,67 @@ class ManageTransaction extends Component
     public $titreFilter = '';
     public $selectedTransaction = null; // Pour stocker les détails de la transaction sélectionnée
 
-    public function delete($id)
-    {
-        $transaction = Transaction::findOrFail($id);
-        $transaction->delete();
 
-        session()->flash('message', 'Transaction supprimée avec succès!');
-    }
-    public function confirmDelete($id)
+
+    // public function confirmDelete($id)
+    // {
+    //     $this->dispatch('confirmDelete', $id); // Émet l'événement pour la confirmation
+    // }
+
+
+    // Correction du listener
+    // Supprimer ce listener car il crée une boucle
+    // protected $listeners = ['confirmDelete' => 'deleteTransaction'];
+    public function deleteTransaction($id)
     {
-        $this->dispatch('confirmDelete', $id); // Émet l'événement pour la confirmation
+        try {
+            DB::beginTransaction();
+
+            $transaction = Transaction::findOrFail($id); // Utiliser findOrFail au lieu de find
+
+            // Récupérer le titre et l'essence associés
+            $titre = $transaction->titre;
+            $essence = $transaction->essence;
+
+            if (!$titre || !$essence) {
+                throw new \Exception('Les données associées à cette transaction sont incomplètes.');
+            }
+
+            // Calculer le volume à restaurer
+            $volumeARestaurer = $transaction->volume;
+
+            // Mettre à jour le volume restant dans la table pivot titre_essence
+            $titre->essence()->updateExistingPivot($essence->id, [
+                'VolumeRestant' => DB::raw("VolumeRestant + $volumeARestaurer")
+            ]);
+
+            // Supprimer la transaction
+            $transaction->delete();
+
+            DB::commit();
+            session()->flash('success', 'Transaction supprimée avec succès');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Erreur lors de la suppression de la transaction : ' . $e->getMessage());
+        }
+        redirect()->route('admin.transaction.index');
     }
 
-    protected $listeners = ['deleteTransaction' => 'delete']; // Écoute l'événement pour la suppression
-    // Méthode pour afficher les détails d'une transaction
+    // Supprimer cette méthode car elle crée une boucle
+    // public function confirmDelete($id)
+    // {
+    //     if ($id) {
+    //         $this->deleteTransaction($id);
+    //     }
+    // }
+
 
     public function showDetails($id)
     {
         $this->selectedTransaction = Transaction::with([
-            'essence' => function($query) {
-                $query->with(['formeEssence' => function($query) {
+            'essence' => function ($query) {
+                $query->with(['formeEssence' => function ($query) {
                     $query->with(['forme', 'type']);
                 }]);
             },
@@ -65,14 +106,14 @@ class ManageTransaction extends Component
     public function render()
     {
         $transactions = Transaction::with([
-                'essence' => function($query) {
-                    $query->with(['formeEssence' => function($query) {
-                        $query->with(['forme', 'type']);
-                    }]);
-                },
-                'societe',
-                'titre'
-            ])
+            'essence' => function ($query) {
+                $query->with(['formeEssence' => function ($query) {
+                    $query->with(['forme', 'type']);
+                }]);
+            },
+            'societe',
+            'titre'
+        ])
             ->when($this->search, function ($query) {
                 $query->where('destination', 'like', '%' . $this->search . '%')
                     ->orWhere('pays', 'like', '%' . $this->search . '%');

@@ -366,8 +366,6 @@ class EditTransaction extends Component
      */
     public function update()
     {
-        $this->validate();
-
         try {
             DB::beginTransaction();
 
@@ -435,3 +433,4 @@ class EditTransaction extends Component
         ]);
     }
 }
+

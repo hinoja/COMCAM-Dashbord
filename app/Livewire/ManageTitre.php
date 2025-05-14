@@ -24,22 +24,26 @@ class ManageTitre extends Component
 
     public function delete($id)
     {
-        $titre = Titre::findOrFail($id); // Récupérer le titre
-        //faire une suppression en cascade
-        $titre->transactions()->delete();
-        $titre->delete();
-
+        try {
+            $titre = Titre::findOrFail($id); // Récupérer le titre
+            //faire une suppression en cascade
+            $titre->transactions()->delete();
+            $titre->delete();
+            session()->flash('message', 'Titre et toutes les transactions associées supprimée avec succès !');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de la suppression du titre.');
+        }
+        redirect()->route('admin.titre.index');
         // $this->alert('success', 'Titre supprimé avec succès !');
 
-        session()->flash('message', 'Titre supprimé avec succès!');
     }
     // Méthode pour afficher les détails d'un titre
     public function showDetails($id)
     {
         $this->selectedTitre = Titre::with([
             'zone',
-            'essence' => function($query) {
-                $query->with(['formeEssence' => function($query) {
+            'essence' => function ($query) {
+                $query->with(['formeEssence' => function ($query) {
                     $query->with(['forme', 'type']);
                 }]);
             }
@@ -57,13 +61,13 @@ class ManageTitre extends Component
 
         // }
         $titres = Titre::with([
-                'zone',
-                'essence' => function($query) {
-                    $query->with(['formeEssence' => function($query) {
-                        $query->with(['forme', 'type']);
-                    }]);
-                }
-            ])
+            'zone',
+            'essence' => function ($query) {
+                $query->with(['formeEssence' => function ($query) {
+                    $query->with(['forme', 'type']);
+                }]);
+            }
+        ])
             ->when($this->search, function ($query) {
                 $query->where('nom', 'like', '%' . $this->search . '%');
             })

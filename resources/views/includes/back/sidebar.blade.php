@@ -13,13 +13,12 @@
         <div class="sidebar-brand sidebar-brand-sm">
             <a href="#">E&F CC</a>
         </div>
-        <ul class="sidebar-menu">
-            <li class="menu-header">Tableaux de bord</li>
+        <ul class="sidebar-menu"> 
             <li class="@if ($currentUri === 'dashboard') active @endif">
                 <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt"></i>
                     <span>@lang('Tableau de bord')</span></a>
             </li>
-           
+
             @auth
                 {{-- @if (Auth::user()->role_id < 2) --}}
                     <li class="@if (Str::contains($currentUri, 'users')) active @endif">
