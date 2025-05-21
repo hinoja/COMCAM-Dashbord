@@ -146,33 +146,27 @@
                 @forelse($titres as $titre)
                     @php
                         $essenceCount = $titre->essence->count();
-                        $rowspan = $essenceCount > 0 ? $essenceCount : 1;
                     @endphp
 
                     @if ($essenceCount > 0)
                         @foreach ($titre->essence as $index => $essence)
-                            <tr
-                                class="transition-all hover:bg-gray-50 @if ($index % 2 == 1) bg-light @endif">
-                                @if ($index === 0)
-                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $loop->parent->iteration }}</td>
-                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->exercice }}</td>
-                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->nom }}</td>
-                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->localisation }}</td>
-                                    <td class="p-3" rowspan="{{ $rowspan }}">{{ $titre->zone->name ?? '-' }}
-                                    </td>
-                                @endif
+                            <tr class="transition-all hover:bg-gray-50 @if ($index % 2 == 1) bg-light @endif">
+                                <td class="p-3">{{ $loop->parent->iteration }}</td>
+                                <td class="p-3">{{ $titre->exercice }}</td>
+                                <td class="p-3">{{ $titre->nom }}</td>
+                                <td class="p-3">{{ $titre->localisation }}</td>
+                                <td class="p-3">{{ $titre->zone->name ?? '-' }}</td>
                                 <td class="p-3">{{ $essence->nom_local }}</td>
                                 <td class="p-3">{{ $essence->formeEssence->forme->designation ?? '-' }}</td>
                                 <td class="p-3">{{ $essence->formeEssence->type->code ?? '-' }}</td>
                                 <td class="p-3">
                                     {{ number_format($essence->pivot->volume, 3, ',', ' ') }}
-
                                 </td>
                                 <td class="p-3">
                                     @php
                                         $volumeInitial = $essence->pivot->volume;
                                         $volumeRestant = $essence->pivot->VolumeRestant;
-                                        $pourcentage = ($volumeRestant / $volumeInitial) * 100;
+                                        $pourcentage = $volumeInitial > 0 ? ($volumeRestant / $volumeInitial) * 100 : 0;
                                     @endphp
                                     <span class="@if ($volumeRestant > $volumeInitial || $volumeRestant <= 0)
                                             text-danger font-weight-bold
@@ -182,31 +176,24 @@
                                             text-success font-weight-bold
                                          @endif">
                                         {{ number_format($volumeRestant, 3, ',', ' ') }}
-
                                         <small class="d-block text-muted">
                                             ({{ number_format($pourcentage, 1) }}%)
                                         </small>
                                     </span>
                                 </td>
-                                @if ($index === 0)
-                                    <td class="p-3" rowspan="{{ $rowspan }}">
-                                        <div class="btn-group" role="group">
-                                            {{-- <button wire:click="showDetails({{ $titre->id }})"
-                                                class="btn btn-sm btn-info mr-2" title="Voir les détails">
-                                                <i class="fas fa-eye"></i>
-                                            </button> --}}
-                                            <a href="{{ route('admin.titre.edit', $titre) }}"
-                                                class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button wire:click="delete({{ $titre->id }})"
-                                                class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                                                onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                @endif
+                                <td class="p-3">
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ route('admin.titre.edit', $titre) }}"
+                                            class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button wire:click="delete({{ $titre->id }})"
+                                            class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
+                                            onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     @else

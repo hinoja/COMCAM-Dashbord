@@ -46,10 +46,10 @@
                     </h2>
 
 
-                    <button class="badge badge-emerald px-3 py-2 shadow-sm" href="{{ route('admin.users.create') }}"
-                        class="btn btn-add">
+                    <a  style="text-decoration: none;color:inherit;" class="badge badge-emerald px-3 py-2 shadow-sm" href="{{ route('admin.users.create') }}"    class="btn btn-add">
+                        
                         <i class="fas fa-user-plus mr-2"></i>@lang('Add User')
-                    </button>
+                    </a>
                 </div>
             </div>
             <div class="col-12">

@@ -27,6 +27,8 @@ class ManageTitre extends Component
         try {
             $titre = Titre::findOrFail($id); // Récupérer le titre
             //faire une suppression en cascade
+            //ajouter un test pour verifier si ce titre est associé à des transactions et commencer par supprimer les transactions avant
+
             $titre->transactions()->delete();
             $titre->delete();
             session()->flash('message', 'Titre et toutes les transactions associées supprimée avec succès !');

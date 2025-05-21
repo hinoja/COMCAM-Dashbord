@@ -67,6 +67,21 @@ class TransactionController extends Controller
         ]);
     }
 
+    /**
+     * Importe des transactions à partir d'un fichier Excel
+     * Structure attendue du fichier:
+     * Col 1: Date
+     * Col 2: Exercice
+     * Col 3: Numéro de transaction
+     * Col 4: ID Exportateur
+     * Col 5: Destination
+     * Col 6: Pays
+     * Col 7: ID Titre
+     * Col 8: ID Essence
+     * Col 9: ID Forme
+     * Col 10: ID Conditionnement
+     * Col 11: ID Type
+     */
     public function importTransactions(Request $request)
     {
         $request->validate([
@@ -82,19 +97,36 @@ class TransactionController extends Controller
 
             $message = $stats['success_count'] . ' transactions importées avec succès.';
             if ($stats['error_count'] > 0) {
-                $message .= ' ' . $stats['error_count'] . ' erreurs rencontrées.';
+                $message .= ' ' . $stats['error_count'] . ' transactions ignorées.';
+
+                // Ajouter des détails sur les erreurs si disponibles
+                if (!empty($stats['errors']) && count($stats['errors']) <= 5) {
+                    $message .= ' Erreurs: ';
+                    foreach ($stats['errors'] as $index => $error) {
+                        if ($index > 0) {
+                            $message .= '; ';
+                        }
+                        $message .= 'Ligne ' . $error['ligne'] . ': ' . $error['erreur'];
+                    }
+                }
+
+                // Si trop d'erreurs, suggérer de vérifier les logs
+                if (!empty($stats['errors']) && count($stats['errors']) > 5) {
+                    $message .= ' Trop d\'erreurs à afficher. Veuillez vérifier les logs pour plus de détails.';
+                }
             }
 
-            notify()->success($message);
+            session()->flash('success', $message);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            // Gérer les erreurs de validation
             $failures = $e->failures();
             $errors = collect($failures)->map(function ($failure) {
                 return "Ligne {$failure->row()}: {$failure->errors()[0]}";
-            })->join("\n");
+            })->join("; ");
 
-            notify()->error('Erreurs de validation dans le fichier: ' . $errors);
+            session()->flash('error', 'Erreurs de validation dans le fichier: ' . $errors);
         } catch (\Exception $e) {
-            notify()->error("Erreur lors de l'importation: " . $e->getMessage());
+            session()->flash('error', 'Erreur lors de l\'importation: ' . $e->getMessage());
         }
 
         return redirect()->back();

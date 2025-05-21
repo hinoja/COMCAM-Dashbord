@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('essence_titre', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('titre_id')->constrained();
-            $table->foreign('titre_id') ->references('id') ->on('titres')  ->onDelete('cascade');
+            // $table->foreign('titre_id')->references('id')->on('titres')->onDelete('cascade');
+            $table->foreignId('titre_id')->constrained();
+            // $table->foreign('titre_id')->constrained();
+            // ->references('id') ->on('titres')  ->onDelete('cascade');
             $table->foreignId('essence_id')->constrained();
             $table->float('volume');
             $table->float('VolumeRestant')->nullable();

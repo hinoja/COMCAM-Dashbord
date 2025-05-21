@@ -40,7 +40,7 @@
 
                     <div class="card-footer">
                         @if ($isEditing)
-                            <button type="button" class="btn btn-secondary" wire:click="cancel">
+                            <button style="background: rgb(194, 193, 193)" type="button" class="btn " wire:click="cancel">
                                 <i class="fas fa-times mr-1"></i>Annuler
                             </button>
                         @endif

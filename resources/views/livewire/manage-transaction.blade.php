@@ -61,16 +61,34 @@
             <div class="col-md col-6 mt-4">
                 <div class="form-group">
                     <label class="form-label fw-bold mb-2">Titre</label>
-                    <select wire:model.live="titreFilter" class="form-select tomselect" id="titre-select">
-                        <option value="">Tous les titres</option>
-                        @foreach ($titres as $titre)
-                            <option value="{{ $titre->id }}">{{ $titre->nom }}</option>
-                        @endforeach
-                    </select>
+                    <input
+                        type="text"
+                        wire:model.debounce.300ms="searchTitre"
+                        class="form-control"
+                        placeholder="Rechercher un titre..."
+                        autocomplete="off"
+                    >
+                    @if($searchTitre && $titresSuggestions)
+                        <div class="position-absolute bg-white border rounded shadow-sm mt-1 w-100 z-1000" style="max-height: 200px; overflow-y: auto;">
+                            @forelse($titresSuggestions as $titre)
+                                <div
+                                    class="p-2 cursor-pointer hover-bg-light border-bottom"
+                                    wire:click="selectTitre({{ $titre->id }})"
+                                    style="cursor: pointer;"
+                                >
+                                    {{ $titre->nom }}
+                                </div>
+                            @empty
+                                <div class="p-2 text-muted">
+                                    Aucun titre trouvé
+                                </div>
+                            @endforelse
+                        </div>
+                    @endif
                 </div>
-                @if($titreFilter)
+                @if ($titreFilter)
                     <a href="{{ route('admin.transaction.export-by-titre', ['titre_id' => $titreFilter]) }}"
-                       class="btn btn-success btn-sm mt-2">
+                        class="btn btn-success btn-sm mt-2">
                         <i class="fas fa-file-excel me-2"></i>
                         Exporter les transactions
                     </a>
@@ -221,22 +239,22 @@
         </script>
     @endpush
     @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css"
+            rel="stylesheet">
     @endpush
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    <script>
-        document.addEventListener('livewire:load', function() {
-            new TomSelect('#titre-select', {
-                placeholder: 'Sélectionner un titre',
-                searchField: ['nom'],
-                valueField: 'id',
-                labelField: 'nom',
-                allowEmptyOption: true,
-                create: false
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+        <script>
+            document.addEventListener('livewire:load', function() {
+                new TomSelect('#titre-select', {
+                    placeholder: 'Sélectionner un titre',
+                    searchField: ['nom'],
+                    valueField: 'id',
+                    labelField: 'nom',
+                    allowEmptyOption: true,
+                    create: false
+                });
             });
-        });
-    </script>
+        </script>
     @endpush
 </div>
-

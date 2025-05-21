@@ -23,9 +23,11 @@ class ManageTransaction extends Component
     public $formeFilter = '';
     public $typeFilter = '';
     public $societeFilter = '';
-    public $titreFilter = '';
+    // public $titreFilter = '';
     public $selectedTransaction = null; // Pour stocker les détails de la transaction sélectionnée
-
+    public $searchTitre = '';
+    public $titresSuggestions = [];
+    public $titreFilter = null;
 
 
     // public function confirmDelete($id)
@@ -65,7 +67,6 @@ class ManageTransaction extends Component
 
             DB::commit();
             session()->flash('success', 'Transaction supprimée avec succès');
-
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Erreur lors de la suppression de la transaction : ' . $e->getMessage());
@@ -73,29 +74,21 @@ class ManageTransaction extends Component
         redirect()->route('admin.transaction.index');
     }
 
-    // Supprimer cette méthode car elle crée une boucle
-    // public function confirmDelete($id)
+
+    // public function showDetails($id)
     // {
-    //     if ($id) {
-    //         $this->deleteTransaction($id);
-    //     }
+    //     $this->selectedTransaction = Transaction::with([
+    //         'essence' => function ($query) {
+    //             $query->with(['formeEssence' => function ($query) {
+    //                 $query->with(['forme', 'type']);
+    //             }]);
+    //         },
+    //         'societe',
+    //         'titre'
+    //     ])->findOrFail($id);
+
+    //     $this->dispatch('showTransactionDetails'); // Émet l'événement pour JS
     // }
-
-
-    public function showDetails($id)
-    {
-        $this->selectedTransaction = Transaction::with([
-            'essence' => function ($query) {
-                $query->with(['formeEssence' => function ($query) {
-                    $query->with(['forme', 'type']);
-                }]);
-            },
-            'societe',
-            'titre'
-        ])->findOrFail($id);
-
-        $this->dispatch('showTransactionDetails'); // Émet l'événement pour JS
-    }
 
     // Méthode pour fermer la modale
     public function closeDetails()

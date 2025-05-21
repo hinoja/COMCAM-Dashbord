@@ -65,6 +65,8 @@ class TitreController extends Controller
         ]);
 
         try {
+            ini_set('max_execution_time', 300);
+
             $import = new TitreImport();
             Excel::import($import, $request->file('file')->store('files'));
 
