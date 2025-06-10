@@ -877,6 +877,7 @@ class EssenceSeeder extends Seeder
             ['nom_local' => 'Voacanga', 'code' => 'XXXX'],
             ['nom_local' => 'Limbali', 'code' => '1331'],
             ['nom_local' => 'Sapelli ', 'code' => '1122'],
+
             ['nom_local' => 'Kosso', 'code' => '2000'],
             ['nom_local' => 'Albizia d\'Asie', 'code' => '1951'],
             ['nom_local' => 'Alchornea', 'code' => '3014'],
