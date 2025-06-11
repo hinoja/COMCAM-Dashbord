@@ -1,4 +1,4 @@
-<nav style="color:#FFD700" class="navbar navbar-expand-lg main-navbar" style="background: #2A2E45;">
+<nav style="color:#FFD700;" class="navbar navbar-expand-lg main-navbar">
     <style>
         .navbar .nav-link {
             color: #F8F9FA !important;

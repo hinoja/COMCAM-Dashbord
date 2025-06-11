@@ -12,7 +12,7 @@
                 </h2>
                 <div>
                     <span class="badge badge-emerald px-3 py-2 shadow-sm mr-2">
-                        Total: {{ $total}} ... sociétés
+                        Total: {{ isset($total) ? $total : 0 }} sociétés
                     </span>
                     <a href="{{ route('admin.societe.export') }}" class="btn btn-success">
                         <i class="fas fa-download mr-2"></i>Exporter
@@ -25,7 +25,7 @@
                 <!-- Left Column: Forms -->
                 <div class="col-lg-4 col-md-5 col-12 d-flex flex-column">
                     <!-- Add New Company Card -->
-                    <div class="card border-0 rounded-lg flex-grow-1">
+                    <div class="card border-0 rounded-lg ">
                         <form class="h-100 d-flex flex-column" method="post" action="{{ route('admin.societe.store') }}">
                             @csrf
                             <div class="card-header bg-white border-bottom py-3">
@@ -33,13 +33,14 @@
                                     <i class="fas fa-plus-circle mr-2"></i>Ajout d'une nouvelle Entreprise
                                 </h4>
                             </div>
-                            <div class="card-body p-4 flex-grow-1">
+                            <div class="card-body p-4 ">
                                 <div class="form-group">
                                     <label for="acronyme" class="font-weight-bold text-dark">
                                         <i class="fas fa-tag mr-1 text-muted"></i> Acronyme
                                     </label>
-                                    <input type="text" name="acronym" id="acronyme" class="form-control border-emerald"
-                                        placeholder="Ex: SARL, SA, SAS..." >
+                                    <input type="text" name="acronym" id="acronyme"
+                                        class="form-control border-emerald @error('acronym') is-invalid @enderror"
+                                        placeholder="Ex: SARL, SA, SAS..." value="{{ old('acronym') }}">
                                     <small class="form-text text-muted mt-2">
                                         Entrez l'acronyme de l'entreprise (obligatoire).
                                     </small>
@@ -57,9 +58,9 @@
                         </form>
                     </div>
 
-                    @if (auth()->user()->role_id === 1)
+                    @if (auth()->check() && auth()->user()->role_id === 1)
                         <!-- Import from Excel Card -->
-                        <div class="card border-0 rounded-lg mt-4 flex-grow-1">
+                        <div class="card border-0 rounded-lg mt-4 ">
                             <form method="POST" action="{{ route('admin.societe.import') }}" enctype="multipart/form-data"
                                 class="h-100 d-flex flex-column">
                                 @csrf
@@ -68,7 +69,7 @@
                                         <i class="fas fa-file-excel mr-2"></i>Importer depuis Excel
                                     </h4>
                                 </div>
-                                <div class="card-body p-4 flex-grow-1">
+                                <div class="card-body p-4 ">
                                     <div class="form-group mb-3">
                                         <label for="file" class="font-weight-bold text-dark">
                                             <i class="fas fa-upload mr-1 text-muted"></i> Fichier Excel

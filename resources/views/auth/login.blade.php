@@ -9,7 +9,7 @@
     <title>@lang('Log in') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
 
     <!-- Favicon -->
-    <link href="{{ asset('favicon.png') }}" rel="icon">
+    <link rel="shortcut icon" href="{{ asset('logo.jpg') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -94,7 +94,7 @@
                                                 <input id="remember_me" type="checkbox"
                                                     class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                                     name="remember">
-                                                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                                                <span class="ms-2 text-sm text-gray-600"> Se souvenir de moi </span>
                                             </label>
                                         </div>
                                     </div>

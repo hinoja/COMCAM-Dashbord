@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Comcam',
             'email' => 'comcam@gmail.com',
             'role_id' => 2,
-            'password' => Hash::make("password")
+            'password' => Hash::make("Toor&19720")
         ]);
         User::factory()->create([
             'name' => 'Admin',

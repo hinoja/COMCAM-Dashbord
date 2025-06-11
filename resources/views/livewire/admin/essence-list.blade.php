@@ -13,7 +13,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h4> <i class="fas fa-plus"></i> {{ $isEditing ? "Modifier l'essence" : 'Ajouter une essence' }}
+                    <h4> <i class="fas fa-edit"></i> {{ $isEditing ? "Modifier l'essence" : 'Ajouter une essence' }}
                     </h4>
                 </div>
 
@@ -40,7 +40,8 @@
 
                     <div class="card-footer">
                         @if ($isEditing)
-                            <button style="background: rgb(194, 193, 193)" type="button" class="btn " wire:click="cancel">
+                            <button style="background: rgb(194, 193, 193)" type="button" class="btn "
+                                wire:click="cancel">
                                 <i class="fas fa-times mr-1"></i>Annuler
                             </button>
                         @endif
@@ -54,36 +55,39 @@
                 </form>
             </div>
 
-            <!-- Carte pour l'import/export Excel -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h4>Import/Export Excel</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Bouton Export -->
-                    <a href="{{ route('admin.essence.export') }}" class="btn btn-success btn-block mb-3">
-                        <i class="fas fa-download mr-2"></i>Télécharger Excel
-                    </a>
+            @if (auth()->check() && auth()->user()->role_id === 1)
+                <!-- Carte pour l'import/export Excel -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Import/Export Excel</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Bouton Export -->
+                        <a href="{{ route('admin.essence.export') }}" class="btn btn-success btn-block mb-3">
+                            <i class="fas fa-download mr-2"></i>Télécharger Excel
+                        </a>
 
-                    <!-- Formulaire Import -->
-                    <form action="{{ route('admin.essence.import') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group mb-3">
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="file" name="file"
-                                    accept=".xlsx,.xls,.csv">
-                                <label class="custom-file-label" for="file">Choisir un fichier</label>
+                        <!-- Formulaire Import -->
+                        <form action="{{ route('admin.essence.import') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="file" name="file"
+                                        accept=".xlsx,.xls,.csv">
+                                    <label class="custom-file-label" for="file">Choisir un fichier</label>
+                                </div>
+                                @error('file')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
-                            @error('file')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" style="background:rgb(69,132,103);">
-                            <i class="fas fa-upload mr-2"></i>Importer Excel
-                        </button>
-                    </form>
+                            <button type="submit" class="btn btn-primary btn-block"
+                                style="background:rgb(69,132,103);">
+                                <i class="fas fa-upload mr-2"></i>Importer Excel
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
 
         <!-- Colonne de droite : Liste -->
@@ -104,13 +108,13 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>N°</th>
-                                    <th>Code</th>
-                                    <th>Nom Local</th>
-                                    <th>Actions</th>
+                        <table class="table table-striped table-hover table-striped table-bordered align-middle mb-0">
+                            <thead class="bg-primary">
+                                <tr class="text-xs text-white font-semibold uppercase tracking-wider">
+                                    <th style="color: white" class="p-3 text-nowrap">N°</th>
+                                    <th style="color: white" class="p-3 text-nowrap">Code</th>
+                                    <th style="color: white" class="p-3 text-nowrap">Nom Local</th>
+                                    <th style="color: white" class="p-3 text-nowrap">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>

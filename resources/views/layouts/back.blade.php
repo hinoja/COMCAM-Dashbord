@@ -11,7 +11,8 @@
     <title>@yield('subtitle') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
 
     <!-- Favicon -->
-    <link href="{{ asset('favicon.png') }}" rel="icon">
+    <link rel="shortcut icon" href="{{ asset('logo.jpg') }}">
+
 
     <!-- Fonts -->
     <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
@@ -58,7 +59,7 @@
     @notifyCss
 </head>
 
-<body>""
+<body>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if (session('notify'))
@@ -136,6 +137,7 @@
         </div>
     </div>
 
+    @livewireScripts
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     @if (session()->has('success'))
         <script>
@@ -197,7 +199,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    @livewireScripts
     <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
     {!! Toastr::message() !!}
