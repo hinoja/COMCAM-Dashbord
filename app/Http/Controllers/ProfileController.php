@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -45,12 +46,27 @@ class ProfileController extends Controller
             $user->email_verified_at = null;
         }
 
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            $data['avatar'] = $request->file('avatar')->store('users/avatars', 'public');
+        // if ($request->hasFile('avatar')) {
+        //     if ($user->avatar) {
+        //         Storage::disk('public')->delete($user->avatar);
+        //     }
+        //     $data['avatar'] = $request->file('avatar')->store('users/avatars', 'public');
+        // }
+
+
+
+
+        // Supprimer l'ancien avatar s'il existe
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
         }
+
+        // Stocker le nouvel avatar
+        $path = $request->file('avatar')->store('users/avatars/' . Str::slug($user->name), 'public');
+
+        // Mettre à jour l'utilisateur
+        $user->avatar = $path;
+        // $user->save();
 
         if (!empty($data)) {
             $user->update($data);

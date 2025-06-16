@@ -205,24 +205,25 @@
                         <h4>@lang('Edit Profile')</h4>
                     </div>
                     <div class="card-body">
-                        <!-- Section Avatar -->
-                        <div class="text-center mb-4">
-                            <div class="profile-picture-wrapper">
-                                <img id="profile-picture-preview"
-                                    src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('back/img/avatar/avatar-1.png') }}"
-                                    alt="Profile Picture" class="profile-picture">
-                                <label class="profile-picture-input" for="avatar">
-                                    <i class="fas fa-camera"></i>
-                                    <input type="file" id="avatar" name="avatar" accept="image/*">
-                                </label>
-                            </div>
-                        </div>
-
                         <!-- Formulaire de mise à jour du profil -->
                         <form id="profile-form" method="POST" action="{{ route('profile.update') }}"
                             enctype="multipart/form-data">
                             @csrf
                             @method('PATCH')
+                            <!-- Section Avatar -->
+                            <div class="text-center mb-4">
+                                <div class="profile-picture-wrapper">
+                                    <img id="profile-picture-preview"
+                                        src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('back/img/avatar/avatar-1.png') }}"
+                                        alt="Profile Picture" class="profile-picture">
+                                    <label class="profile-picture-input" for="avatar">
+                                        <i class="fas fa-camera"></i>
+                                        <input type="file" id="avatar" name="avatar" accept="image/*">
+                                    </label>
+                                </div>
+                            </div>
+
+
 
                             <!-- Nom -->
                             <div class="form-group">
@@ -260,7 +261,7 @@
                             @csrf
                             @method('PATCH')
 
-                            <!-- Mot de passe actuel -->
+                            {{-- <!-- Mot de passe actuel -->
                             <div class="form-group password-wrapper">
                                 <label for="current_password">@lang('Current Password')</label>
                                 <input type="password" name="current_password" id="current_password" class="form-control"
@@ -269,7 +270,7 @@
                                 @error('current_password')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
-                            </div>
+                            </div> --}}
 
                             <!-- Nouveau mot de passe -->
                             <div class="form-group password-wrapper">
@@ -294,29 +295,7 @@
                                 @lang('Update Password')
                             </button>
                         </form>
-
                         <hr>
-
-                        <!-- Formulaire de suppression du compte -->
-                        <form id="delete-form" method="POST" action="{{ route('profile.destroy') }}">
-                            @csrf
-                            @method('DELETE')
-
-                            <div class="form-group password-wrapper">
-                                <label for="delete_password">@lang('Confirm Password to Delete')</label>
-                                <input type="password" name="delete_password" id="delete_password" class="form-control"
-                                    required>
-                                <i class="fas fa-eye password-toggle" data-target="delete_password"></i>
-                                @error('delete_password')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <button style="background: red" type="submit" class="btn btn-danger">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                @lang('Delete Account')
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>

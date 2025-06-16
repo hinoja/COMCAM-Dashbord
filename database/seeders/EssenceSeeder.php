@@ -866,7 +866,7 @@ class EssenceSeeder extends Seeder
             ['nom_local' => 'Vessambata', 'code' => '1918'],
             ['nom_local' => 'Vitex', 'code' => '3228'],
             ['nom_local' => 'Wamba', 'code' => '1919'],
-            ['nom_local' => 'Wambac à GF', 'code' => '1920'],
+            ['nom_local' => 'Wamba à GF', 'code' => '1920'],
             ['nom_local' => 'Wengé', 'code' => '1126'],
             ['nom_local' => 'Xymalos', 'code' => '3127'],
             ['nom_local' => 'Yungu', 'code' => '1921'],

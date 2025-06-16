@@ -4,16 +4,17 @@
 
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
-        <div class="sidebar-brand">
+        <div class="sidebar-brand text-center ">
             <a href="#">
-               <span> <img alt="image" src="{{ asset('logo.jpg') }}" class="rounded-circle mr-1" width="60">
-                {{ config('app.name', 'COMCAM') }}</span>
+                <span> <img alt="image" src="{{ asset('logo.jpg') }}" class="rounded-circle mr-1 text-center"
+                        width="60">
+                    {{ config('app.name', 'COMCAM') }}</span>
             </a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
             <a href="#">E&F CC</a>
         </div>
-        <ul class="sidebar-menu"> 
+        <ul class="sidebar-menu">
             <li class="@if ($currentUri === 'dashboard') active @endif">
                 <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt"></i>
                     <span>@lang('Tableau de bord')</span></a>
@@ -21,10 +22,10 @@
 
             @auth
                 {{-- @if (Auth::user()->role_id < 2) --}}
-                    <li class="@if (Str::contains($currentUri, 'users')) active @endif">
-                        <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
-                            <span>@lang('Users')</span></a>
-                    </li>
+                <li class="@if (Str::contains($currentUri, 'users')) active @endif">
+                    <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
+                        <span>@lang('Users')</span></a>
+                </li>
                 {{-- @endif --}}
             @endauth
 
@@ -40,7 +41,7 @@
             <li class="@if (Str::contains($currentUri, 'essence')) active @endif">
                 <a class="nav-link" href="{{ route('admin.essence.index') }}"><i class="fas fa-tree"></i>
                     <span>@lang('Essences')</span></a>
-                    </li>
+            </li>
 
 
 

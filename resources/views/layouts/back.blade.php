@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <title>@yield('subtitle') | {{ 'Admin' . ' ' . config('app.name', 'COMCAM') }}</title>
+    <title>@yield('subtitle') | {{ config('app.name', 'COMCAM') }}</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('logo.jpg') }}">

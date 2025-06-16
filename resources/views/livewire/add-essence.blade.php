@@ -10,10 +10,8 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="code">Code <span class="text-danger">*</span></label>
-                        <input type="text" 
-                               class="form-control @error('code') is-invalid @enderror" 
-                               wire:model="code"
-                               placeholder="Ex: SAP">
+                        <input type="text" class="form-control @error('code') is-invalid @enderror" wire:model="code"
+                            placeholder="Ex: SAP">
                         @error('code')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -24,10 +22,8 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="nom_local">Nom Local <span class="text-danger">*</span></label>
-                        <input type="text" 
-                               class="form-control @error('nom_local') is-invalid @enderror" 
-                               wire:model="nom_local"
-                               placeholder="Ex: Sapelli">
+                        <input type="text" class="form-control @error('nom_local') is-invalid @enderror"
+                            wire:model="nom_local" placeholder="Ex: Sapelli">
                         @error('nom_local')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
