@@ -24,8 +24,8 @@ class Titre extends Model
     {
         // return $this->belongsToMany(Essence::class,'titre_id','essence_id');
         return $this->belongsToMany(Essence::class)
-        ->withPivot('volume', 'VolumeRestant')
-        ->withTimestamps();
+            ->withPivot('volume', 'VolumeRestant', 'type_id', 'forme_id')
+            ->withTimestamps();
     }
 
     // public function forme()
