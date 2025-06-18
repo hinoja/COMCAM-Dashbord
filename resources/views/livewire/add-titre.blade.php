@@ -123,7 +123,7 @@
                 Détails des Ressources
             </h3>
 
- <!-- Bouton -->
+            <!-- Bouton -->
             <button type="button" wire:click="addDetail" style="color: white; background:green; float:right"
                 style="color: white; background:green;"
                 class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
