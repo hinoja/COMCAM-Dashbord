@@ -14,8 +14,8 @@
                     <a href="{{ route('admin.transaction.export') }}" class="btn btn-success">
                         <i class="fas fa-download mr-2"></i>Exporter Excel
                     </a>
-
             </div>
+
         </div>
 
         <div class="container-fluid">
