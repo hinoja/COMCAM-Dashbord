@@ -11,9 +11,9 @@
                     <i class="fas fa-plus me-2"></i>Ajouter une Transaction
                 </a>
 
-                    <a href="{{ route('admin.transaction.export') }}" class="btn btn-success">
-                        <i class="fas fa-download mr-2"></i>Exporter Excel
-                    </a>
+                <a href="{{ route('admin.transaction.export') }}" class="btn btn-success">
+                    <i class="fas fa-download mr-2"></i>Exporter Excel
+                </a>
             </div>
 
         </div>
@@ -33,6 +33,78 @@
 
 @push('css')
     @livewireStyles()
+    <style>
+        /* Surlignage des résultats de recherche */
+        .highlight {
+            background-color: #fefcbf;
+            font-weight: bold;
+        }
+
+        /* Style moderne pour le tableau */
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        /* Pagination personnalisée */
+        .pagination .page-link {
+            border-radius: 50%;
+            margin: 0 3px;
+            color: #007bff;
+            border: none;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #ccc;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Boutons d'action */
+        .btn-group .btn {
+            transition: transform 0.2s ease;
+        }
+
+        .btn-group .btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Filtres */
+        .form-group {
+            transition: all 0.3s ease;
+        }
+
+        .form-group:focus-within label {
+            color: #007bff;
+        }
+
+        .tom-select .ts-control {
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap4.min.css" rel="stylesheet">
 @endpush
 
@@ -42,10 +114,3 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 @endpush
-
-
-
-
-
-
-

@@ -5,10 +5,10 @@ namespace App\Livewire;
 use App\Models\Transaction;
 use App\Models\Essence;
 use App\Models\Forme;
-use Illuminate\Support\Facades\DB;
 use App\Models\Type;
 use App\Models\Societe;
 use App\Models\Titre;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -23,30 +23,27 @@ class ManageTransaction extends Component
     public $formeFilter = '';
     public $typeFilter = '';
     public $societeFilter = '';
-    // public $titreFilter = '';
-    public $selectedTransaction = null; // Pour stocker les détails de la transaction sélectionnée
-    public $searchTitre = '';
-    public $titresSuggestions = [];
-    public $titreFilter = null;
+    public $titreFilter = '';
+    public $selectedTransaction = null;
 
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->essenceFilter = '';
+        $this->formeFilter = '';
+        $this->typeFilter = '';
+        $this->societeFilter = '';
+        $this->titreFilter = '';
+        $this->perPage = 10;
+        $this->resetPage();
+    }
 
-    // public function confirmDelete($id)
-    // {
-    //     $this->dispatch('confirmDelete', $id); // Émet l'événement pour la confirmation
-    // }
-
-
-    // Correction du listener
-    // Supprimer ce listener car il crée une boucle
-    // protected $listeners = ['confirmDelete' => 'deleteTransaction'];
     public function deleteTransaction($id)
     {
         try {
             DB::beginTransaction();
 
-            $transaction = Transaction::findOrFail($id); // Utiliser findOrFail au lieu de find
-
-            // Récupérer le titre et l'essence associés
+            $transaction = Transaction::findOrFail($id);
             $titre = $transaction->titre;
             $essence = $transaction->essence;
 
@@ -54,43 +51,23 @@ class ManageTransaction extends Component
                 throw new \Exception('Les données associées à cette transaction sont incomplètes.');
             }
 
-            // Calculer le volume à restaurer
             $volumeARestaurer = $transaction->volume;
-
-            // Mettre à jour le volume restant dans la table pivot titre_essence
             $titre->essence()->updateExistingPivot($essence->id, [
                 'VolumeRestant' => DB::raw("VolumeRestant + $volumeARestaurer")
             ]);
 
-            // Supprimer la transaction
             $transaction->delete();
 
             DB::commit();
             session()->flash('success', 'Transaction supprimée avec succès');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Erreur lors de la suppression de la transaction : ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression : ' . $e->getMessage());
         }
-        redirect()->route('admin.transaction.index');
+
+        return redirect()->route('admin.transaction.index');
     }
 
-
-    // public function showDetails($id)
-    // {
-    //     $this->selectedTransaction = Transaction::with([
-    //         'essence' => function ($query) {
-    //             $query->with(['formeEssence' => function ($query) {
-    //                 $query->with(['forme', 'type']);
-    //             }]);
-    //         },
-    //         'societe',
-    //         'titre'
-    //     ])->findOrFail($id);
-
-    //     $this->dispatch('showTransactionDetails'); // Émet l'événement pour JS
-    // }
-
-    // Méthode pour fermer la modale
     public function closeDetails()
     {
         $this->selectedTransaction = null;
@@ -98,6 +75,8 @@ class ManageTransaction extends Component
 
     public function render()
     {
+        $searchTerm = trim($this->search);
+
         $transactions = Transaction::with([
             'essence' => function ($query) {
                 $query->with(['formeEssence' => function ($query) {
@@ -107,21 +86,33 @@ class ManageTransaction extends Component
             'societe',
             'titre'
         ])
-            ->when($this->search, function ($query) {
-                $query->where('destination', 'like', '%' . $this->search . '%')
-                    ->orWhere('pays', 'like', '%' . $this->search . '%');
+            ->when($searchTerm, function ($query) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('destination', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('pays', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('numero', 'like', '%' . $searchTerm . '%')
+                      ->orWhereHas('titre', function ($q) use ($searchTerm) {
+                          $q->where('nom', 'like', '%' . $searchTerm . '%');
+                      })
+                      ->orWhereHas('societe', function ($q) use ($searchTerm) {
+                          $q->where('acronym', 'like', '%' . $searchTerm . '%');
+                      })
+                      ->orWhereHas('essence', function ($q) use ($searchTerm) {
+                          $q->where('nom_local', 'like', '%' . $searchTerm . '%');
+                      });
+                });
             })
             ->when($this->essenceFilter, function ($query) {
                 $query->where('essence_id', $this->essenceFilter);
             })
             ->when($this->formeFilter, function ($query) {
-                $query->whereHas('essence.formeEssence', function ($query) {
-                    $query->where('forme_id', $this->formeFilter);
+                $query->whereHas('essence.formeEssence', function ($q) {
+                    $q->where('forme_id', $this->formeFilter);
                 });
             })
             ->when($this->typeFilter, function ($query) {
-                $query->whereHas('essence.formeEssence', function ($query) {
-                    $query->where('type_id', $this->typeFilter);
+                $query->whereHas('essence.formeEssence', function ($q) {
+                    $q->where('type_id', $this->typeFilter);
                 });
             })
             ->when($this->societeFilter, function ($query) {
@@ -130,7 +121,7 @@ class ManageTransaction extends Component
             ->when($this->titreFilter, function ($query) {
                 $query->where('titre_id', $this->titreFilter);
             })
-            ->paginate($this->perPage);
+            ->paginate($this->perPage == 'all' ? Transaction::count() : $this->perPage);
 
         return view('livewire.manage-transaction', [
             'transactions' => $transactions,
@@ -139,6 +130,7 @@ class ManageTransaction extends Component
             'types' => Type::all(['id', 'code']),
             'societes' => Societe::all(['id', 'acronym']),
             'titres' => Titre::all(['id', 'nom']),
+            'searchTerm' => $searchTerm, // Passer pour surligner les résultats
         ]);
     }
 }

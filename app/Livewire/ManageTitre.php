@@ -8,6 +8,7 @@ use App\Models\Forme;
 use App\Models\Type;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 
 class ManageTitre extends Component
 {
@@ -20,81 +21,107 @@ class ManageTitre extends Component
     public $essenceFilter = '';
     public $formeFilter = '';
     public $typeFilter = '';
-    public $selectedTitre = null; // Pour stocker les détails du titre sélectionné
+    public $selectedTitre = null;
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->essenceFilter = '';
+        $this->formeFilter = '';
+        $this->typeFilter = '';
+        $this->perPage = 10;
+        $this->resetPage();
+    }
+
+    public function confirmDelete($id)
+    {
+        $this->dispatch('confirmDelete', $id);
+    }
 
     public function delete($id)
     {
         try {
-            $titre = Titre::findOrFail($id); // Récupérer le titre
-            //faire une suppression en cascade
-            //ajouter un test pour verifier si ce titre est associé à des transactions et commencer par supprimer les transactions avant
-
+            DB::beginTransaction();
+            $titre = Titre::findOrFail($id);
             $titre->transactions()->delete();
+            $titre->essence()->detach();
             $titre->delete();
-            session()->flash('message', 'Titre et toutes les transactions associées supprimée avec succès !');
+            DB::commit();
+            session()->flash('success', 'Titre et toutes les données associées supprimées avec succès !');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression du titre.');
+            DB::rollBack();
+            session()->flash('error', 'Erreur lors de la suppression : ' . $e->getMessage());
         }
-        redirect()->route('admin.titre.index');
-        // $this->alert('success', 'Titre supprimé avec succès !');
-
+        return redirect()->route('admin.titre.index');
     }
-    // Méthode pour afficher les détails d'un titre
+
     public function showDetails($id)
     {
-        $this->selectedTitre = Titre::with([
-            'zone',
-            'essence' => function ($query) {
-                $query->with(['formeEssence' => function ($query) {
-                    $query->with(['forme', 'type']);
-                }]);
-            }
-        ])->findOrFail($id);
+        $this->selectedTitre = Titre::with(['zone', 'essence.formeEssence.forme', 'essence.formeEssence.type'])->findOrFail($id);
     }
 
-    // Méthode pour fermer la modale
     public function closeDetails()
     {
         $this->selectedTitre = null;
     }
+
     public function render()
     {
-        // foreach ($essences ){
+        $searchTerm = trim($this->search);
 
-        // }
-        $titres = Titre::with([
+        $titresQuery = Titre::with([
             'zone',
             'essence' => function ($query) {
-                $query->with(['formeEssence' => function ($query) {
-                    $query->with(['forme', 'type']);
+                if ($this->essenceFilter) {
+                    $query->where('essences.id', $this->essenceFilter);
+                }
+                $query->with(['formeEssence' => function ($subQuery) {
+                    if ($this->formeFilter) {
+                        $subQuery->where('forme_id', $this->formeFilter);
+                    }
+                    if ($this->typeFilter) {
+                        $subQuery->where('type_id', $this->typeFilter);
+                    }
+                    $subQuery->with(['forme', 'type']);
                 }]);
             }
         ])
-            ->when($this->search, function ($query) {
-                $query->where('nom', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->essenceFilter, function ($query) {
-                $query->whereHas('essence', function ($query) {
-                    $query->where('essences.id', $this->essenceFilter);
+            ->when($searchTerm, function ($query) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('nom', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('exercice', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('localisation', 'like', '%' . $searchTerm . '%')
+                      ->orWhereHas('zone', function ($q) use ($searchTerm) {
+                          $q->where('name', 'like', '%' . $searchTerm . '%');
+                      });
                 });
             })
-            ->when($this->formeFilter, function ($query) {
-                $query->whereHas('essence.formeEssence', function ($query) {
-                    $query->where('forme_id', $this->formeFilter);
+            ->when($this->essenceFilter || $this->formeFilter || $this->typeFilter, function ($query) {
+                $query->whereHas('essence', function ($q) {
+                    if ($this->essenceFilter) {
+                        $q->where('essences.id', $this->essenceFilter);
+                    }
+                    if ($this->formeFilter || $this->typeFilter) {
+                        $q->whereHas('formeEssence', function ($subQ) {
+                            if ($this->formeFilter) {
+                                $subQ->where('forme_id', $this->formeFilter);
+                            }
+                            if ($this->typeFilter) {
+                                $subQ->where('type_id', $this->typeFilter);
+                            }
+                        });
+                    }
                 });
-            })
-            ->when($this->typeFilter, function ($query) {
-                $query->whereHas('essence.formeEssence', function ($query) {
-                    $query->where('type_id', $this->typeFilter);
-                });
-            })
-            ->paginate($this->perPage);
+            });
+
+        $titres = $titresQuery->paginate($this->perPage == 'all' ? Titre::count() : $this->perPage);
 
         return view('livewire.manage-titre', [
             'titres' => $titres,
-            'essences' =>  Essence::query()->get(['id', 'nom_local']),
+            'essences' => Essence::query()->get(['id', 'nom_local']),
             'formes' => Forme::query()->get(['id', 'designation']),
             'types' => Type::query()->get(['id', 'code']),
+            'searchTerm' => $searchTerm,
         ]);
     }
 }

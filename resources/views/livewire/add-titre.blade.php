@@ -58,8 +58,8 @@
                         class="w-full p-3 border rounded-lg @error('exercice') is-invalid @enderror">
                         @php
                             $currentYear = date('Y');
-                            $startYear = $currentYear - 2;
-                            $endYear = $currentYear + 3;
+                            $startYear = $currentYear - 1;
+                            $endYear = $currentYear + 1;
                         @endphp
                         @for ($year = $startYear; $year <= $endYear; $year++)
                             <option value="{{ $year }}"
@@ -123,8 +123,15 @@
                 Détails des Ressources
             </h3>
 
-
+ <!-- Bouton -->
+            <button type="button" wire:click="addDetail" style="color: white; background:green; float:right"
+                style="color: white; background:green;"
+                class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Ajouter
+            </button>
         </div>
+
 
         @foreach ($details as $index => $detail)
             <div class="grid grid-cols-0 md:grid-cols-4 gap-4 px-2 bg-gray-100 rounded-lg">
@@ -214,13 +221,7 @@
 
 
 
-            <!-- Bouton -->
-            <button type="button" wire:click="addDetail" style="color: white; background:green; float:right"
-                style="color: white; background:green;"
-                class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
-                <i class="fas fa-plus mr-2"></i>
-                Ajouter
-            </button>
+
         </div>
         <br><br>
         <!-- Tableau récapitulatif -->

@@ -18,18 +18,15 @@
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
 
-                    <img src="{{ Auth::user()->avatar ? Auth::user()->avatar : asset('back/img/avatar/avatar-1.png') }}"
-                        alt="{{ Auth::user()->name }}" class="rounded-circle mr-1" width="30"
-                        height="30">
-
-
-                {{-- @if (auth()->user()->avatar)
+                @if (auth()->user()->avatar)
                     <img alt="image" src="{{ auth()->user()->avatar }}" class="rounded-circle mr-1" width="30"
                         height="30">
                 @else
                     <img alt="image" src="{{ asset('back/img/avatar/avatar-1.png') }}" class="rounded-circle mr-1"
                         width="30" height="30">
-                @endif --}}
+                @endif
+
+
                 <div class="d-sm-none d-lg-inline-block">{{ auth()->user()->name }}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">

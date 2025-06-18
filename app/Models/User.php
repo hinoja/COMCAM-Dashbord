@@ -59,17 +59,30 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    /**
-     * Get the user's avatar URL.
+   /**
+     * Check if disabled account can login
+     *
+     * @return bool
+     *
      */
-    public function getAvatarAttribute()
+    public function canLogin(): bool
     {
-        $avatar = $this->attributes['avatar'] ?? null;
-        if ($avatar && Storage::disk('public')->exists($avatar)) {
-            return Storage::url($avatar);
-        }
-        return null;
+        return $this->is_active || (! $this->is_active && $this->disabled_by === $this->id);
     }
 
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            return Storage::url($this->avatar);
+        }
+        return asset('back/img/avatar/avatar-1.png');
+    }
+    /**
+     * Vérifie si l'utilisateur a un rôle spécifique.
+     */
+    public function hasRole($roleName)
+    {
+        return $this->role->name === $roleName;
+    }
 
 }

@@ -213,9 +213,8 @@
                             <!-- Section Avatar -->
                             <div class="text-center mb-4">
                                 <div class="profile-picture-wrapper">
-                                    <img id="profile-picture-preview"
-                                        src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('back/img/avatar/avatar-1.png') }}"
-                                        alt="Profile Picture" class="profile-picture">
+                                          <img id="profile-picture-preview" src="{{ $user->avatar }}" alt="Profile Picture"
+                                        class="profile-picture">
                                     <label class="profile-picture-input" for="avatar">
                                         <i class="fas fa-camera"></i>
                                         <input type="file" id="avatar" name="avatar" accept="image/*">

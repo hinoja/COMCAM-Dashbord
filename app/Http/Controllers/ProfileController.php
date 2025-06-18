@@ -26,12 +26,15 @@ class ProfileController extends Controller
     /**
      * Met à jour les informations du profil (nom, email, avatar).
      */
+      /**
+     * Met à jour les informations du profil (nom, email, avatar).
+     */
     public function update(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user()->id],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Changé de 'required' à 'nullable'
         ]);
 
         $user = $request->user();
@@ -46,35 +49,20 @@ class ProfileController extends Controller
             $user->email_verified_at = null;
         }
 
-        // if ($request->hasFile('avatar')) {
-        //     if ($user->avatar) {
-        //         Storage::disk('public')->delete($user->avatar);
-        //     }
-        //     $data['avatar'] = $request->file('avatar')->store('users/avatars', 'public');
-        // }
-
-
-
-
-        // Supprimer l'ancien avatar s'il existe
-        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('users/avatars', 'public');
         }
-
-        // Stocker le nouvel avatar
-        $path = $request->file('avatar')->store('users/avatars/' . Str::slug($user->name), 'public');
-
-        // Mettre à jour l'utilisateur
-        $user->avatar = $path;
-        // $user->save();
 
         if (!empty($data)) {
             $user->update($data);
         }
+
         session()->flash('success', __('Your profile has been successfully updated! 🎉'));
 
         return redirect()->route('profile.edit');
-
     }
 
     /**
