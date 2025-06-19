@@ -79,8 +79,23 @@ class TitreImport implements ToModel, SkipsEmptyRows
 
     private function formatVolume($volume): float
     {
-        $volume = str_replace([' ', ','], ['', '.'], trim($volume));
-        return number_format((float)$volume, 3, '.', '');
+        $cleanVolume = str_replace([' ', ','], ['', '.'], trim($volume));
+        
+        // Accepter explicitement 0
+        if ($cleanVolume === '0' || $cleanVolume === 0) {
+            return 0.000;
+        }
+        
+        if (!is_numeric($cleanVolume)) {
+            throw new \Exception("Volume invalide: format incorrect");
+        }
+        
+        $floatVolume = (float)$cleanVolume;
+        if ($floatVolume < 0) {
+            throw new \Exception("Volume invalide: valeur négative");
+        }
+        
+        return number_format($floatVolume, 3, '.', '');
     }
 
     private function validateRow(array $row): void
@@ -95,18 +110,22 @@ class TitreImport implements ToModel, SkipsEmptyRows
             2 => ['field' => 'localité', 'type' => 'string'],
             3 => ['field' => 'zone_id', 'type' => 'numeric'],
             4 => ['field' => 'essence_id', 'type' => 'numeric'],
-            5 => ['field' => 'type_id', 'type' => 'numeric'],
-            6 => ['field' => 'forme_id', 'type' => 'numeric'],
+            5 => ['field' => 'forme_id', 'type' => 'numeric'],
+            6 => ['field' => 'type_id', 'type' => 'numeric'],
             7 => ['field' => 'volume', 'type' => 'numeric']
         ];
 
         foreach ($requiredFields as $index => $validation) {
-            if (!isset($row[$index]) || empty($row[$index])) {
+            // Modification pour accepter 0 comme valeur valide
+            if (!isset($row[$index]) || ($validation['field'] !== 'volume' && empty($row[$index]))) {
                 throw new \Exception("Champ {$validation['field']} manquant");
             }
-            
-            if ($validation['type'] === 'numeric' && !is_numeric(str_replace(',', '.', $row[$index]))) {
-                throw new \Exception("Le champ {$validation['field']} doit être numérique");
+
+            if ($validation['type'] === 'numeric') {
+                $value = str_replace(',', '.', $row[$index]);
+                if (!is_numeric($value) && $value !== '0') {
+                    throw new \Exception("Le champ {$validation['field']} doit être numérique");
+                }
             }
         }
     }
@@ -119,16 +138,16 @@ class TitreImport implements ToModel, SkipsEmptyRows
                 throw new \Exception("Année invalide");
             }
 
-            Log::info('Données reçues:', [
-                'exercice' => $row[0],
-                'code_titre' => $row[1],
-                'localite' => $row[2],
-                'zone_id' => $row[3],
-                'essence_id' => $row[4],
-                'type_id' => $row[5],
-                'forme_id' => $row[6],
-                'volume' => $row[7] ?? null
-            ]);
+            // Log::info('Données reçues:', [
+            //     'exercice' => $row[0],
+            //     'code_titre' => $row[1],
+            //     'localite' => $row[2],
+            //     'zone_id' => $row[3],
+            //     'essence_id' => $row[4],
+            //     'type_id' => $row[5],
+            //     'forme_id' => $row[6],
+            //     'volume' => $row[7] ?? null
+            // ]);
 
             DB::beginTransaction();
 
@@ -143,7 +162,7 @@ class TitreImport implements ToModel, SkipsEmptyRows
             );
 
             // Validate volume
-            if (empty($row[7]) || !is_numeric(str_replace(',', '.', $row[7]))) {
+            if (!isset($row[7]) || (!is_numeric(str_replace(',', '.', $row[7])) && $row[7] !== '0')) {
                 throw new \Exception("Volume invalide: {$row[7]}");
             }
 
@@ -154,8 +173,8 @@ class TitreImport implements ToModel, SkipsEmptyRows
                 $row[4] => [ // essence_id est maintenant à l'index 4
                     'volume' => $volume,
                     'VolumeRestant' => $volume,
-                    'type_id' => $row[5], // type_id direct du fichier
-                    'forme_id' => $row[6], // forme_id direct du fichier
+                    'type_id' => $row[6], // type_id direct du fichier
+                    'forme_id' => $row[5], // forme_id direct du fichier
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]
@@ -165,8 +184,8 @@ class TitreImport implements ToModel, SkipsEmptyRows
             FormeEssence::updateOrCreate(
                 ['essence_id' => $row[4]],
                 [
-                    'forme_id' => $row[6],
-                    'type_id' => $row[5]
+                    'forme_id' => $row[5],
+                    'type_id' => $row[6]
                 ]
             );
 

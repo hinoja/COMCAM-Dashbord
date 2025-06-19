@@ -114,7 +114,11 @@ class ManageTitre extends Component
                 });
             });
 
-        $titres = $titresQuery->paginate($this->perPage == 'all' ? Titre::count() : $this->perPage);
+        if ($this->perPage === 'all') {
+            $titres = $titresQuery->get();
+        } else {
+            $titres = $titresQuery->paginate((int) $this->perPage);
+        }
 
         return view('livewire.manage-titre', [
             'titres' => $titres,
