@@ -143,98 +143,42 @@
             </thead>
 
             <tbody>
-                @forelse($titres as $titre)
-                    @php
-                        $essenceCount = $titre->essence->count();
-                    @endphp
-
-                    @if ($essenceCount > 0)
-                        @foreach ($titre->essence as $index => $essence)
-                            <tr class="transition-all hover:bg-gray-50 @if ($index % 2 == 1) bg-light @endif">
-                                <td class="p-3">{{ $loop->parent->iteration }}</td>
-                                <td class="p-3">{{ $titre->exercice }}</td>
-                                <td class="p-3">{{ $titre->nom }}</td>
-                                <td class="p-3">{{ $titre->localisation }}</td>
-                                <td class="p-3">{{ $titre->zone->name ?? '-' }}</td>
-                                <td class="p-3">{{ $essence->nom_local }}</td>
-                                <td class="p-3">{{ $essence->formeEssence->forme->designation ?? '-' }}</td>
-                                <td class="p-3">{{ $essence->formeEssence->type->code ?? '-' }}</td>
-                                <td class="p-3">
-                                    {{ number_format($essence->pivot->volume, 3, ',', ' ') }}
-                                </td>
-                                <td class="p-3">
-                                    @php
-                                        $volumeInitial = $essence->pivot->volume;
-                                        $volumeRestant = $essence->pivot->VolumeRestant;
-                                        $pourcentage = $volumeInitial > 0 ? ($volumeRestant / $volumeInitial) * 100 : 0;
-                                    @endphp
-                                    <span class="@if ($volumeRestant > $volumeInitial || $volumeRestant <= 0)
-                                            text-danger font-weight-bold
-                                         @elseif ($pourcentage <= 30)
-                                            text-warning font-weight-bold
-                                         @else
-                                            text-success font-weight-bold
-                                         @endif">
-                                        {{ number_format($volumeRestant, 3, ',', ' ') }}
-                                        <small class="d-block text-muted">
-                                            ({{ number_format($pourcentage, 1) }}%)
-                                        </small>
-                                    </span>
-                                </td>
-                                <td class="p-3">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('admin.titre.edit', $titre) }}"
-                                            class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button wire:click="delete({{ $titre->id }})"
-                                            class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                                            onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
-                        <tr class="transition-all hover:bg-gray-50">
-                            <td class="p-3">{{ $loop->iteration }}</td>
-                            <td class="p-3">{{ $titre->exercice }}</td>
-                            <td class="p-3">{{ $titre->nom }}</td>
-                            <td class="p-3">{{ $titre->localisation }}</td>
-                            <td class="p-3">{{ $titre->zone->name ?? '-' }}</td>
-                            <td class="p-3">-</td>
-                            <td class="p-3">-</td>
-                            <td class="p-3">-</td>
-                            <td class="p-3">-</td>
-                            <td class="p-3">-</td>
-                            <td class="p-3">
-                                <div class="btn-group" role="group">
-                                    {{-- <button wire:click="showDetails({{ $titre->id }})"
-                                        class="btn btn-sm btn-info mr-2" title="Voir les détails">
-                                        <i class="fas fa-eye"></i>
-                                    </button> --}}
-
-                                    <button wire:click="deleteTransaction({{ $titre->id }})"
-                                        class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')"
-                                        title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @endif
-                @empty
-                    <tr>
-                        <td colspan="11" class="text-center py-5">
-                            <div class="text-muted">
-                                <i class="fas fa-search fa-2x mb-3 opacity-75"></i>
-                                <p class="fs-5">Aucun titre trouvé avec ces critères</p>
-                            </div>
-                        </td>
-                    </tr>
-                @endforelse
+                @forelse($rows as $row)
+        <tr>
+            <td class="p-3">{{ $loop->iteration + ($rows->currentPage() - 1) * $rows->perPage() }}</td>
+            <td class="p-3">{{ $row->exercice }}</td>
+            <td class="p-3">{{ $row->titre_nom }}</td>
+            <td class="p-3">{{ $row->localisation }}</td>
+            <td class="p-3">{{ $row->zone_nom }}</td>
+            <td class="p-3">{{ $row->essence_nom }}</td>
+            <td class="p-3">{{ $row->forme_nom }}</td>
+            <td class="p-3">{{ $row->type_code }}</td>
+            <td class="p-3">{{ number_format($row->volume, 3, ',', ' ') }}</td>
+            <td class="p-3">{{ number_format($row->VolumeRestant, 3, ',', ' ') }}</td>
+            <td class="p-3">
+                <div class="btn-group" role="group">
+                    <a href="{{ route('admin.titre.edit', $row->titre_id) }}"
+                        class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button wire:click="delete({{ $row->titre_id }})"
+                        class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
+                        onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="11" class="text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-search fa-2x mb-3 opacity-75"></i>
+                    <p class="fs-5">Aucun résultat trouvé avec ces critères</p>
+                </div>
+            </td>
+        </tr>
+    @endforelse
             </tbody>
         </table>
     </div>
@@ -242,10 +186,10 @@
     <!-- Pagination et infos -->
     <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div class="text-muted">
-            Affichage de {{ $titres->firstItem() }} à {{ $titres->lastItem() }} sur {{ $titres->total() }} résultats
+            Affichage de {{ $rows->firstItem() }} à {{ $rows->lastItem() }} sur {{ $rows->total() }} résultats
         </div>
         <div class="pagination-wrapper">
-            {{ $titres->links() }}
+            {{ $rows->links() }}
         </div>
     </div>
 

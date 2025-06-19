@@ -232,7 +232,9 @@ class AddTitre extends Component
                 // Créer l'entrée dans la table pivot
                 $titre->essence()->attach($detail['essence_id'], [
                     'volume' => $detail['volume'],
-                    'VolumeRestant' => $detail['volume'], // Initialiser le volume restant
+                    'VolumeRestant' => $detail['volume'],
+                    'type_id' => $detail['type_id'],     // Ajout du type_id
+                    'forme_id' => $detail['forme_id'],    // Ajout du forme_id
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

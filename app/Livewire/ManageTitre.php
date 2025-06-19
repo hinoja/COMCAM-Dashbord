@@ -69,59 +69,46 @@ class ManageTitre extends Component
     {
         $searchTerm = trim($this->search);
 
-        $titresQuery = Titre::with([
-            'zone',
-            'essence' => function ($query) {
-                if ($this->essenceFilter) {
-                    $query->where('essences.id', $this->essenceFilter);
-                }
-                $query->with(['formeEssence' => function ($subQuery) {
-                    if ($this->formeFilter) {
-                        $subQuery->where('forme_id', $this->formeFilter);
-                    }
-                    if ($this->typeFilter) {
-                        $subQuery->where('type_id', $this->typeFilter);
-                    }
-                    $subQuery->with(['forme', 'type']);
-                }]);
-            }
-        ])
-            ->when($searchTerm, function ($query) use ($searchTerm) {
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('nom', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('exercice', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('localisation', 'like', '%' . $searchTerm . '%')
-                      ->orWhereHas('zone', function ($q) use ($searchTerm) {
-                          $q->where('name', 'like', '%' . $searchTerm . '%');
-                      });
-                });
-            })
-            ->when($this->essenceFilter || $this->formeFilter || $this->typeFilter, function ($query) {
-                $query->whereHas('essence', function ($q) {
-                    if ($this->essenceFilter) {
-                        $q->where('essences.id', $this->essenceFilter);
-                    }
-                    if ($this->formeFilter || $this->typeFilter) {
-                        $q->whereHas('formeEssence', function ($subQ) {
-                            if ($this->formeFilter) {
-                                $subQ->where('forme_id', $this->formeFilter);
-                            }
-                            if ($this->typeFilter) {
-                                $subQ->where('type_id', $this->typeFilter);
-                            }
-                        });
-                    }
-                });
-            });
+        $query = DB::table('essence_titre')
+            ->join('titres', 'essence_titre.titre_id', '=', 'titres.id')
+            ->join('essences', 'essence_titre.essence_id', '=', 'essences.id')
+            ->join('formes', 'essence_titre.forme_id', '=', 'formes.id')
+            ->join('types', 'essence_titre.type_id', '=', 'types.id')
+            ->join('zones', 'titres.zone_id', '=', 'zones.id')
+            ->select(
+                'essence_titre.*',
+                'titres.nom as titre_nom',
+                'titres.exercice',
+                'titres.localisation',
+                'zones.name as zone_nom',
+                'essences.nom_local as essence_nom',
+                'formes.designation as forme_nom',
+                'types.code as type_code'
+            );
 
-        if ($this->perPage === 'all') {
-            $titres = $titresQuery->get();
-        } else {
-            $titres = $titresQuery->paginate((int) $this->perPage);
+        if ($this->essenceFilter) {
+            $query->where('essence_titre.essence_id', $this->essenceFilter);
+        }
+        if ($this->formeFilter) {
+            $query->where('essence_titre.forme_id', $this->formeFilter);
+        }
+        if ($this->typeFilter) {
+            $query->where('essence_titre.type_id', $this->typeFilter);
+        }
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('titres.nom', 'like', "%$searchTerm%")
+                  ->orWhere('titres.exercice', 'like', "%$searchTerm%")
+                  ->orWhere('titres.localisation', 'like', "%$searchTerm%")
+                  ->orWhere('zones.name', 'like', "%$searchTerm%")
+                  ->orWhere('essences.nom_local', 'like', "%$searchTerm%");
+            });
         }
 
+        $rows = $query->orderBy('titres.exercice', 'desc')->paginate($this->perPage);
+
         return view('livewire.manage-titre', [
-            'titres' => $titres,
+            'rows' => $rows,
             'essences' => Essence::query()->get(['id', 'nom_local']),
             'formes' => Forme::query()->get(['id', 'designation']),
             'types' => Type::query()->get(['id', 'code']),

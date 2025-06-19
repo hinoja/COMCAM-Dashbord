@@ -169,7 +169,7 @@
                     <div class="col-md-3">
                         <label>Sélectionner un type</label>
                         <div class="relative">
-                            <select wire:model="details.{{ $index }}.type_id"
+                            <select wire:model="details.{{ $index }}.type_id" name="details.{{ $index }}.type_id"
                                 class="select-custom w-full p-3 border rounded-lg pr-8"
                                 wire:key="type-select-{{ $index }}-{{ $detail['forme_id'] }}"
                                 @if ($detail['forme_id'] == 1) disabled @endif>

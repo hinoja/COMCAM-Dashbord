@@ -80,21 +80,21 @@ class TitreImport implements ToModel, SkipsEmptyRows
     private function formatVolume($volume): float
     {
         $cleanVolume = str_replace([' ', ','], ['', '.'], trim($volume));
-        
+
         // Accepter explicitement 0
         if ($cleanVolume === '0' || $cleanVolume === 0) {
             return 0.000;
         }
-        
+
         if (!is_numeric($cleanVolume)) {
             throw new \Exception("Volume invalide: format incorrect");
         }
-        
+
         $floatVolume = (float)$cleanVolume;
         if ($floatVolume < 0) {
             throw new \Exception("Volume invalide: valeur négative");
         }
-        
+
         return number_format($floatVolume, 3, '.', '');
     }
 
@@ -182,7 +182,10 @@ class TitreImport implements ToModel, SkipsEmptyRows
 
             // Update FormeEssence
             FormeEssence::updateOrCreate(
-                ['essence_id' => $row[4]],
+                [
+                    'essence_id' => $row[4],
+
+                ],
                 [
                     'forme_id' => $row[5],
                     'type_id' => $row[6]
