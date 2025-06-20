@@ -12,18 +12,9 @@
         </div>
     @endif
 
-    <!-- Styles -->
     <style>
-        /* Reset et styles de base */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-        }
-
-        /* Styles globaux */
         :root {
             --primary: #4e73df;
-            --secondary: #858796;
             --success: #1cc88a;
             --danger: #e74a3b;
             --light: #f8f9fc;
@@ -35,27 +26,11 @@
             font-weight: bold;
         }
 
-        .table {
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .table th,
-        .table td {
-            vertical-align: middle;
-            border: 1px solid #e3e6f0;
-        }
-
         .table th {
             background-color: var(--primary);
             color: white;
             font-weight: 600;
-        }
-
-        .table-hover tbody tr {
-            transition: background-color 0.2s ease;
+            border: none;
         }
 
         .form-select,
@@ -63,7 +38,6 @@
             border-radius: 0.5rem;
             border: 1px solid #d1d3e2;
             padding: 0.65rem 1rem;
-            transition: border-color 0.2s ease;
         }
 
         .form-control:focus {
@@ -90,39 +64,15 @@
         .rounded-lg {
             border-radius: 0.75rem;
         }
-
-        .pagination .page-link {
-            border-radius: 50%;
-            margin: 0 3px;
-            color: var(--primary);
-            border: none;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            color: #ccc;
-        }
-
-        .pagination .page-link:hover {
-            background-color: #e9ecef;
-        }
     </style>
 
     <!-- Filtres -->
     <div class="row g-3 mb-4 bg-light p-4 rounded-lg shadow-sm">
         <div class="col-md-3 col-12">
             <div class="form-group">
-                <label class="form-label fw-bold mb-2">Recherche</label>
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-search me-1 text-primary"></i>Recherche
+                </label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
                     <input type="text" wire:model.live.debounce.600ms="search" class="form-control"
@@ -132,7 +82,9 @@
         </div>
         <div class="col-md col-6">
             <div class="form-group">
-                <label class="form-label fw-bold mb-2">Essence</label>
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-leaf me-1 text-success"></i>Essence
+                </label>
                 <select wire:model.live="essenceFilter" class="form-select">
                     <option value="">Toutes les essences</option>
                     @foreach ($essences as $essence)
@@ -143,7 +95,9 @@
         </div>
         <div class="col-md col-6">
             <div class="form-group">
-                <label class="form-label fw-bold mb-2">Forme</label>
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-cube me-1 text-info"></i>Forme
+                </label>
                 <select wire:model.live="formeFilter" class="form-select">
                     <option value="">Toutes les formes</option>
                     @foreach ($formes as $forme)
@@ -154,7 +108,9 @@
         </div>
         <div class="col-md col-6">
             <div class="form-group">
-                <label class="form-label fw-bold mb-2">Type</label>
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-tags me-1 text-warning"></i>Type
+                </label>
                 <select wire:model.live="typeFilter" class="form-select">
                     <option value="">Tous les types</option>
                     @foreach ($types as $type)
@@ -165,7 +121,9 @@
         </div>
         <div class="col-md col-6">
             <div class="form-group">
-                <label class="form-label fw-bold mb-2">Société</label>
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-building me-1 text-secondary"></i>Société
+                </label>
                 <select wire:model.live="societeFilter" class="form-select">
                     <option value="">Toutes les sociétés</option>
                     @foreach ($societes as $societe)
@@ -174,31 +132,11 @@
                 </select>
             </div>
         </div>
-        {{-- <div class="col-md col-6">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Titre</label>
-                <select wire:model.live="titreFilter" class="form-select">
-                    <option value="">Tous les titres</option>
-                    @foreach ($titres as $titre)
-                        <option value="{{ $titre->id }}">{{ $titre->nom }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div> --}}
-        <div class="col-md col-6">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Par page</label>
-                <select wire:model.live="perPage" class="form-select">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md col-6 d-flex align-items-end">
-            <button wire:click="resetFilters" class="btn btn-outline-secondary w-100">
-                <i class="fas fa-undo me-2"></i>Réinitialiser
+
+        <div class="col-md-2 col-6 d-flex align-items-end">
+            <button wire:click="resetFilters" class="btn w-100"
+                style="background: linear-gradient(90deg, #4e73df 0%, #6fcf97 100%); color: #fff; border: none;">
+                <i class="fas fa-undo"></i> Réinitialiser
             </button>
         </div>
     </div>
@@ -219,14 +157,15 @@
                     <th style="color: white" class="p-3 text-nowrap">Essence</th>
                     <th style="color: white" class="p-3 text-nowrap">Forme</th>
                     <th style="color: white" class="p-3 text-nowrap">Type</th>
-                    <th style="color: white" class="p-3 text-nowrap">Volume</th>
+                    <th style="color: white" class="p-3 text-nowrap">Volume (m³)</th>
                     <th style="color: white" class="p-3 text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($transactions as $transaction)
-                    <tr class="transition-all hover:bg-gray-50">
-                        <td class="p-3">{{ $loop->iteration }}</td>
+                    <tr class="transition-all hover:bg-gray-50 @if ($loop->odd) bg-light @endif">
+                        <td class="p-3">
+                            {{ $loop->iteration + ($transactions->currentPage() - 1) * $transactions->perPage() }}</td>
                         <td class="p-3">{{ $transaction->date }}</td>
                         <td class="p-3">{{ $transaction->exercice }}</td>
                         <td class="p-3">{!! str_ireplace($searchTerm, "<span class='highlight'>$searchTerm</span>", $transaction->numero) !!}</td>
@@ -247,7 +186,11 @@
                         <td class="p-3">
                             {{ $transaction->essence && $transaction->essence->formeEssence && $transaction->essence->formeEssence->type ? $transaction->essence->formeEssence->type->code : '-' }}
                         </td>
-                        <td class="p-3">{{ number_format($transaction->volume, 2, ',', '.') }}</td>
+                        <td class="p-3">
+                            <span class="badge bg-primary fs-6 text-white" style="font-size:1rem;">
+                                {{ number_format($transaction->volume, 3, ',', ' ') }}
+                            </span>
+                        </td>
                         <td class="p-3 text-end">
                             <div class="btn-group" role="group">
                                 <a href="{{ route('admin.transaction.edit', $transaction->id) }}"
@@ -288,27 +231,4 @@
             {{ $transactions->links() }}
         </div>
     </div>
-
-    @push('js')
-        <script>
-            document.addEventListener('livewire:load', function() {
-                Livewire.on('confirmDelete', function(id) {
-                    Swal.fire({
-                        title: 'Êtes-vous sûr ?',
-                        text: "Cette action est irréversible !",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Oui, supprimer !',
-                        cancelButtonText: 'Annuler'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            Livewire.emit('deleteTransaction', id);
-                        }
-                    });
-                });
-            });
-        </script>
-    @endpush
 </div>

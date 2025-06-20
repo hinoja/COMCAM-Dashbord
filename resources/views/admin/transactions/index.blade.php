@@ -58,8 +58,7 @@
         /* Pagination personnalisée */
         .pagination .page-link {
             border-radius: 50%;
-            margin: 0 3px;
-            color: #007bff;
+            margin: 0 3px; 
             border: none;
             width: 38px;
             height: 38px;
@@ -69,8 +68,7 @@
             transition: all 0.3s ease;
         }
 
-        .pagination .page-item.active .page-link {
-            background-color: #007bff;
+        .pagination .page-item.active .page-link { 
             color: white;
         }
 

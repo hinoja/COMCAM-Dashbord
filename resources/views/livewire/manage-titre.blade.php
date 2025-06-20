@@ -64,12 +64,13 @@
             border-radius: 0.75rem;
         }
     </style>
-
     <!-- Filtres -->
     <div class="row g-3 mb-4 bg-light p-4 rounded-lg shadow-sm">
-        <div class="col-md-3 col-12">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Recherche</label>
+        <div class="col-md-3 col-12 mb-3 mb-md-0">
+            <div class="form-group h-100 d-flex flex-column justify-content-end">
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-search me-1 text-primary"></i>Recherche
+                </label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
                     <input type="text" wire:model.live.debounce.600ms="search" class="form-control"
@@ -77,9 +78,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md col-6">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Essence</label>
+        <div class="col-md col-6 mb-3 mb-md-0">
+            <div class="form-group h-100 d-flex flex-column justify-content-end">
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-leaf me-1 text-success"></i>Essence
+                </label>
                 <select wire:model.live="essenceFilter" class="form-select">
                     <option value="">Toutes les essences</option>
                     @foreach ($essences as $essence)
@@ -88,9 +91,11 @@
                 </select>
             </div>
         </div>
-        <div class="col-md col-6">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Forme</label>
+        <div class="col-md col-6 mb-3 mb-md-0">
+            <div class="form-group h-100 d-flex flex-column justify-content-end">
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-cube me-1 text-info"></i>Forme
+                </label>
                 <select wire:model.live="formeFilter" class="form-select">
                     <option value="">Toutes les formes</option>
                     @foreach ($formes as $forme)
@@ -99,9 +104,11 @@
                 </select>
             </div>
         </div>
-        <div class="col-md col-6">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Type</label>
+        <div class="col-md col-6 mb-3 mb-md-0">
+            <div class="form-group h-100 d-flex flex-column justify-content-end">
+                <label class="form-label fw-bold mb-2">
+                    <i class="fas fa-tags me-1 text-warning"></i>Type
+                </label>
                 <select wire:model.live="typeFilter" class="form-select">
                     <option value="">Tous les types</option>
                     @foreach ($types as $type)
@@ -110,18 +117,20 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="form-group">
-                <label class="form-label fw-bold mb-2">Par page</label>
-                <select wire:model.live="perPage" class="form-select">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </div>
+        <div class="col-lg col-md-12 col-12 mt-3 mb-2 d-flex align-items-end">
+            <button type="button" wire:click="resetFilters" class="btn w-50 mr-3"
+                style="background: linear-gradient(90deg, #4e73df 0%, #6fcf97 100%); color: #fff; border: none;">
+                <i class="fas fa-undo"></i> Réinitialiser
+            </button>
+            <button type="button" wire:click="showTitresSensibles" style="background: rgb(196, 107, 107)"
+                class="btn btn-danger flex-fill" title="Afficher uniquement les titres critiques"
+                style="min-width: 140px;">
+                <i class="fas fa-exclamation-triangle me-3"></i> Titres critiques
+            </button>
         </div>
+
     </div>
+
 
     <!-- Tableau -->
     <div class="table-responsive shadow-sm rounded-lg bg-white">
@@ -144,41 +153,79 @@
 
             <tbody>
                 @forelse($rows as $row)
-        <tr>
-            <td class="p-3">{{ $loop->iteration + ($rows->currentPage() - 1) * $rows->perPage() }}</td>
-            <td class="p-3">{{ $row->exercice }}</td>
-            <td class="p-3">{{ $row->titre_nom }}</td>
-            <td class="p-3">{{ $row->localisation }}</td>
-            <td class="p-3">{{ $row->zone_nom }}</td>
-            <td class="p-3">{{ $row->essence_nom }}</td>
-            <td class="p-3">{{ $row->forme_nom }}</td>
-            <td class="p-3">{{ $row->type_code }}</td>
-            <td class="p-3">{{ number_format($row->volume, 3, ',', ' ') }}</td>
-            <td class="p-3">{{ number_format($row->VolumeRestant, 3, ',', ' ') }}</td>
-            <td class="p-3">
-                <div class="btn-group" role="group">
-                    <a href="{{ route('admin.titre.edit', $row->titre_id) }}"
-                        class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <button wire:click="delete({{ $row->titre_id }})"
-                        class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                        onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    @empty
-        <tr>
-            <td colspan="11" class="text-center py-5">
-                <div class="text-muted">
-                    <i class="fas fa-search fa-2x mb-3 opacity-75"></i>
-                    <p class="fs-5">Aucun résultat trouvé avec ces critères</p>
-                </div>
-            </td>
-        </tr>
-    @endforelse
+                    @php
+                        $volumeInitial = $row->volume;
+                        $volumeRestant = $row->VolumeRestant;
+                        $pourcentage = $volumeInitial > 0 ? ($volumeRestant / $volumeInitial) * 100 : 0;
+                        $progressColor =
+                            $volumeRestant > $volumeInitial || $volumeRestant <= 0
+                                ? 'bg-danger'
+                                : ($pourcentage <= 30
+                                    ? 'bg-warning'
+                                    : 'bg-success');
+                    @endphp
+                    <tr class="transition-all hover:bg-gray-50 @if ($loop->odd) bg-light @endif">
+                        <td class="p-3">{{ $loop->iteration + ($rows->currentPage() - 1) * $rows->perPage() }}</td>
+                        <td class="p-3">{{ $row->exercice }}</td>
+                        <td class="p-3">{{ $row->titre_nom }}</td>
+                        <td class="p-3">{{ $row->localisation }}</td>
+                        <td class="p-3">{{ $row->zone_nom }}</td>
+                        <td class="p-3">{{ $row->essence_nom }}</td>
+                        <td class="p-3">{{ $row->forme_nom }}</td>
+                        <td class="p-3">{{ $row->type_code }}</td>
+                        <td class="p-3" class="badge bg-primary fs-6" style="color: white"> <span
+                                class="badge bg-primary fs-6">{{ number_format($volumeInitial, 3, ',', ' ') }}</span>
+                        </td>
+                        <td class="p-3">
+                            @php
+                                // Définir la couleur selon le volume restant
+                                $isCritical = $volumeRestant <= 0 || $pourcentage <= 5;
+                                $valueColor = $isCritical ? '#dc3545' : '#198754'; // rouge si critique, vert sinon
+                                $bgColor = $isCritical ? '#f8d7da' : '#d1e7dd'; // fond rouge clair si critique, vert clair sinon
+                                // Barre de progression : rouge si critique, jaune si <=30%, vert sinon
+                                $progressBarColor = $isCritical
+                                    ? '#dc3545'
+                                    : ($pourcentage <= 30
+                                        ? '#ffc107'
+                                        : '#6fcf97');
+                            @endphp
+                            <span class="fw-bold"
+                                style="color: {{ $valueColor }}; background: {{ $bgColor }}; border-radius: 0.35rem; padding: 0.2em 0.7em;">
+                                {{ number_format($volumeRestant, 3, ',', ' ') }}
+                            </span>
+                            <div class="progress mt-1" style="height: 6px; background: #e9ecef;">
+                                <div class="progress-bar" role="progressbar"
+                                    style="width: {{ min(max($pourcentage, 0), 100) }}%; background: {{ $progressBarColor }};"
+                                    aria-valuenow="{{ $pourcentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted" style="color: {{ $isCritical ? '#dc3545' : '' }}">
+                                {{ number_format($pourcentage, 1) }}%
+                            </small>
+                        </td>
+                        <td class="p-3">
+                            <div class="btn-group" role="group">
+                                <a href="{{ route('admin.titre.edit', $row->titre_id) }}"
+                                    class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button wire:click="delete({{ $row->titre_id }})"
+                                    class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
+                                    onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="11" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-search fa-2x mb-3 opacity-75"></i>
+                                <p class="fs-5">Aucun résultat trouvé avec ces critères</p>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -278,7 +325,7 @@
 
                                             m³</td>
                                         <td class="border border-gray-300 p-2">
-                                            {{ number_format($selectedTitre->essence->sum('pivot.VolumeRestant'), 3,',', ' ') }}
+                                            {{ number_format($selectedTitre->essence->sum('pivot.VolumeRestant'), 3, ',', ' ') }}
                                             m³</td>
                                         <td class="border border-gray-300 p-2">-</td>
                                         <td class="border border-gray-300 p-2">-</td>

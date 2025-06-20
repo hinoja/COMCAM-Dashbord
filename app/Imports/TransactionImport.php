@@ -249,37 +249,33 @@ class TransactionImport implements ToModel, SkipsEmptyRows, WithValidation
         try {
             DB::beginTransaction();
 
-            // Recherche des entités par ID ou par nom
             $societe = Societe::findOrFail($row[3]);
-
-            // Recherche du titre
             $titre = Titre::where('id', $row[6])->firstOrFail();
-
-            // Recherche de l'essence
             $essence = Essence::where('id', $row[7])->firstOrFail();
-
             $forme = Forme::findOrFail($row[8]);
             $conditionnement = Conditionnemment::findOrFail($row[9]);
             $type = Type::findOrFail($row[10]);
 
-            // Vérification de la relation entre forme et type
             $this->verifierRelationFormeType($forme, $type);
-
-            // Vérification et mise à jour de FormeEssence
             $this->updateFormeEssence($essence->id, $forme->id, $type->id);
 
-            // Vérification du volume disponible
             $volumeDisponible = $this->verifierVolumeDisponible($titre, $essence);
 
-            // Utiliser le volume spécifié dans le fichier Excel (dernière colonne)
             $volumeTransaction = floatval(str_replace(',', '.', $row[11]));
 
             if ($volumeTransaction <= 0) {
                 throw new \Exception("Le volume de transaction doit être supérieur à 0");
             }
 
+            // Ne bloque plus si le volume demandé dépasse le volume disponible
             if ($volumeTransaction > $volumeDisponible->pivot->VolumeRestant) {
-                throw new \Exception("Volume demandé ({$volumeTransaction}) supérieur au volume disponible ({$volumeDisponible->pivot->VolumeRestant})");
+                Log::warning("Volume demandé ({$volumeTransaction}) supérieur au volume disponible ({$volumeDisponible->pivot->VolumeRestant}) pour le titre '{$titre->nom}' et l'essence '{$essence->nom_local}' à la ligne {$this->rowNumber}");
+                // On continue l'import, mais on peut aussi ajouter une note dans les erreurs
+                $this->errors[] = [
+                    'ligne' => $this->rowNumber,
+                    'erreur' => "Volume demandé ({$volumeTransaction}) supérieur au volume disponible ({$volumeDisponible->pivot->VolumeRestant}) - Import accepté",
+                    'donnees' => $row
+                ];
             }
 
             // Créer la transaction
@@ -296,7 +292,7 @@ class TransactionImport implements ToModel, SkipsEmptyRows, WithValidation
                 'volume' => $volumeTransaction
             ]);
 
-            // Mettre à jour le volume restant
+            // Mettre à jour le volume restant (peut devenir négatif)
             $titre->essence()->updateExistingPivot($essence->id, [
                 'VolumeRestant' => DB::raw("VolumeRestant - {$volumeTransaction}")
             ]);
