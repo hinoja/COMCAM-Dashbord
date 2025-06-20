@@ -82,32 +82,32 @@
 
                     </style>
                     <!-- Alertes Bootstrap pour les messages flash -->
+                      <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Afficher les messages flash avec SweetAlert2
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succès',
+                    text: "{{ session('success') }}",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
 
-                    @if (session('success'))
-                        <div class="notification alert-dismissible fade show mt-1 shadow-sm rounded-lg" role="alert">
-                            <div class="d-flex align-items-center">
-                                {{-- <i class="fas fa-check-circle me-2"></i> --}}
-                                {{ session('success') }}
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close"></button>
-                        </div>
-                    @endif
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "{{ session('error') }}",
+                });
+            @endif
+        });
+    </script>
 
-                    @if (session('error'))
-                        <div class="notification alert-danger alert-dismissible fade show mt-1 shadow-sm rounded-lg"
-                            role="alert">
-                            <div class="d-flex align-items-center">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                {{ session('error') }}
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close"></button>
-                        </div>
-                    @endif
+
+                     
                     @if (session('message'))
                         <div class="notification alert-success alert-dismissible fade show mt-1 shadow-sm rounded-lg"
                             role="alert">
@@ -199,8 +199,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
-    <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
+   
     {!! Toastr::message() !!}
     @stack('js')
 

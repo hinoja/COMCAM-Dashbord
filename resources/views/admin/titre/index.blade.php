@@ -4,7 +4,6 @@
 
 @section('content')
 
-
     <div class="section-body mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="section-title text-primary">Liste des Titres</h2>
@@ -32,15 +31,11 @@
 @endsection
 
 @push('css')
-    @livewireStyles()
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap4.min.css" rel="stylesheet">
 @endpush
 
 @push('js')
-@livewireScripts
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
- 
-
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 @endpush

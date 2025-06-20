@@ -22,10 +22,10 @@ class UsersController extends Controller
     {
 
         return view('admin.users.index', [
-            'users' => User::query()
-                ->with('role:id,name')
-                ->get(['id', 'name', 'email']),
-        ]);
+        'users' => User::query()
+            ->with('role:id,name')
+            ->get(['id', 'name', 'email', 'is_active', 'role_id']),
+    ]);
     }
     /**
      * Show the form for creating a new resource.

@@ -36,6 +36,7 @@ class ManageTitre extends Component
 
         // Réinitialiser également les champs du formulaire si présents
         $this->selectedTitre = null;
+        return redirect();
     }
     /**
      * Récupère les titres sensibles dont le volume est proche ou dans la zone rouge.
@@ -46,31 +47,31 @@ class ManageTitre extends Component
      * @return \Illuminate\Support\Collection
      */
 
-   public function getTitresSensibles($seuilRouge = 10, $seuilAlerte = 20)
-{
-    return DB::table('essence_titre')
-        ->join('titres', 'essence_titre.titre_id', '=', 'titres.id')
-        ->join('essences', 'essence_titre.essence_id', '=', 'essences.id')
-        ->join('formes', 'essence_titre.forme_id', '=', 'formes.id')
-        ->join('types', 'essence_titre.type_id', '=', 'types.id')
-        ->join('zones', 'titres.zone_id', '=', 'zones.id')
-        ->select(
-            'essence_titre.*',
-            'titres.nom as titre_nom',
-            'titres.exercice',
-            'titres.localisation',
-            'zones.name as zone_nom',
-            'essences.nom_local as essence_nom',
-            'formes.designation as forme_nom',
-            'types.code as type_code'
-        )
-        ->where(function ($query) use ($seuilRouge, $seuilAlerte) {
-            $query->where('essence_titre.VolumeRestant', '<=', $seuilRouge)
-                  ->orWhere('essence_titre.VolumeRestant', '<=', $seuilAlerte);
-        })
-        ->orderBy('essence_titre.VolumeRestant', 'asc')
-        ->paginate($this->perPage); // <-- Utilise paginate ici
-}
+    public function getTitresSensibles($seuilRouge = 10, $seuilAlerte = 20)
+    {
+        return DB::table('essence_titre')
+            ->join('titres', 'essence_titre.titre_id', '=', 'titres.id')
+            ->join('essences', 'essence_titre.essence_id', '=', 'essences.id')
+            ->join('formes', 'essence_titre.forme_id', '=', 'formes.id')
+            ->join('types', 'essence_titre.type_id', '=', 'types.id')
+            ->join('zones', 'titres.zone_id', '=', 'zones.id')
+            ->select(
+                'essence_titre.*',
+                'titres.nom as titre_nom',
+                'titres.exercice',
+                'titres.localisation',
+                'zones.name as zone_nom',
+                'essences.nom_local as essence_nom',
+                'formes.designation as forme_nom',
+                'types.code as type_code'
+            )
+            ->where(function ($query) use ($seuilRouge, $seuilAlerte) {
+                $query->where('essence_titre.VolumeRestant', '<=', $seuilRouge)
+                    ->orWhere('essence_titre.VolumeRestant', '<=', $seuilAlerte);
+            })
+            ->orderBy('essence_titre.VolumeRestant', 'asc')
+            ->paginate($this->perPage); // <-- Utilise paginate ici
+    }
     public function showTitresSensibles()
     {
         $this->showCritiques = true;

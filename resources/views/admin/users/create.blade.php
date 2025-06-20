@@ -8,16 +8,16 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-10 col-lg-8">
                 <div class="card shadow-sm">
-                    <div class="card-header d-flex align-items-center" style="background-color: #2A2E45; color: #F8F9FA; border-bottom: 2px solid #FF6B35;">
+                    <div class="card-header d-flex align-items-center" style="background-color: #2d6a4f; color: #F8F9FA; border-bottom: 2px solid #FF6B35;">
                         <i class="fas fa-user-plus mr-2 fa-fw"></i>
-                        <h4 class="mb-0">@lang('New User Form')</h4>
+                        <h4 class="mb-0">@lang('Nouveau formulaire utilisateur')</h4>
                     </div>
                     <div class="card-body p-0">
                         <div class="p-4 p-md-5">
                             <!-- Form Progress -->
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="text-muted">@lang('Form completion')</small>
+                                    <small class="text-muted">@lang('Progression du formulaire')</small>
                                     <small class="text-muted" id="progressText">0%</small>
                                 </div>
                                 <div class="progress" style="height: 5px;">
@@ -31,7 +31,7 @@
                                 <!-- User Information Section -->
                                 <div class="mb-5">
                                     <h5 class="text-primary mb-4">
-                                        <i class="fas fa-user-circle"></i> @lang('User Information')
+                                        <i class="fas fa-user-circle"></i> @lang('Informations utilisateur')
                                     </h5>
                                     
                                     <div class="row">
@@ -39,20 +39,20 @@
                                         <div class="col-md-6 mb-4">
                                             <div class="form-group position-relative">
                                                 <label for="name" class="form-label">
-                                                    @lang('Name') <span class="text-danger">*</span>
+                                                    @lang('Nom') <span class="text-danger">*</span>
                                                 </label>
                                                 <div class="input-group">
                                                     <span class="input-group-text bg-light">
                                                         <i class="fas fa-user text-primary"></i>
                                                     </span>
-                                                    <input type="text" id="name" name="name" placeholder="@lang('Enter full name')" 
+                                                    <input type="text" id="name" name="name" placeholder="@lang('Entrer le nom complet')" 
                                                         value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror"
                                                         required autofocus>
                                                 </div>
                                                 @error('name')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">@lang('Enter the user\'s full name as it will appear in the system.')</small>
+                                                <small class="form-text text-muted">@lang('Saisissez le nom complet tel qu\'il apparaîtra dans le système.')</small>
                                             </div>
                                         </div>
                                         
@@ -66,14 +66,14 @@
                                                     <span class="input-group-text bg-light">
                                                         <i class="fas fa-envelope text-primary"></i>
                                                     </span>
-                                                    <input type="email" id="email" name="email" placeholder="@lang('user@example.com')"
+                                                    <input type="email" id="email" name="email" placeholder="@lang('utilisateur@exemple.com')"
                                                         value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror"
                                                         required>
                                                 </div>
                                                 @error('email')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">@lang('This email will be used for login and notifications.')</small>
+                                                <small class="form-text text-muted">@lang('Cet email sera utilisé pour la connexion et les notifications.')</small>
                                             </div>
                                         </div>
                                     </div>
@@ -82,7 +82,7 @@
                                 <!-- Access Control Section -->
                                 <div class="mb-5">
                                     <h5 class="text-primary mb-4">
-                                        <i class="fas fa-user-shield"></i> @lang('Access Control')
+                                        <i class="fas fa-user-shield"></i> @lang('Contrôle d\'accès')
                                     </h5>
                                     
                                     <div class="row">
@@ -90,14 +90,14 @@
                                         <div class="col-md-6 mb-4">
                                             <div class="form-group position-relative">
                                                 <label for="role_id" class="form-label">
-                                                    @lang('Role') <span class="text-danger">*</span>
+                                                    @lang('Rôle') <span class="text-danger">*</span>
                                                 </label>
                                                 <div class="input-group">
                                                     <span class="input-group-text bg-light">
                                                         <i class="fas fa-user-tag text-primary"></i>
                                                     </span>
                                                     <select id="role_id" name="role_id" class="form-control @error('role_id') is-invalid @enderror" required>
-                                                        <option value="">@lang('Select a role')</option>
+                                                        <option value="">@lang('Sélectionner un rôle')</option>
                                                         @foreach($roles as $role)
                                                             <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
                                                                 {{ $role->name }}
@@ -108,7 +108,7 @@
                                                 @error('role_id')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
-                                                <small class="form-text text-muted">@lang('The role determines what permissions the user will have.')</small>
+                                                <small class="form-text text-muted">@lang('Le rôle détermine les permissions de l\'utilisateur.')</small>
                                             </div>
                                         </div>
                                     </div>
@@ -117,7 +117,7 @@
                                 <!-- Security Section -->
                                 <div class="mb-5">
                                     <h5 class="text-primary mb-4">
-                                        <i class="fas fa-shield-alt"></i> @lang('Security')
+                                        <i class="fas fa-shield-alt"></i> @lang('Sécurité')
                                     </h5>
                                     
                                     <div class="row">
@@ -125,9 +125,9 @@
                                         <div class="col-md-6 mb-4">
                                             <div class="form-group position-relative">
                                                 <label for="password" class="form-label d-flex justify-content-between align-items-center">
-                                                    <span>@lang('Password') <span class="text-danger">*</span></span>
+                                                    <span>@lang('Mot de passe') <span class="text-danger">*</span></span>
                                                     <button type="button" id="generatePassword" class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fas fa-magic mr-1"></i> @lang('Generate')
+                                                        <i class="fas fa-magic mr-1"></i> @lang('Générer')
                                                     </button>
                                                 </label>
                                                 <div class="input-group">
@@ -149,15 +149,15 @@
                                                     <div class="progress" style="height: 5px;">
                                                         <div class="progress-bar" role="progressbar" style="width: 0%;" id="passwordStrengthBar"></div>
                                                     </div>
-                                                    <small class="form-text" id="passwordStrengthText">@lang('Password strength'): @lang('Weak')</small>
+                                                    <small class="form-text" id="passwordStrengthText">@lang('Robustesse du mot de passe'): @lang('Faible')</small>
                                                 </div>
                                                 <div class="password-requirements mt-2">
-                                                    <small class="form-text text-muted">@lang('Password must contain'):</small>
+                                                    <small class="form-text text-muted">@lang('Le mot de passe doit contenir'):</small>
                                                     <ul class="mt-1 mb-0">
-                                                        <li id="length-check">@lang('At least 8 characters')</li>
-                                                        <li id="uppercase-check">@lang('At least one uppercase letter')</li>
-                                                        <li id="lowercase-check">@lang('At least one lowercase letter')</li>
-                                                        <li id="number-check">@lang('At least one number')</li>
+                                                        <li id="length-check">@lang('Au moins 8 caractères')</li>
+                                                        <li id="uppercase-check">@lang('Au moins une lettre majuscule')</li>
+                                                        <li id="lowercase-check">@lang('Au moins une lettre minuscule')</li>
+                                                        <li id="number-check">@lang('Au moins un chiffre')</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -167,7 +167,7 @@
                                         <div class="col-md-6 mb-4">
                                             <div class="form-group position-relative">
                                                 <label for="password_confirmation" class="form-label">
-                                                    @lang('Confirm Password') <span class="text-danger">*</span>
+                                                    @lang('Confirmer le mot de passe') <span class="text-danger">*</span>
                                                 </label>
                                                 <div class="input-group">
                                                     <span class="input-group-text bg-light">
@@ -182,7 +182,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="invalid-feedback" id="password_match_feedback" style="display: none;">
-                                                    @lang('Passwords do not match')
+                                                    @lang('Les mots de passe ne correspondent pas')
                                                 </div>
                                                 @error('password_confirmation')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -195,10 +195,10 @@
                                 <!-- Form Actions -->
                                 <div class="d-flex justify-content-between align-items-center mt-5">
                                     <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-arrow-left mr-1"></i> @lang('Cancel')
+                                        <i class="fas fa-arrow-left mr-1"></i> @lang('Annuler')
                                     </a>
-                                    <button type="submit" class="btn btn-primary px-4 py-2">
-                                        <i class="fas fa-user-plus mr-1"></i> @lang('Create User')
+                                    <button type="submit" style="background: #2d6a4f"  class="btn  text-white px-4 py-2">
+                                        <i class="fas fa-user-plus mr-1"></i> @lang('Créer l\'utilisateur')
                                     </button>
                                 </div>
                             </form>
@@ -218,15 +218,18 @@
         border-radius: 10px;
         overflow: hidden;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 5px 15px rgba(4, 120, 87, 0.10);
     }
     
     .card:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 25px rgba(4, 120, 87, 0.18);
     }
     
     .card-header {
         padding: 1.2rem 1.5rem;
+        background: linear-gradient(90deg, #047857 0%, #d4af37 100%);
+        color: #fff;
+        border-bottom: 2px solid #d4af37;
     }
     
     .form-control {
@@ -237,48 +240,52 @@
     }
     
     .form-control:focus {
-        border-color: #FF6B35;
-        box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+        border-color: #047857;
+        box-shadow: 0 0 0 0.2rem rgba(4, 120, 87, 0.15);
     }
     
     .input-group-text {
         border-radius: 0.375rem 0 0 0.375rem;
         border: 1px solid #e2e8f0;
         border-right: none;
+        background: #d1fae5;
+        color: #047857;
     }
     
     .form-label {
         font-weight: 500;
-        color: #2A2E45;
+        color: #047857;
         margin-bottom: 0.5rem;
     }
     
     .text-primary {
-        color: #2A2E45 !important;
+        color: #047857 !important;
     }
     
     .btn-primary {
-        background-color: #FF6B35;
-        border-color: #FF6B35;
+        background-color: #d4af37;
+        border-color: #d4af37;
+        color: #047857;
         font-weight: 500;
         transition: all 0.3s ease;
     }
     
     .btn-primary:hover {
-        background-color: #e55a29;
-        border-color: #e55a29;
+        background-color: #047857;
+        border-color: #047857;
+        color: #fff;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+        box-shadow: 0 4px 8px rgba(4, 120, 87, 0.18);
     }
     
     .btn-outline-secondary {
-        color: #6c757d;
-        border-color: #6c757d;
+        color: #047857;
+        border-color: #047857;
         transition: all 0.3s ease;
     }
     
     .btn-outline-secondary:hover {
-        background-color: #6c757d;
+        background-color: #047857;
         color: white;
         transform: translateY(-2px);
     }
@@ -298,7 +305,7 @@
         position: relative;
         padding-left: 1.5rem;
         font-size: 0.75rem;
-        color: #718096;
+        color: #047857;
     }
     
     .password-requirements li:before {
@@ -314,8 +321,9 @@
     
     /* Section styling */
     h5.text-primary {
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #d4af37;
         padding-bottom: 0.75rem;
+        color: #047857 !important;
     }
     
     /* Progress bar */
@@ -329,6 +337,7 @@
     .progress-bar {
         transition: width 0.5s ease;
         border-radius: 10px;
+        background: linear-gradient(90deg, #d4af37 0%, #047857 100%);
     }
     
     /* Form sections */
@@ -359,7 +368,7 @@
     
     /* Form validation styling */
     .is-valid {
-        border-color: #28a745 !important;
+        border-color: #047857 !important;
     }
     
     .is-invalid {
@@ -376,6 +385,7 @@
     .form-text {
         font-size: 0.75rem;
         margin-top: 0.25rem;
+        color: #047857;
     }
     
     /* Responsive adjustments */
@@ -401,13 +411,20 @@
     
     /* Required field indicator */
     .text-danger {
-        color: #FF6B35 !important;
+        color: #d4af37 !important;
     }
     
     /* Generate password button */
     #generatePassword {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
+        color: #047857;
+        border-color: #d4af37;
+        background: #fff;
+    }
+    #generatePassword:hover {
+        background: #d4af37;
+        color: #fff;
     }
 </style>
 @endpush

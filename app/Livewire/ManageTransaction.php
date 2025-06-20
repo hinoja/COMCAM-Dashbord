@@ -36,6 +36,8 @@ class ManageTransaction extends Component
         $this->titreFilter = '';
         $this->perPage = 10;
         $this->resetPage();
+        return redirect();
+
     }
 
     public function deleteTransaction($id)

@@ -1,3 +1,4 @@
+{{-- filepath: h:\Laravel Projet\ComcamNewApplication\resources\views\admin\users\index.blade.php --}}
 @extends('layouts.back')
 
 @section('subtitle', __('Users list'))
@@ -7,11 +8,68 @@
     <link rel="stylesheet"
         href="{{ asset('assets/back/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css') }}">
     <style>
-        /* Insérez ici le CSS personnalisé ci-dessus */
-        .btn-rounded {
-            border-radius: 30px;
-            padding: 0.5rem 1.5rem;
-            transition: all 0.3s ease;
+        body {
+            background: #f8fafc;
+        }
+
+        .header-gradient {
+            background:#047857  ;
+            color: #fff;
+            box-shadow: 0 4px 24px rgba(4, 120, 87, 0.15);
+        }
+
+        .badge-emerald {
+            background-color: #d1fae5;
+            color: #047857;
+            font-weight: bold;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .btn-add-user {
+            background: linear-gradient(90deg, #d4af37 0%, #047857 100%);
+            color: #fff !important;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+            transition: background 0.3s;
+        }
+
+        .btn-add-user:hover {
+            background: linear-gradient(90deg, #047857 0%, #d4af37 100%);
+            color: #fff !important;
+        }
+
+        .table thead th {
+            background: #047857;
+            color: #fff;
+            border: none;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f1f5f9;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #047857 0%, #d4af37 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.08);
+        }
+
+        .badge-danger,
+        .badge-success,
+        .badge-info {
+            font-size: 13px;
+            border-radius: 8px;
+            padding: 5px 12px;
         }
 
         .btn-icon {
@@ -21,40 +79,66 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s, background 0.2s;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.08);
+        }
+
+        .btn-icon[style*="background: #047857"] {
+            background: #047857 !important;
+        }
+
+        .btn-icon[style*="background: green"] {
+            background: #d4af37 !important;
         }
 
         .btn-icon:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.08);
+            filter: brightness(1.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(4, 120, 87, 0.08);
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle !important;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 8px 32px rgba(4, 120, 87, 0.12) !important;
         }
     </style>
 @endpush
 
 @section('content')
-
     <div class="section-body">
         <div class="row">
             <div class="container">
                 <!-- Header with Title and Total Count -->
-                <div class="d-flex justify-content-between align-items-center mb-4 header-gradient rounded-lg shadow-lg p-3">
-                    <h2 class="section-title m-0 text-white font-weight-bold">
-                        <small class="mb-0">
-                            <i class="fas fa-users-cog mr-2"></i>@lang('User Management') </small>
-                        <span style="font-size: 10px" class="badge badge-emerald  text-sm shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4 header-gradient rounded-lg shadow-lg p-4">
+                    <h2 class="section-title m-0">
+                        <i class="fas fa-users-cog mr-2"></i>@lang('User Management')
+                        <span class="badge badge-emerald ml-2">
                             {{ count($users) }} Utilisateurs
                         </span>
                     </h2>
-
-
-                    <a  style="text-decoration: none;color:inherit;" class="badge badge-emerald px-3 py-2 shadow-sm" href="{{ route('admin.users.create') }}"    class="btn btn-add">
-
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-add-user px-4 py-2 shadow-sm">
                         <i class="fas fa-user-plus mr-2"></i>@lang('Add User')
                     </a>
                 </div>
             </div>
             <div class="col-12">
-                <div class="card">
-
+                <div class="card shadow-lg">
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-striped" id="table-1">
@@ -74,11 +158,11 @@
                                             <td class="text-center">{{ $loop->iteration }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-sm mr-3 bg-primary text-white rounded-circle">
+                                                    <div class="avatar">
                                                         {{ strtoupper(substr($user->name, 0, 2)) }}
                                                     </div>
                                                     <div>
-                                                        <h6 class="mb-0">{{ $user->name }}</h6>
+                                                        <h6 class="mb-0 font-weight-bold">{{ $user->name }}</h6>
                                                         <small class="text-muted">
                                                             <i class="fas fa-clock mr-1"></i>
                                                             Inscrit {{ $user->created_at?->diffForHumans() ?? 'N/A' }}
@@ -88,7 +172,6 @@
                                             </td>
                                             <td>{{ $user->email }}</td>
                                             <td>
-
                                                 @if ($user->role_id === 1)
                                                     <span class="badge badge-danger">
                                                         <i class="fas fa-shield-alt mr-1"></i>
@@ -123,8 +206,8 @@
                                                                 class="mr-1">
                                                                 @csrf
                                                                 @method('PATCH')
-                                                                <button type="submit" class="btn btn-icon "
-                                                                    style="background: yellow;color:white""
+                                                                <button type="submit" class="btn btn-icon"
+                                                                    style="background: #047857; color: white;"
                                                                     data-toggle="tooltip" title="Bloquer l'utilisateur">
                                                                     <i class="fas fa-lock"></i>
                                                                 </button>
@@ -134,27 +217,14 @@
                                                                 action="{{ route('admin.users.status', $user->id) }}"
                                                                 class="mr-1">
                                                                 @csrf
-
                                                                 @method('PATCH')
                                                                 <button type="submit" class="btn btn-icon"
-                                                                    style="background: green;color:white"
+                                                                    style="background: #d4af37; color: white;"
                                                                     data-toggle="tooltip" title="Débloquer l'utilisateur">
                                                                     <i class="fas fa-lock-open"></i>
                                                                 </button>
                                                             </form>
                                                         @endif
-
-                                                        {{-- <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}"
-                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                    class="btn btn-icon btn-danger"
-                                                                    data-toggle="tooltip"
-                                                                    title="Supprimer l'utilisateur">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form> --}}
                                                     @endif
                                                 </div>
                                             </td>
@@ -175,71 +245,4 @@
     <script src="{{ asset('assets/back/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js') }}">
     </script>
     <script src="{{ asset('assets/back/js/page/modules-datatables.js') }}"></script>
-@endpush
-@push('css')
-    <style>
-        /* Premium Color Palette */
-        .text-emerald {
-            color: #047857;
-        }
-
-        /* Emerald-700 */
-        .text-gold {
-            color: #d4af37;
-        }
-
-        /* Luxurious gold accent */
-        .bg-emerald {
-            background-color: #047857;
-        }
-
-        .border-emerald {
-            border-color: #047857;
-        }
-
-        /* Visible action buttons */
-        .btn-action-visible {
-            background-color: #047857;
-            color: white;
-            font-weight: bold;
-            border: none;
-            box-shadow: 0 4px 6px rgba(4, 120, 87, 0.3);
-        }
-
-        .btn-action-visible:hover {
-            background-color: #065f46;
-            color: white;
-        }
-
-        .badge-emerald {
-            background-color: #d1fae5;
-            color: #047857;
-            font-weight: bold;
-        }
-
-        /* Header Gradient */
-        .header-gradient {
-            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-        }
-
-        /* Subtle Background Texture */
-        .attraction-bg {
-            background: #f8fafc;
-            min-height: 100vh;
-        }
-
-        /* Card styles - with full height support */
-        .card {
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Ensure the row takes full height */
-        .section-body .row.h-100 {
-            min-height: 80vh;
-        }
-    </style>
 @endpush
