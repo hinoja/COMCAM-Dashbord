@@ -264,6 +264,9 @@
 
         <!-- Bouton de soumission amélioré -->
         <div class="card-footer text-right py-3">
+              <a href="{{ route('admin.titre.index') }}" class="btn btn-secondary mr-2">
+                <i class="fas fa-times mr-1"></i> Annuler
+            </a>
             <button style="background: green" type="submit"
                 class="btn px-4 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
                 wire:loading.attr="disabled" wire:target="update">

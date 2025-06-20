@@ -89,16 +89,7 @@
         </style>
         @csrf
         <div class="card-body">
-            <!-- Alerte de succès -->
-            @if ($showSuccessAlert)
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    Transaction enregistrée avec succès !
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            @endif
+
             <!-- Alertes d'erreur -->
             @if ($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -311,24 +302,7 @@
                             @enderror
                         </div>
                     </div>
-                    {{-- <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="font-weight-bold text-muted">
-                                <i class="fas fa-tree mr-1"></i>
-                                Essence
-                            </label>
-                            <select wire:model="essence_id"
-                                class="form-control select2 @error('essence_id') is-invalid @enderror">
-                                <option value="">Sélectionner une essence</option>
-                                @foreach ($essences as $essence)
-                                    <option value="{{ $essence->id }}">{{ $essence->nom_local }}</option>
-                                @endforeach
-                            </select>
-                            @error('essence_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div> --}}
+
                 </div>
                 <div class="row">
 
@@ -383,7 +357,9 @@
 
     <!-- Modal de dépassement -->
     @if ($showDepassementModal)
-        <div class="modal-overlay">
+
+        <div class="modal-overlay" wire:ignore.self class="modal fade" id="modal-open" tabindex="-1"
+            role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-custom">
                 <div class="modal-content">
                     <div class="modal-header bg-warning">
@@ -429,13 +405,16 @@
 </div>
 @push('scripts')
     <script>
-        document.addEventListener('livewire:load', function() {
-            Livewire.on('showDepassementModal', function() {
-                document.body.classList.add('modal-open');
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('showDepassementModal', () => {
+                $('#modal-open').modal('show');
             });
 
-            Livewire.on('hideDepassementModal', function() {
-                document.body.classList.remove('modal-open');
+            Livewire.on('hideDepassementModal', () => {
+                ['hideDepassementModal'].forEach(modalId => {
+                    $('#modal-open').modal('hide');
+
+                });
             });
         });
     </script>

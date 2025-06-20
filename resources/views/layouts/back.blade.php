@@ -82,32 +82,32 @@
 
                     </style>
                     <!-- Alertes Bootstrap pour les messages flash -->
-                      <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Afficher les messages flash avec SweetAlert2
-            @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Succès',
-                    text: "{{ session('success') }}",
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
+                    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Afficher les messages flash avec SweetAlert2
+                            @if (session('success'))
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Succès',
+                                    text: "{{ session('success') }}",
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            @endif
 
-            @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: "{{ session('error') }}",
-                });
-            @endif
-        });
-    </script>
+                            @if (session('error'))
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erreur',
+                                    text: "{{ session('error') }}",
+                                });
+                            @endif
+                        });
+                    </script>
 
 
-                     
+
                     @if (session('message'))
                         <div class="notification alert-success alert-dismissible fade show mt-1 shadow-sm rounded-lg"
                             role="alert">
@@ -199,7 +199,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-   
+
     {!! Toastr::message() !!}
     @stack('js')
 
