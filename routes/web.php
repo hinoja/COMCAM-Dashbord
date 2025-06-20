@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\Userscontroller;
 use App\Http\Controllers\DashboardController;
 use App\Livewire\DashboardTitres;
 use Illuminate\Support\Facades\Route;
