@@ -58,7 +58,7 @@
                         </form>
                     </div>
 
-                    {{-- @if (auth()->check() && auth()->user()->role_id === 1) --}}
+                    @if (auth()->check() && auth()->user()->role_id < 2)
                         <!-- Import from Excel Card -->
                         <div class="card border-0 rounded-lg mt-4 ">
                             <form method="POST" action="{{ route('admin.societe.import') }}" enctype="multipart/form-data"
@@ -101,7 +101,7 @@
                                 </div>
                             </form>
                         </div>
-                    {{-- @endif --}}
+                    @endif
                 </div>
 
                 <!-- Right Column: Societies List -->

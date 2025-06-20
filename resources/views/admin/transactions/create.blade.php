@@ -40,7 +40,7 @@
                     </div>
 
                     <!-- Card Import Excel -->
-                    {{-- @if (auth()->user()->role_id === 1) --}}
+                    @if (auth()->user()->role_id < 2)
                         <div class="card shadow-lg rounded-lg border-0 mt-4">
                             <div class="card-header bg-gradient-success text-white py-3">
                                 <h4 class="card-title mb-0">
@@ -71,7 +71,7 @@
                                 </div>
                             </form>
                         </div>
-                    {{-- @endif --}}
+                    @endif
                 </div>
             </div>
         </div>

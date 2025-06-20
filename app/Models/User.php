@@ -16,6 +16,15 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'avatar_url',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -70,13 +79,22 @@ class User extends Authenticatable
         return $this->is_active || (! $this->is_active && $this->disabled_by === $this->id);
     }
 
-    public function getAvatarUrlAttribute(): string
-    {
-        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
-            return Storage::url($this->avatar);
-        }
-        return asset('back/img/avatar/avatar-1.png');
+     /**
+     * Get the user's avatar URL.
+     *
+     * @return string
+     */
+  public function getAvatarAttribute($value)
+{
+    // Si l'utilisateur a un avatar et que le fichier existe dans le disque public
+    if ($value && Storage::disk('public')->exists($value)) {
+        return Storage::url($value);
     }
+
+    // Sinon, retourne l'avatar par défaut cohérent pour toutes les vues
+    return asset('back/img/avatar/avatar-1.png');
+}
+
     /**
      * Vérifie si l'utilisateur a un rôle spécifique.
      */

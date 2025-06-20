@@ -26,7 +26,7 @@
                         @livewire('add-titre')
                     </div>
 
-                    {{-- @if (auth()->user() && auth()->user()->role_id === 1) --}}
+                    @if (auth()->user() && auth()->user()->role_id < 2)
                         <!-- Deuxième formulaire : Upload de fichier Excel -->
                         <div class="card shadow mt-4 mb-5">
                             <form method="POST" action="{{ route('import.titre.post') }}" enctype="multipart/form-data">
@@ -57,7 +57,7 @@
                                 </div>
                             </form>
                         </div>
-                    {{-- @endif --}}
+                    @endif
                 </div>
             </div>
         </div>

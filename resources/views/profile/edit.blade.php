@@ -213,7 +213,7 @@
                             <!-- Section Avatar -->
                             <div class="text-center mb-4">
                                 <div class="profile-picture-wrapper">
-                                          <img id="profile-picture-preview" src="{{ $user->avatar }}" alt="Profile Picture"
+                                    <img id="profile-picture-preview" src="{{ $user->avatar }}" alt="Profile Picture"
                                         class="profile-picture">
                                     <label class="profile-picture-input" for="avatar">
                                         <i class="fas fa-camera"></i>

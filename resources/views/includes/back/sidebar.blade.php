@@ -6,11 +6,15 @@
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand text-center ">
             <a href="#">
-                <span> <img alt="image" src="{{ asset('logo.jpg') }}" class="rounded-circle mr-1 text-center"
-                        width="60">
-                    {{ config('app.name', 'COMCAM') }}</span>
-            </a>
+                <a href="#" class="d-flex flex-column align-items-center justify-content-center">
+                    <span>
+                        <img alt="image" src="{{ asset('logo.jpg') }}" class="rounded-circle mb-2" width="60">
+                    </span>
+                    <span>{{ config('app.name', 'COMCAM') }}</span>
+                </a>
         </div>
+        <div class="row"></div>
+        <br> <br>
         <div class="sidebar-brand sidebar-brand-sm">
             <a href="#">E&F CC</a>
         </div>
@@ -21,12 +25,12 @@
             </li>
 
             @auth
-                {{-- @if (Auth::user()->role_id < 2) --}}
-                <li class="@if (Str::contains($currentUri, 'users')) active @endif">
-                    <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
-                        <span>@lang('Users')</span></a>
-                </li>
-                {{-- @endif --}}
+                @if (auth()->user() && auth()->user()->role_id < 2)
+                    <li class="@if (Str::contains($currentUri, 'users')) active @endif">
+                        <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
+                            <span>@lang('Users')</span></a>
+                    </li>
+                @endif
             @endauth
 
             <li class="@if (Str::contains($currentUri, 'transaction')) active @endif">
