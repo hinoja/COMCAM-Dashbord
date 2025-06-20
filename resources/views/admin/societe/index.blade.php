@@ -23,7 +23,7 @@
 
             <div class="row h-100">
                 <!-- Left Column: Forms -->
-                <div class="col-lg-4 col-md-5 col-12 d-flex flex-column">
+                {{-- <div class="col-lg-4 col-md-5 col-12 d-flex flex-column">
                     <!-- Add New Company Card -->
                     <div class="card border-0 rounded-lg ">
                         <form class="h-100 d-flex flex-column" method="post" action="{{ route('admin.societe.store') }}">
@@ -104,10 +104,10 @@
                     @endif
                 </div>
 
-                <!-- Right Column: Societies List -->
-                <div class="col-lg-8 col-md-8 col-12">
+                
+                <div class="col-12"> --}}
                     @livewire('admin.societe-list')
-                </div>
+                {{-- </div> --}}
             </div>
         </div>
     </div>

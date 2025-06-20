@@ -28,10 +28,7 @@ class Essence extends Model
     {
         return $this->hasMany(Transaction::class);
     }
-    //  public function forme()
-    // {
-    //     return $this->belongsTo(Forme::class);
-    // }
+ 
 
     public function formeEssence()
     {

@@ -84,15 +84,26 @@ class EssenceList extends Component
         session()->flash('success', 'Essence mise à jour avec succès');
     }
 
-    public function confirmDelete($id)
-    {
-        $this->dispatch('confirmDelete', $id);
-    }
+    public $essenceToDelete = null;
 
-    public function delete($id)
+    public function showDeleteForm($id)
     {
-        Essence::findOrFail($id)->delete();
-        session()->flash('success', 'Essence supprimée avec succès');
+        $this->essenceToDelete = Essence::findOrFail($id);
+        $this->dispatch('openDeleteModal');
+    }
+    public function closeModal()
+    {
+        $this->reset();
+        $this->dispatch('closeModal');
+    }
+    public function delete()
+    {
+        if ($this->essenceToDelete instanceof \App\Models\Essence) {
+            $this->essenceToDelete->delete();
+            session()->flash('success', 'Essence supprimée avec succès');
+            $this->essenceToDelete = null;
+            $this->dispatch('closeModal');
+        }
     }
 
     public function cancel()
@@ -100,6 +111,7 @@ class EssenceList extends Component
         $this->reset(['essence_id', 'code', 'nom_local', 'isEditing']);
         $this->resetValidation();
     }
+
 
     public function render()
     {

@@ -18,7 +18,7 @@ class SocieteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'acronym' => ['required', 'string', 'max:255']
+            'acronym' => ['required', 'string', 'max:255', 'unique:societes,acronym']
         ]);
         $societe = new Societe([
             'acronym' => strtoupper($request->acronym)
