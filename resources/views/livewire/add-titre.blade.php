@@ -17,15 +17,6 @@
     </div>
 
     <!-- Messages d'alerte -->
-    @if (session()->has('success'))
-        <div
-            class="alert alert-success bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                <span>{{ session('success') }}</span>
-            </div>
-        </div>
-    @endif
 
     @if (session()->has('error'))
         <div class="alert alert-danger bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm">
@@ -123,13 +114,6 @@
                 Détails des Ressources
             </h3>
 
-            <!-- Bouton -->
-            <button type="button" wire:click="addDetail" style="color: white; background:green; float:right"
-                style="color: white; background:green;"
-                class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
-                <i class="fas fa-plus mr-2"></i>
-                Ajouter
-            </button>
         </div>
 
 
@@ -169,7 +153,8 @@
                     <div class="col-md-3">
                         <label>Sélectionner un type</label>
                         <div class="relative">
-                            <select wire:model="details.{{ $index }}.type_id" name="details.{{ $index }}.type_id"
+                            <select wire:model="details.{{ $index }}.type_id"
+                                name="details.{{ $index }}.type_id"
                                 class="select-custom w-full p-3 border rounded-lg pr-8"
                                 wire:key="type-select-{{ $index }}-{{ $detail['forme_id'] }}"
                                 @if ($detail['forme_id'] == 1) disabled @endif>
@@ -216,10 +201,16 @@
                 </div>
             </div>
         @endforeach
-        <br>
+
         <div class="flex items-right " style="float: right;">
 
-
+            <!-- Bouton -->
+            <button type="button" wire:click="addDetail" style="color: white; background:green; float:right"
+                style="color: white; background:green;"
+                class="flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Ajouter
+            </button>
 
 
         </div>
