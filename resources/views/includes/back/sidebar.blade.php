@@ -24,13 +24,12 @@
                     <span>@lang('Tableau de bord')</span></a>
             </li>
 
-            @auth
-                @if (auth()->user() && auth()->user()->role_id < 2)
+           @if (auth()->user()->role_id < 2)
                     <li class="@if (Str::contains($currentUri, 'users')) active @endif">
                         <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
                             <span>@lang('Users')</span></a>
                     </li>
-                @endif
+                
             @endauth
 
             <li class="@if (Str::contains($currentUri, 'transaction')) active @endif">
