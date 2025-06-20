@@ -79,26 +79,37 @@ class ManageTitre extends Component
         // Utilisez un event ou une propriété déclarée pour transmettre les titres sensibles à la vue
         $this->dispatch('showTitresSensibles', $this->getTitresSensibles());
     }
-    public function confirmDelete($id)
+    public $deleteId = null;
+
+    public function showDeleteForm($id)
     {
-        $this->dispatch('confirmDelete', $id);
+        $this->deleteId = $id;
+        $this->dispatch('openDeleteModal');
     }
 
-    public function delete($id)
+    public function closeModal()
+    {
+        $this->reset();
+        $this->dispatch('closeModal');
+    }
+    public function deleteTitre()
     {
         try {
             DB::beginTransaction();
-            $titre = Titre::findOrFail($id);
+            $titre = Titre::findOrFail($this->deleteId);
             $titre->transactions()->delete();
             $titre->essence()->detach();
             $titre->delete();
             DB::commit();
-            session()->flash('success', 'Titre et toutes les données associées supprimées avec succès !');
+
+            session()->flash('success', __('Titre et toutes les données associées supprimées avec succès !'));
+            $this->deleteId = null;
+            $this->dispatch('closeDeleteModal');
+            return redirect()->route('admin.titre.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Erreur lors de la suppression : ' . $e->getMessage());
+            session()->flash('error', __('Erreur lors de la suppression : ') . $e->getMessage());
         }
-        return redirect()->route('admin.titre.index');
     }
 
     public function showDetails($id)

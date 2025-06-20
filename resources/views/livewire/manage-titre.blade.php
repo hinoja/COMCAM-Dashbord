@@ -208,11 +208,11 @@
                                     class="mr-2 btn btn-sm btn-primary me-2" title="Éditer">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button wire:click="delete({{ $row->titre_id }})"
-                                    class="mr-2 btn btn-sm btn-danger me-2" title="Supprimer"
-                                    onclick="return confirm('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')">
+                                <button wire:click="showDeleteForm({{ $row->titre_id }})"
+                                    class="btn btn-sm btn-danger">
                                     <i class="fas fa-trash"></i>
                                 </button>
+                              
                             </div>
                         </td>
                     </tr>
@@ -241,111 +241,66 @@
     </div>
 
 
-
-    <!-- Modale pour afficher les détails du titre -->
-    @if ($selectedTitre)
-        <div class="modal fade fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
-            wire:ignore.self>
-            <div class="bg-white rounded-xl shadow-2xl w-11/12 md:w-1/2 p-6 transform transition-all duration-300 scale-100 animate-fadeIn"
-                role="dialog" aria-labelledby="modal-title">
-                <!-- En-tête de la modale -->
-                <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-                    <h3 id="modal-title"
-                        class="text-xl font-bold text-gray-800 bg-clip-text bg-gradient-to-r from-purple-600 to-purple-800">
-                        Détails du Titre : {{ $selectedTitre->nom }}
-                    </h3>
-                    <button wire:click="closeDetails"
-                        class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-all duration-300">
-                        <i class="fas fa-times"></i>
+    {{-- MOdal de suppression --}}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 0.75rem;">
+                <div class="modal-header"
+                    style="background: linear-gradient(90deg, #4e73df 0%, #6fcf97 100%); color: #fff;">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                        @lang('Suppression du Titre')
+                    </h5>
+                    <button type="button" class="close" wire:click="closeModal" aria-label="Close"
+                        style="color: #fff;">
+                        <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-
-                <!-- Corps de la modale -->
-                <div class="space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Exercice :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->exercice }}</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Nom :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->nom }}</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Localisation :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->localisation }}</p>
-                        </div>
-                        <div class="p-3 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                            <label class="font-medium text-gray-700">Zone :</label>
-                            <p class="text-gray-900 mt-1">{{ $selectedTitre->zone->name ?? '-' }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Tableau des essences -->
-                    <div class="mt-6">
-                        <h4 class="text-lg font-semibold mb-3">Essences associées</h4>
-                        <div class="overflow-x-auto">
-                            <table class="w-full border-collapse border border-gray-300 rounded-lg">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="border border-gray-300 p-2 text-left">Essence</th>
-                                        <th class="border border-gray-300 p-2 text-left">Volume</th>
-                                        <th class="border border-gray-300 p-2 text-left">Volume Restant</th>
-                                        <th class="border border-gray-300 p-2 text-left">Forme</th>
-                                        <th class="border border-gray-300 p-2 text-left">Type</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($selectedTitre->essence as $essence)
-                                        <tr>
-                                            <td class="border border-gray-300 p-2">{{ $essence->nom_local }}</td>
-                                            <td class="border border-gray-300 p-2">
-                                                {{ number_format($essence->pivot->volume, 3, ',', ' ') }} m³
-
-                                            </td>
-                                            <td
-                                                class="border border-gray-300 p-2 @if ($essence->pivot->VolumeRestant <= 0) text-danger @endif">
-                                                {{ number_format($essence->pivot->VolumeRestant, 3, '.', ' ') }} m³
-                                            </td>
-                                            <td class="border border-gray-300 p-2">
-                                                {{ $essence->formeEssence->forme->designation ?? '-' }}</td>
-                                            <td class="border border-gray-300 p-2">
-                                                {{ $essence->formeEssence->type->code ?? '-' }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="border border-gray-300 p-2 text-center">Aucune
-                                                essence associée</td>
-                                        </tr>
-                                    @endforelse
-                                    <tr class="bg-gray-100 font-semibold">
-                                        <td class="border border-gray-300 p-2">Total</td>
-                                        <td class="border border-gray-300 p-2">
-                                            {{ number_format($selectedTitre->essence->sum('pivot.volume'), 3, ',', ' ') }}
-
-                                            m³</td>
-                                        <td class="border border-gray-300 p-2">
-                                            {{ number_format($selectedTitre->essence->sum('pivot.VolumeRestant'), 3, ',', ' ') }}
-                                            m³</td>
-                                        <td class="border border-gray-300 p-2">-</td>
-                                        <td class="border border-gray-300 p-2">-</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="modal-body" style="background: #f8d7da; color: #842029; border-radius: 0.5rem;">
+                    <p>
+                        <strong>@lang('Êtes-vous sûr de vouloir supprimer ce titre ?')</strong>
+                    </p>
+                    <p>
+                        <i class="fas fa-info-circle me-1"></i>
+                        @lang('Confirmer la suppression ? Toutes les transactions associées à ce titre seront également supprimées.')
+                    </p>
                 </div>
-
-                <!-- Pied de la modale -->
-                <div class="flex justify-end mt-6">
-                    <button wire:click="closeDetails"
-                        class="px-4 py-2 bg-gradient-primary text-white rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        Fermer
+                <div class="modal-footer" style="background: #f8f9fc; border-top: 1px solid #e9ecef;">
+                    <button type="button" style="background: #f8f9fc; border-top: 1px solid #e9ecef;" class="btn "
+                        data-bs-dismiss="modal" wire:click="closeModal">@lang('Annuler')</button>
+                    <button type="button" class="btn btn-danger" wire:click="deleteTitre"
+                        wire:loading.attr="disabled" style="background: #e74a3b; border: none;">
+                        <span wire:loading wire:target="deleteTitre">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> @lang('Suppression...')
+                        </span>
+                        <span wire:loading.remove wire:target="deleteTitre">
+                            <i class="fas fa-trash mr-1"></i> @lang('Supprimer')
+                        </span>
                     </button>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
+</div>
 
+@push('js')
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('openDeleteModal', () => {
+                $('#deleteModal').modal('show');
+
+            });
+
+            Livewire.on('closeModal', () => {
+                ['editModal', 'deleteModal'].forEach(modalId => {
+                    $('#editModal').modal('hide');
+                    $('#deleteModal').modal('hide');
+
+                });
+            });
+        });
+    </script>
+@endpush
 
 </div>

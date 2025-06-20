@@ -37,15 +37,28 @@ class ManageTransaction extends Component
         $this->perPage = 10;
         $this->resetPage();
         return redirect();
-
     }
 
-    public function deleteTransaction($id)
+    public $deleteId = null;
+
+    public function showDeleteForm($id)
+    {
+        $this->deleteId = $id;
+        $this->dispatch('openDeleteModal');
+    }
+
+    public function closeModal()
+    {
+        $this->reset();
+        $this->dispatch('closeModal');
+    }
+
+    public function deleteTransaction()
     {
         try {
             DB::beginTransaction();
 
-            $transaction = Transaction::findOrFail($id);
+            $transaction = Transaction::findOrFail($this->deleteId);
             $titre = $transaction->titre;
             $essence = $transaction->essence;
 
@@ -61,15 +74,16 @@ class ManageTransaction extends Component
             $transaction->delete();
 
             DB::commit();
-            session()->flash('success', 'Transaction supprimée avec succès');
+
+            session()->flash('success', __('Transaction supprimée avec succès !'));
+            $this->deleteId = null;
+            $this->dispatch('closeDeleteModal');
+            return redirect()->route('admin.transaction.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Erreur lors de la suppression : ' . $e->getMessage());
+            session()->flash('error', __('Erreur lors de la suppression : ') . $e->getMessage());
         }
-
-        return redirect()->route('admin.transaction.index');
     }
-
     public function closeDetails()
     {
         $this->selectedTransaction = null;
@@ -91,17 +105,17 @@ class ManageTransaction extends Component
             ->when($searchTerm, function ($query) use ($searchTerm) {
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('destination', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('pays', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('numero', 'like', '%' . $searchTerm . '%')
-                      ->orWhereHas('titre', function ($q) use ($searchTerm) {
-                          $q->where('nom', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('societe', function ($q) use ($searchTerm) {
-                          $q->where('acronym', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('essence', function ($q) use ($searchTerm) {
-                          $q->where('nom_local', 'like', '%' . $searchTerm . '%');
-                      });
+                        ->orWhere('pays', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('numero', 'like', '%' . $searchTerm . '%')
+                        ->orWhereHas('titre', function ($q) use ($searchTerm) {
+                            $q->where('nom', 'like', '%' . $searchTerm . '%');
+                        })
+                        ->orWhereHas('societe', function ($q) use ($searchTerm) {
+                            $q->where('acronym', 'like', '%' . $searchTerm . '%');
+                        })
+                        ->orWhereHas('essence', function ($q) use ($searchTerm) {
+                            $q->where('nom_local', 'like', '%' . $searchTerm . '%');
+                        });
                 });
             })
             ->when($this->essenceFilter, function ($query) {

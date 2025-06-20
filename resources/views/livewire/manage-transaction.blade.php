@@ -1,17 +1,5 @@
 <div class="card-body p-4">
-    <!-- Messages -->
-    @if (session('message') || session('success') || session('error'))
-        <div class="alert {{ session('success') || session('message') ? 'alert-success' : 'alert-danger' }} alert-dismissible fade show mt-3 shadow-sm rounded-lg"
-            role="alert">
-            <div class="d-flex align-items-center">
-                <i
-                    class="fas {{ session('success') || session('message') ? 'fa-check-circle' : 'fa-exclamation-circle' }} me-2"></i>
-                {{ session('message') ?? (session('success') ?? session('error')) }}
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
+    
     <style>
         :root {
             --primary: #4e73df;
@@ -197,10 +185,11 @@
                                     class="btn btn-sm btn-primary me-2" title="Éditer">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button wire:click="deleteTransaction({{ $transaction->id }})"
-                                    class="btn btn-sm btn-danger ml-2" title="Supprimer">
+                                <button wire:click="showDeleteForm({{ $transaction->id }})"
+                                    class="btn btn-sm btn-danger ml-2">
                                     <i class="fas fa-trash"></i>
                                 </button>
+
                             </div>
                         </td>
                     </tr>
@@ -231,4 +220,75 @@
             {{ $transactions->links() }}
         </div>
     </div>
+
+
+    {{-- MOdal de suppression --}}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 0.75rem;">
+                <div class="modal-header"
+                    style="background: linear-gradient(90deg, #4e73df 0%, #6fcf97 100%); color: #fff;">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                        @lang('Confirmer la suppression')
+                    </h5>
+                    <button type="button" class="close" wire:click="closeModal" aria-label="Close"
+                        style="color: #fff;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+
+                <div class="modal-body" style="background: #f8f9fc; color: #333; border-radius: 0.5rem;">
+                    <p class="mb-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong> @lang('Cette action est irréversible. Confirmer la suppression de cette transaction ?')
+                        </strong>
+                    </p>
+                    <p class="mt-3 text-danger">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        @lang('Attention : Le volume supprimé sera automatiquement restitué au titre associé.')
+                    </p>
+                    <p class="text-muted">
+                        @lang('En supprimant cette transaction, le volume concerné sera ajouté au solde disponible du titre correspondant.')
+                    </p>
+                </div>
+                <div class="modal-footer" style="background: #f8f9fc; border-top: 1px solid #e9ecef;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" wire:click="closeModal">
+                        @lang('Annuler')
+                    </button>
+                    <button type="button" class="btn btn-danger" wire:click="deleteTransaction"
+                        wire:loading.attr="disabled" style="background: #e74a3b; border: none;">
+                        <span wire:loading wire:target="deleteTransaction">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> @lang('Suppression...')
+                        </span>
+                        <span wire:loading.remove wire:target="deleteTransaction">
+                            <i class="fas fa-trash mr-1"></i> @lang('Supprimer')
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('js')
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('openDeleteModal', () => {
+                $('#deleteModal').modal('show');
+
+            });
+
+            Livewire.on('closeModal', () => {
+                ['editModal', 'deleteModal'].forEach(modalId => {
+                    $('#editModal').modal('hide');
+                    $('#deleteModal').modal('hide');
+
+                });
+            });
+        });
+    </script>
+@endpush
 </div>
