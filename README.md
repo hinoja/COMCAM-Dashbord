@@ -61,7 +61,7 @@ Si aucune base existante n'est disponible, il est **toujours nécessaire de char
 > Cette liste doit être **mise à jour régulièrement** pour garantir la cohérence des données lors de l'enregistrement des titres et transactions.
 
 ### 📥 Liens de téléchargement des ressources nécessaires
-src="logo.jpg"
+
 - [Télécharger le fichier Excel des sociétés forestières](<a href="Fichiers Requis/societes.xlsx" target="_blank">)
  
 
