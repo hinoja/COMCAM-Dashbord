@@ -76,12 +76,7 @@
                                     <i class="fas fa-info-circle mr-1"></i> Formats acceptés: .xls, .xlsx
                                 </small>
                             </div>
-                            {{-- Affichage global des erreurs de validation pour l'import
-                            @if ($errors->has('import'))
-                                <div class="alert alert-danger mt-2">
-                                    {{ $errors->first('import') }}
-                                </div>
-                            @endif --}}
+                            
                             <div class="alert alert-info small mb-0" role="alert">
                                 <i class="fas fa-lightbulb mr-1"></i> <strong>Conseil:</strong> Assurez-vous que
                                 votre

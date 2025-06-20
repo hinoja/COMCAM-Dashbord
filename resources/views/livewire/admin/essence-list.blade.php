@@ -60,7 +60,7 @@
                 </form>
             </div>
 
-            @if (auth()->check() && auth()->user()->role_id === 1)
+            @if (auth()->check() && auth()->user()->role_id < 2)
                 <!-- Carte pour l'import/export Excel -->
                 <div class="card mt-4 shadow-sm border-0" style="background: #f8faf9;">
                     <div class="card-header" style="background: #458467; color: #fff;">
@@ -160,7 +160,8 @@
     </div>
 
     <!-- Modal de suppression -->
-    <div class="modal fade" id="deleteEssenceModal" tabindex="-1" aria-labelledby="deleteEssenceModalLabel" aria-hidden="true" wire:ignore.self>
+    <div class="modal fade" id="deleteEssenceModal" tabindex="-1" aria-labelledby="deleteEssenceModalLabel"
+        aria-hidden="true" wire:ignore.self>
         <div class="modal-dialog">
             <div class="modal-content" style="border-radius: 0.75rem;">
                 <div class="modal-header"
@@ -191,8 +192,8 @@
                 <div class="modal-footer" style="background: #f8f9fc; border-top: 1px solid #e9ecef;">
                     <button type="button" style="background: #f8f9fc; border-top: 1px solid #e9ecef;" class="btn"
                         data-dismiss="modal" wire:click="closeModal">@lang('Annuler')</button>
-                    <button type="button" class="btn btn-danger" wire:click="delete"
-                        wire:loading.attr="disabled" style="background: #e74a3b; border: none;">
+                    <button type="button" class="btn btn-danger" wire:click="delete" wire:loading.attr="disabled"
+                        style="background: #e74a3b; border: none;">
                         <span wire:loading wire:target="delete">
                             <i class="fas fa-spinner fa-spin mr-1"></i> @lang('Suppression...')
                         </span>

@@ -31,6 +31,7 @@ Cette **application Laravel 11** vise à moderniser la gestion des transactions 
 - 🌲 Améliorer le suivi et la gestion des titres forestiers  
 - 🧾 Optimiser la production des rapports annuels  
 - 🔍 Renforcer la traçabilité des activités forestières  
+- 📥📤 Permettre l'import et l'export des données via des fichiers Excel, y compris pour les opérations de maintenance et de sauvegarde  
 
 ### ⚙️ Technologies et Outils
 
@@ -48,14 +49,24 @@ Le projet exploite les fonctionnalités modernes de Laravel :
 ---
 
 ## 🚦 Démarrage du Projet : Gestion des Données Initiales
-
 Pour démarrer à partir d'une base de données existante, il est **impératif de préparer un fichier Excel** contenant la liste des sociétés forestières.  
 > **Étapes recommandées :**  
 > 1. **Charger le fichier Excel** avec les sociétés existantes.  
 > 2. **Vérifier et compléter la liste des sociétés** avant d'importer les titres et transactions.
 
-Si aucune base existante n'est disponible, il est **toujours nécessaire de charger la liste des sociétés** ainsi que celle des essences.  
-> Ces listes doivent être **mises à jour régulièrement** pour garantir la cohérence des données lors de l'enregistrement des titres et transactions.
+> ℹ️ **Remarque :**  
+> La liste des essences est automatiquement chargée lors de l'installation de l'application, car elle est incluse dans les seeders.
+
+Si aucune base existante n'est disponible, il est **toujours nécessaire de charger la liste des sociétés**.  
+> Cette liste doit être **mise à jour régulièrement** pour garantir la cohérence des données lors de l'enregistrement des titres et transactions.
+
+### 📥 Liens de téléchargement des ressources nécessaires
+src="logo.jpg"
+- [Télécharger le fichier Excel des sociétés forestières](<a href="Fichiers Requis/societes.xlsx" target="_blank">)
+ 
+
+> Veuillez utiliser ces fichiers comme modèles pour l'importation initiale des données.  
+> Assurez-vous de les compléter et de les valider avant toute opération d'import.
 
 ---
 
@@ -136,6 +147,8 @@ L’application existante nécessite une refonte complète. La nouvelle version 
 | M010 | **Synthèse périodique**                                 | Utilisateur         |
 | M011 | **Audit et Historique**                                 | Administrateur      |
 |      | M011-SM001 : Suivi des actions et logs                  |                     |
+| M012 | **Maintenance des Données**                             | Administrateur      |
+|      | M012-SM001 : Importation et exportation des données via fichiers Excel pour la maintenance et la sauvegarde | |
 
 > 🟰 * : Tous les acteurs
 
@@ -143,15 +156,15 @@ L’application existante nécessite une refonte complète. La nouvelle version 
 
 ## ⏳ V. Durée Estimative
 
-La durée estimée pour la réalisation du projet est de **1 à 2 mois** après lancement.  
-📅 Objectif de mise en production : **Début Mars**, selon les contraintes du client.
+La durée estimée pour la réalisation du projet est de **1 à 3 mois** après lancement avec des interruptions
+📅 Objectif de mise en production : **Début Mars**, selon les contraintes du client mais cela s'est fait en  **Juin**
 
 ---
 
 ## 📦 VI. Livrables
 
 - 🔗 Lien officiel du site web fonctionnel :  
-    [https://www.camerooncomcam-bois.com/dashboard](https://www.camerooncomcam-bois.com/dashboard)
+    [https://www.camerooncomcam-bois.com/](https://www.camerooncomcam-bois.com/)
 - 💻 Code source documenté et commenté  
 - 📘 Cahier de recettes (tests de validation)  
 - 🧑‍🏫 Séances de formation et prise en main  
