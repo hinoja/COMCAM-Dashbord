@@ -200,6 +200,7 @@ class AddTransaction extends Component
 
             // Rafraîchir le composant
             $this->dispatch('refreshComponent');
+            return redirect()->route('admin.transaction.index');
         } catch (\Exception $e) {
             $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }

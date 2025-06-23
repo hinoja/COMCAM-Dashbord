@@ -13,6 +13,7 @@ class Essence extends Model
 {
     /** @use HasFactory<\Database\Factories\EssenceFactory> */
     use HasFactory;
+    protected $table = 'essences';
     public $fillable = ['nom_local', 'code'];
     public function titres()
     {
@@ -28,7 +29,7 @@ class Essence extends Model
     {
         return $this->hasMany(Transaction::class);
     }
- 
+
 
     public function formeEssence()
     {

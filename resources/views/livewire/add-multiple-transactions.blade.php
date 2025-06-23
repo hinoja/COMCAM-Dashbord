@@ -146,12 +146,13 @@
                 <i class="fas fa-plus-circle mr-2"></i> Ajouter une transaction
             </button>
 
+
             <!-- Transactions -->
             <div id="transactions-accordion">
                 @foreach ($transactions as $index => $transaction)
                     <div class="transaction-row" wire:key="transaction-{{ $transaction['id'] }}">
-                        <button type="button" wire:click="confirmRemoveTransaction({{ $index }})"
-                            class="remove-btn" @if (count($transactions) == 1) disabled @endif>
+                        <button type="button" wire:click="removeTransaction({{ $index }})" class="remove-btn"
+                            @if (count($transactions) == 1) disabled @endif>
                             <i class="fas fa-trash-alt"></i>
                         </button>
                         <button type="button" wire:click="duplicateTransaction({{ $index }})"
@@ -363,7 +364,8 @@
                                     <li>Volume en excès : <strong>{{ number_format($detail['depassement'], 2) }}
                                             m³</strong></li>
                                     <li>Volume initial restant :
-                                        <strong>{{ number_format($detail['volumeRestant'], 2) }} m³</strong></li>
+                                        <strong>{{ number_format($detail['volumeRestant'], 2) }} m³</strong>
+                                    </li>
                                 </ul>
                             </div>
                         @endforeach
@@ -384,7 +386,7 @@
     @endif
 
     <!-- Confirmation Modal -->
-    @if (session('confirm_remove_index') !== null)
+    {{-- @if (session('confirm_remove_index') !== null)
 
         <div class="modal fade" id="confirm-remove-modal" tabindex="-1" role="dialog"
             aria-labelledby="confirmRemoveModalLabel" aria-hidden="true" wire:ignore.self>
@@ -411,5 +413,39 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif --}}
+    <!-- Confirmation Modal -->
+    {{-- @if ($showRemoveConfirmation)
+        <div class="modal-overlay" wire:ignore.self>
+            <div class="modal-custom">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Confirmer la suppression
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Voulez-vous vraiment supprimer cette transaction ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            wire:click="$set('showRemoveConfirmation', false)">
+                            Annuler
+                        </button>
+                        <button type="button" class="btn btn-danger" wire:click="removeTransaction">
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif --}}
 </div>
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('redirectToList', () => {
+            window.location.href = "{{ route('admin.transaction.index') }}";
+        });
+    });
+</script>

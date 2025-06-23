@@ -137,7 +137,7 @@ class ManageTransaction extends Component
             ->when($this->titreFilter, function ($query) {
                 $query->where('titre_id', $this->titreFilter);
             })
-            ->paginate($this->perPage == 'all' ? Transaction::count() : $this->perPage);
+            ->latest() ->paginate($this->perPage == 'all' ? Transaction::count() : $this->perPage);
 
         return view('livewire.manage-transaction', [
             'transactions' => $transactions,

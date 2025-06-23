@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 
 class AddMultipleTransactions extends Component
 {
+    public $showRemoveConfirmation = false;
+public $transactionIndexToRemove;
     public $showSuccessAlert = false;
     public $showDepassementModal = false;
     public $depassementDetails = [];
@@ -124,16 +126,16 @@ class AddMultipleTransactions extends Component
     //         $this->transactions[$key]['numero'] = $key + 1;
     //     }
     // }
-    public function removeTransaction($index)
-    {
-        unset($this->transactions[$index]);
-        $this->transactions = array_values($this->transactions);
+public function removeTransaction($index)
+{
+    unset($this->transactions[$index]);
+    $this->transactions = array_values($this->transactions);
 
-        // Re-numéroter les transactions
-        foreach ($this->transactions as $key => $transaction) {
-            $this->transactions[$key]['numero'] = $key + 1;
-        }
+    // Re-numéroter les transactions
+    foreach ($this->transactions as $key => $transaction) {
+        $this->transactions[$key]['numero'] = $key + 1;
     }
+}
     public function duplicateTransaction($index)
     {
         if (count($this->transactions) >= $this->maxTransactions) {
@@ -190,7 +192,7 @@ class AddMultipleTransactions extends Component
     private function updateTitresForEssence($index, $essenceId)
     {
         if ($essenceId) {
-            $titres = Titre::whereHas('essences', function ($query) use ($essenceId) {
+            $titres = Titre::whereHas('essence', function ($query) use ($essenceId) {
                 $query->where('essences.id', $essenceId);
             })->orderBy('nom')->get(['id', 'nom'])->toArray();
             $this->transactions[$index]['titres'] = $titres;
@@ -261,7 +263,7 @@ class AddMultipleTransactions extends Component
 
             $this->validate();
 
-            foreach ($this->transactions as $transaction) {
+            foreach ($this->transactions as $index => $transaction) {
                 if (!empty(array_filter($transaction['errors']))) {
                     session()->flash('error', 'Corrigez les erreurs dans les transactions avant de soumettre.');
                     return;
@@ -306,6 +308,7 @@ class AddMultipleTransactions extends Component
 
             $this->saveAllTransactions($validTransactions);
             session()->flash('success', 'Transactions enregistrées avec succès !');
+            $this->dispatch('redirectToList');
         } catch (\Illuminate\Validation\ValidationException $e) {
             session()->flash('error', 'Corrigez les erreurs avant de soumettre.');
         } catch (\Exception $e) {
@@ -345,6 +348,7 @@ class AddMultipleTransactions extends Component
             }
 
             $this->closeDepassementModal();
+            $this->dispatch('redirectToList');
         } catch (\Exception $e) {
             session()->flash('error', "Erreur lors de l'enregistrement : {$e->getMessage()}");
         }
@@ -373,6 +377,7 @@ class AddMultipleTransactions extends Component
             $this->saveAllTransactions($allTransactions);
             $this->closeDepassementModal();
             session()->flash('success', 'Transactions enregistrées avec succès, y compris les dépassements.');
+            $this->dispatch('redirectToList');
         } catch (\Exception $e) {
             session()->flash('error', "Erreur lors de l'enregistrement : {$e->getMessage()}");
         }
@@ -408,10 +413,10 @@ class AddMultipleTransactions extends Component
                     $transactionData['type_id']
                 );
 
-                $pivotEntry = $titre->essences()->where('essences.id', $transactionData['essence_id'])->first();
+                $pivotEntry = $titre->essence()->where('essences.id', $transactionData['essence_id'])->first();
 
                 if ($pivotEntry) {
-                    $titre->essences()->updateExistingPivot($transactionData['essence_id'], [
+                    $titre->essence()->updateExistingPivot($transactionData['essence_id'], [
                         'VolumeRestant' => $nouveauVolumeRestant
                     ]);
                 }
@@ -421,6 +426,7 @@ class AddMultipleTransactions extends Component
             $this->resetForm();
             $this->showSuccessAlert = true;
             $this->dispatch('refreshComponent');
+            $this->dispatch('redirectToList');
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -447,7 +453,7 @@ class AddMultipleTransactions extends Component
 
     private function getVolumeRestant(Titre $titre, int $essenceId): float
     {
-        $pivotEntry = $titre->essences()->where('essences.id', $essenceId)->first();
+        $pivotEntry = $titre->essence()->where('essences.id', $essenceId)->first();
 
         if (!$pivotEntry) {
             return 0.0;

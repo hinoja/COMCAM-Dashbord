@@ -26,7 +26,7 @@ class Titre extends Model
 //     return $this->belongsToMany(Essence::class)
 //         ->withPivot('volume', 'VolumeRestant');
 // }
-    public function essences()
+    public function essence()
     {
         // return $this->belongsToMany(Essence::class,'titre_id','essence_id');
         return $this->belongsToMany(Essence::class,'essence_titre')
