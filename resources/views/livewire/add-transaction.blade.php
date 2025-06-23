@@ -427,6 +427,13 @@
             });
         });
     </script>
+    <script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('redirectToList', () => {
+            window.location.href = "{{ route('admin.transaction.index') }}";
+        });
+    });
+</script>
 @endpush
 
 @push('js')

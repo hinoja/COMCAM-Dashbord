@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 class AddMultipleTransactions extends Component
 {
     public $showRemoveConfirmation = false;
-public $transactionIndexToRemove;
+    public $transactionIndexToRemove;
     public $showSuccessAlert = false;
     public $showDepassementModal = false;
     public $depassementDetails = [];
@@ -109,12 +109,12 @@ public $transactionIndexToRemove;
     //     session()->flash('confirm_remove', ['index' => $index]);
     // }
     public function confirmRemoveTransaction($index)
-{
-    if (count($this->transactions) <= 1) return;
+    {
+        if (count($this->transactions) <= 1) return;
 
-    // Stocker uniquement l'index (entier)
-    session()->flash('confirm_remove_index', $index);
-}
+        // Stocker uniquement l'index (entier)
+        session()->flash('confirm_remove_index', $index);
+    }
 
     // public function removeTransaction($data)
     // {
@@ -126,16 +126,16 @@ public $transactionIndexToRemove;
     //         $this->transactions[$key]['numero'] = $key + 1;
     //     }
     // }
-public function removeTransaction($index)
-{
-    unset($this->transactions[$index]);
-    $this->transactions = array_values($this->transactions);
+    public function removeTransaction($index)
+    {
+        unset($this->transactions[$index]);
+        $this->transactions = array_values($this->transactions);
 
-    // Re-numéroter les transactions
-    foreach ($this->transactions as $key => $transaction) {
-        $this->transactions[$key]['numero'] = $key + 1;
+        // Re-numéroter les transactions
+        foreach ($this->transactions as $key => $transaction) {
+            $this->transactions[$key]['numero'] = $key + 1;
+        }
     }
-}
     public function duplicateTransaction($index)
     {
         if (count($this->transactions) >= $this->maxTransactions) {
@@ -162,18 +162,22 @@ public function removeTransaction($index)
 
         $index = $keys[1];
         $field = $keys[2];
-        $this->validateSingleField($index, $field, $value);
 
+        // Synchroniser les dépendances immédiatement après chaque changement
         if ($field === 'essence_id') {
             $this->updateTitresForEssence($index, $value);
+            $this->transactions[$index]['type_id'] = null;
+            $this->transactions[$index]['filteredTypes'] = $this->allTypes;
             $this->updateVolumeRestant($index);
         } elseif ($field === 'forme_id') {
             $this->updateTypesForForme($index, $value);
         } elseif ($field === 'titre_id') {
             $this->updateVolumeRestant($index);
         }
-    }
 
+        // Toujours valider après synchronisation
+        $this->validateSingleField($index, $field, $value);
+    }
     private function validateSingleField($index, $field, $value)
     {
         $rules = $this->rules();
@@ -192,31 +196,42 @@ public function removeTransaction($index)
     private function updateTitresForEssence($index, $essenceId)
     {
         if ($essenceId) {
-            $titres = Titre::whereHas('essence', function ($query) use ($essenceId) {
-                $query->where('essences.id', $essenceId);
-            })->orderBy('nom')->get(['id', 'nom'])->toArray();
-            $this->transactions[$index]['titres'] = $titres;
+            $essence = Essence::with('titres')->find($essenceId);
+            $titres = $essence ? $essence->titres->toArray() : [];
         } else {
-            $this->transactions[$index]['titres'] = $this->allTitres;
+            $titres = $this->allTitres;
         }
-        // Reset titre_id when essence changes
-        $this->transactions[$index]['titre_id'] = null;
+        $this->transactions[$index]['titres'] = $titres;
+        $this->transactions[$index]['titre_id'] = null; // Réinitialiser la sélection
+        // Réinitialiser le type aussi car il dépend indirectement de l'essence
+        $this->transactions[$index]['type_id'] = null;
+        $this->transactions[$index]['filteredTypes'] = $this->allTypes;
+        // Forcer la réactivité
+        $this->transactions = array_values($this->transactions);
     }
-
     private function updateTypesForForme($index, $formeId)
     {
-        if ($formeId == 1) {
-            $filteredTypes = Type::where('id', 1)->get(['id', 'code'])->toArray();
-        } elseif ($formeId == 2) {
-            $filteredTypes = Type::whereIn('id', [2, 3, 4, 5])->get(['id', 'code'])->toArray();
+        if ($formeId) {
+            $forme = Forme::with('types')->find($formeId);
+            $filteredTypes = $forme ? $forme->types->toArray() : [];
         } else {
             $filteredTypes = $this->allTypes;
         }
         $this->transactions[$index]['filteredTypes'] = $filteredTypes;
-        // Reset type_id when forme changes
-        $this->transactions[$index]['type_id'] = null;
+        // Réinitialiser le type_id seulement si nécessaire
+        if ($formeId == 1) {
+            $this->transactions[$index]['type_id'] = 1; // Forcer la sélection
+        } else {
+            // Si le type sélectionné n'est plus dans la liste filtrée, le réinitialiser
+            $currentTypeId = $this->transactions[$index]['type_id'];
+            $typeIds = array_column($filteredTypes, 'id');
+            if (!in_array($currentTypeId, $typeIds)) {
+                $this->transactions[$index]['type_id'] = null;
+            }
+        }
+        // Forcer la réactivité
+        $this->transactions = array_values($this->transactions);
     }
-
     private function updateVolumeRestant($index)
     {
         $transaction = $this->transactions[$index];

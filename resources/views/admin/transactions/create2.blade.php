@@ -132,8 +132,7 @@
 @push('js')
 @livewireScripts()
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    {{-- <script>
+    <script>
         $(document).ready(function() {
             // Initialisation de Select2 sur tous les selects
             $('.select2').select2({
@@ -187,5 +186,5 @@
                 $('.select2').val(null).trigger('change');
             });
         });
-    </script> --}}
+    </script>
 @endpush

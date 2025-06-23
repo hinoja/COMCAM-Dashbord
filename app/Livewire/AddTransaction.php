@@ -199,8 +199,9 @@ class AddTransaction extends Component
             $this->showSuccessAlert = true;
 
             // Rafraîchir le composant
-            $this->dispatch('refreshComponent');
-            return redirect()->route('admin.transaction.index');
+            // $this->dispatch('refreshComponent');
+              $this->dispatch('redirectToList');
+
         } catch (\Exception $e) {
             $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }
@@ -514,7 +515,9 @@ class AddTransaction extends Component
             $this->showSuccessAlert = true;
 
             // Rafraîchir le composant
-            $this->dispatch('refreshComponent');
+            // $this->dispatch('refreshComponent');
+            $this->dispatch('redirectToList');
+
         } catch (\Exception $e) {
             $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }
