@@ -20,10 +20,16 @@ class Titre extends Model
     {
         return $this->belongsTo(Zone::class);
     }
-    public function essence()
+
+// public function essences()
+// {
+//     return $this->belongsToMany(Essence::class)
+//         ->withPivot('volume', 'VolumeRestant');
+// }
+    public function essences()
     {
         // return $this->belongsToMany(Essence::class,'titre_id','essence_id');
-        return $this->belongsToMany(Essence::class)
+        return $this->belongsToMany(Essence::class,'essence_titre')
             ->withPivot('volume', 'VolumeRestant', 'type_id', 'forme_id')
             ->withTimestamps();
     }

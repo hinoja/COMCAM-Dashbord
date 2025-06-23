@@ -1,5 +1,5 @@
 <div class="card-body p-4">
-    
+
     <style>
         :root {
             --primary: #4e73df;

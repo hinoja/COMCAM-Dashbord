@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::controller(TransactionController::class)->prefix('transaction')->name('admin.transaction')->group(function () {
         Route::get('/', 'index')->name('.index');
         Route::get('/create', 'create')->name('.create');
+        Route::get('/create-multiple', 'addMultiple')->name('.createMultiple');
         Route::post('/store', 'store')->name('.store');
         Route::post('/confirm', 'confirm')->name('.confirm');
         Route::post('/import', 'importTransactions')->name('.import');

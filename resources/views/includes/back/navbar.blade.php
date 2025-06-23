@@ -8,7 +8,7 @@
             border: 1px solid #FF6B35;
         }
     </style>
-  <form class="form-inline mr-auto">
+    <form class="form-inline mr-auto">
         <ul class="navbar-nav mr-3">
             <li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg"><i class="fas fa-bars"></i></a></li>
         </ul>
@@ -18,7 +18,7 @@
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 <img alt="image" src="{{ auth()->user()->avatar }}" class="rounded-circle mr-1" width="30"
-                    height="30"> 
+                    height="30">
 
 
                 <div class="d-sm-none d-lg-inline-block">{{ auth()->user()->name }}</div>

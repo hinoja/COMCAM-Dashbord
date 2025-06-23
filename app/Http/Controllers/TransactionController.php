@@ -29,20 +29,55 @@ class TransactionController extends Controller
             'titre',
             'societe',
             'conditionnemment',
-            'essence' => function($query) {
-                $query->with(['formeEssence' => function($query) {
+            'essence' => function ($query) {
+                $query->with(['formeEssence' => function ($query) {
                     $query->with(['forme', 'type']);
                 }]);
             }
         ])
-        ->select('id', 'date', 'exercice', 'numero', 'societe_id', 'destination', 'pays',
-                 'titre_id', 'essence_id', 'conditionnemment_id', 'volume', 'created_at')
-        ->orderBy('date', 'desc')
-        ->paginate(15);
+            ->select(
+                'id',
+                'date',
+                'exercice',
+                'numero',
+                'societe_id',
+                'destination',
+                'pays',
+                'titre_id',
+                'essence_id',
+                'conditionnemment_id',
+                'volume',
+                'created_at'
+            )
+            ->orderBy('date', 'desc')
+            ->paginate(15);
 
         return view('admin.transactions.index', compact('transactions'));
     }
+    /**
+     * Show the form for creating a multiples resource.
+     */
+    public function  addMultiple()
+    {
 
+        $formes = Forme::query()->get(['id', 'designation']);
+        $types = Type::query()->get(['id', 'code']);
+        $titres = Titre::orderBy('nom')->get(['id', 'nom'])->unique('nom');
+
+        // $titres = Titre::orderBy('nom')->distinct('nom')->get(['id','nom']);//unique
+        $essences = Essence::query()->get(['id', 'nom_local']);
+        $conditionnements = Conditionnemment::query()->get(['id', 'code']);
+        $societes = Societe::query()->get(['id', 'acronym']);
+
+        return view('admin.transactions.create2', [
+            'types' => $types,
+            'formes' => $formes,
+            'essences' => $essences,
+            'societes' => $societes,
+            'titres' => $titres,
+            'conditionnements' => $conditionnements
+        ]);
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -175,8 +210,8 @@ class TransactionController extends Controller
             ->where('titre_id', $titre_id)
             ->with([
                 'titre',
-                'essence' => function($query) {
-                    $query->with(['formeEssence' => function($query) {
+                'essence' => function ($query) {
+                    $query->with(['formeEssence' => function ($query) {
                         $query->with(['forme', 'type']);
                     }]);
                 },
@@ -209,8 +244,3 @@ class TransactionController extends Controller
         return Excel::download(new TransactionExport($query), $filename);
     }
 }
-
-
-
-
-

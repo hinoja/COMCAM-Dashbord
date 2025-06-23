@@ -10,6 +10,9 @@
                 <a href="{{ route('admin.transaction.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Ajouter une Transaction
                 </a>
+                <a href="{{ route('admin.transaction.createMultiple') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Ajouter Plusieurs  Transactions
+                </a>
 
                 <a href="{{ route('admin.transaction.export') }}" class="btn btn-success">
                     <i class="fas fa-download mr-2"></i>Exporter Excel
