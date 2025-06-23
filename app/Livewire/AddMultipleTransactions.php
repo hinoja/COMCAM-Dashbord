@@ -440,7 +440,7 @@ class AddMultipleTransactions extends Component
             DB::commit();
             $this->resetForm();
             $this->showSuccessAlert = true;
-            $this->dispatch('refreshComponent');
+            // $this->dispatch('refreshComponent');
             $this->dispatch('redirectToList');
         } catch (\Exception $e) {
             DB::rollBack();

@@ -483,6 +483,8 @@ class AddTransaction extends Component
 
         $this->resetForm();
         $this->showSuccessAlert = true; // Activer l'alerte de succès
+        $this->dispatch('redirectToList');
+
     }
     // Ajouter cette méthode pour la confirmation
     public function confirmSaveWithDepassement()
@@ -513,6 +515,8 @@ class AddTransaction extends Component
             $this->closeDepassementModal();
             $this->resetForm();
             $this->showSuccessAlert = true;
+            $this->dispatch('redirectToList');
+
 
             // Rafraîchir le composant
             // $this->dispatch('refreshComponent');
