@@ -1,5 +1,68 @@
 <div>
     <style>
+        .action-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .remove-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .duplicate-btn {
+            background-color: #00C851;
+            color: white;
+        }
+
+        .duplicate-btn:hover {
+            background-color: #007E33;
+        }
+
+        .add-transaction-btn {
+            background-color: #4285F4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .add-transaction-btn:hover {
+            background-color: #3367D6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+    <style>
         .transaction-row {
             border: 1px solid #e3e6f0;
             border-radius: 8px;
@@ -151,13 +214,16 @@
             <div id="transactions-accordion">
                 @foreach ($transactions as $index => $transaction)
                     <div class="transaction-row" wire:key="transaction-{{ $transaction['id'] }}">
-                        <button type="button" wire:click="removeTransaction({{ $index }})" class="remove-btn"
-                            @if (count($transactions) == 1) disabled @endif>
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                        @if (count($transactions) > 1)
+                            <button type="button" wire:click="removeTransaction({{ $index }})"
+                                class="action-btn remove-btn text-white" title="Supprimer cette transaction">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        @endif
                         <button type="button" wire:click="duplicateTransaction({{ $index }})"
-                            class="duplicate-btn">
+                            class="duplicate-btn action-btn   text-white">
                             <i class="fas fa-copy"></i>
+                             @if(count($transactions) >= $maxTransactions) disabled @endif
                         </button>
 
                         <div class="accordion">
@@ -177,45 +243,28 @@
                                                 <div class="form-group">
                                                     <label>Essence</label>
                                                     <select wire:model="transactions.{{ $index }}.essence_id"
-                                                        class="form-control @error('transactions.{{ $index }}.essence_id') is-invalid @enderror">
+                                                        wire:change="updateTitresForEssence({{ $index }}, $event.target.value)"
+                                                        class="form-control">
                                                         <option value="">Sélectionner une essence</option>
                                                         @foreach ($essences as $essence)
                                                             <option value="{{ $essence['id'] }}">
                                                                 {{ $essence['nom_local'] }}</option>
                                                         @endforeach
                                                     </select>
-                                                    @php
-                                                        $essenceError = $transaction['errors']['essence_id'] ?? null;
-                                                    @endphp
-                                                    @if (is_array($essenceError))
-                                                        <div class="invalid-feedback d-block">
-                                                            {{ implode(', ', $essenceError) }}</div>
-                                                    @elseif (!empty($essenceError))
-                                                        <div class="invalid-feedback d-block">{{ $essenceError }}</div>
-                                                    @endif
                                                 </div>
                                             </div>
+
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Titre</label>
                                                     <select wire:model="transactions.{{ $index }}.titre_id"
-                                                        class="form-control @error('transactions.{{ $index }}.titre_id') is-invalid @enderror">
+                                                        class="form-control">
                                                         <option value="">Sélectionner un titre</option>
                                                         @foreach ($transaction['titres'] as $titre)
                                                             <option value="{{ $titre['id'] }}">{{ $titre['nom'] }}
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error('transactions.{{ $index }}.titre_id')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                    @if ($transaction['volumeRestant'] !== null)
-                                                        <small
-                                                            class="volume-rest {{ $transaction['volumeRestant'] < $transaction['volume'] ? 'warning' : '' }}">
-                                                            Volume restant:
-                                                            {{ number_format($transaction['volumeRestant'], 2) }} m³
-                                                        </small>
-                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -266,30 +315,34 @@
                                                 <div class="form-group">
                                                     <label>Forme</label>
                                                     <select wire:model="transactions.{{ $index }}.forme_id"
-                                                        class="form-control @error('transactions.{{ $index }}.forme_id') is-invalid @enderror">
+                                                        wire:change="updateTypesForForme({{ $index }}, $event.target.value)"
+                                                        class="form-control @error('transactions.' . $index . '.forme_id') is-invalid @enderror">
                                                         <option value="">Sélectionner une forme</option>
                                                         @foreach ($formes as $forme)
                                                             <option value="{{ $forme['id'] }}">
                                                                 {{ $forme['designation'] }}</option>
                                                         @endforeach
                                                     </select>
-                                                    @error('transactions.{{ $index }}.forme_id')
+                                                    @error('transactions.' . $index . '.forme_id')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
+
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Type</label>
                                                     <select wire:model="transactions.{{ $index }}.type_id"
-                                                        class="form-control @error('transactions.{{ $index }}.type_id') is-invalid @enderror">
+                                                        class="form-control @error('transactions.' . $index . '.type_id') is-invalid @enderror">
                                                         <option value="">Sélectionner un type</option>
                                                         @foreach ($transaction['filteredTypes'] as $type)
-                                                            <option value="{{ $type['id'] }}">{{ $type['code'] }}
+                                                            <option value="{{ $type['id'] }}"
+                                                                @selected($type['id'] == ($transaction['type_id'] ?? null))>
+                                                                {{ $type['code'] }}
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error('transactions.{{ $index }}.type_id')
+                                                    @error('transactions.' . $index . '.type_id')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
@@ -385,67 +438,24 @@
         </div>
     @endif
 
-    <!-- Confirmation Modal -->
-    {{-- @if (session('confirm_remove_index') !== null)
 
-        <div class="modal fade" id="confirm-remove-modal" tabindex="-1" role="dialog"
-            aria-labelledby="confirmRemoveModalLabel" aria-hidden="true" wire:ignore.self>
-            <div class="modal-dialog modal-custom">
-                <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                        <h5 class="modal-title" id="confirmRemoveModalLabel">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> Confirmer la suppression
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Voulez-vous vraiment supprimer cette transaction ?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <!-- <button type="button" class="btn btn-danger" wire:click="removeTransaction({{ session('confirm_remove') }})">Supprimer</button> -->
-                        <button type="button" class="btn btn-danger"
-                            wire:click="removeTransaction({{ session('confirm_remove_index') }})">
-                            Supprimer
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif --}}
-    <!-- Confirmation Modal -->
-    {{-- @if ($showRemoveConfirmation)
-        <div class="modal-overlay" wire:ignore.self>
-            <div class="modal-custom">
-                <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                        <h5 class="modal-title">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> Confirmer la suppression
-                        </h5>
-                    </div>
-                    <div class="modal-body">
-                        <p>Voulez-vous vraiment supprimer cette transaction ?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            wire:click="$set('showRemoveConfirmation', false)">
-                            Annuler
-                        </button>
-                        <button type="button" class="btn btn-danger" wire:click="removeTransaction">
-                            Supprimer
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif --}}
 </div>
 
 <script>
     document.addEventListener('livewire:init', () => {
-        Livewire.on('redirectToList', () => {
-            window.location.href = "{{ route('admin.transaction.index') }}";
-        });
-    });
+
+                Livewire.on('titresUpdated', (index) => {
+                    // Force Livewire à mettre à jour le DOM
+                    Livewire.dispatch('refreshComponent');
+                });
+                Livewire.on('redirectToList', () => {
+                    window.location.href = "{{ route('admin.transaction.index') }}";
+                });
+
+                Livewire.on('typesUpdated', (index) => {
+                    // Force Livewire à mettre à jour le DOM
+                    Livewire.dispatch('refreshComponent');
+
+                });
+            }
 </script>

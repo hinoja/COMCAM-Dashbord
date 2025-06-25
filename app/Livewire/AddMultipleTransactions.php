@@ -52,11 +52,9 @@ class AddMultipleTransactions extends Component
     {
         $this->essences = Essence::orderBy('nom_local')->get(['id', 'nom_local'])->toArray();
         $this->formes = Forme::orderBy('designation')->get(['id', 'designation'])->toArray();
-        $this->types = Type::orderBy('code')->get(['id', 'code'])->toArray();
         $this->conditionnements = Conditionnemment::orderBy('code')->get(['id', 'code'])->toArray();
         $this->societes = Societe::orderBy('acronym')->get(['id', 'acronym'])->toArray();
-        $this->allTitres = Titre::orderBy('nom')->get(['id', 'nom'])->toArray();
-        $this->allTypes = $this->types;
+        $this->allTypes = Type::orderBy('code')->get(['id', 'code'])->toArray();
     }
 
     public function addTransaction()
@@ -100,14 +98,7 @@ class AddMultipleTransactions extends Component
         $this->updateTypesForForme($index, $this->transactions[$index]['forme_id'] ?? null);
     }
 
-    // public function confirmRemoveTransaction($index)
-    // {
-    //     if (count($this->transactions) <= 1) {
-    //         session()->flash('warning', 'Vous devez conserver au moins une transaction.');
-    //         return;
-    //     }
-    //     session()->flash('confirm_remove', ['index' => $index]);
-    // }
+
     public function confirmRemoveTransaction($index)
     {
         if (count($this->transactions) <= 1) return;
@@ -116,16 +107,7 @@ class AddMultipleTransactions extends Component
         session()->flash('confirm_remove_index', $index);
     }
 
-    // public function removeTransaction($data)
-    // {
-    //     $index = $data['index'];
-    //     unset($this->transactions[$index]);
-    //     $this->transactions = array_values($this->transactions);
 
-    //     foreach ($this->transactions as $key => $transaction) {
-    //         $this->transactions[$key]['numero'] = $key + 1;
-    //     }
-    // }
     public function removeTransaction($index)
     {
         unset($this->transactions[$index]);
@@ -143,16 +125,42 @@ class AddMultipleTransactions extends Component
             return;
         }
 
-        $transaction = $this->transactions[$index];
-        $newTransaction = $transaction;
-        $newTransaction['id'] = uniqid();
-        $newTransaction['numero'] = count($this->transactions) + 1;
-        $newTransaction['volume'] = 0;
+        try {
+            $transaction = $this->transactions[$index] ?? null;
 
-        $this->transactions[] = $newTransaction;
-        $newIndex = count($this->transactions) - 1;
-        $this->updateTitresForEssence($newIndex, $transaction['essence_id']);
-        $this->updateTypesForForme($newIndex, $transaction['forme_id']);
+            if (!$transaction) {
+                throw new \Exception("Transaction introuvable");
+            }
+
+            $newTransaction = [
+                'id' => uniqid(),
+                'numero' => count($this->transactions) + 1,
+                'forme_id' => $transaction['forme_id'] ?? null,
+                'type_id' => $transaction['type_id'] ?? null,
+                'titre_id' => $transaction['titre_id'] ?? null,
+                'essence_id' => $transaction['essence_id'] ?? null,
+                'conditionnemment_id' => $transaction['conditionnemment_id'] ?? 1,
+                'societe_id' => $transaction['societe_id'] ?? 1,
+                'pays' => $transaction['pays'] ?? '',
+                'destination' => $transaction['destination'] ?? '',
+                'volume' => $transaction['volume'] ?? 0,
+                'filteredTypes' => $transaction['filteredTypes'] ?? $this->allTypes,
+                'titres' => $transaction['titres'] ?? $this->allTitres,
+                'errors' => [],
+                'volumeRestant' => $transaction['volumeRestant'] ?? null
+            ];
+
+            $this->transactions[] = $newTransaction;
+            $newIndex = count($this->transactions) - 1;
+
+            // Mettre à jour les dépendances
+            $this->updateTitresForEssence($newIndex, $newTransaction['essence_id']);
+            $this->updateTypesForForme($newIndex, $newTransaction['forme_id']);
+
+            session()->flash('success', 'Transaction dupliquée avec succès.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de la duplication : ' . $e->getMessage());
+        }
     }
 
     public function updatedTransactions($value, $key)
@@ -163,11 +171,8 @@ class AddMultipleTransactions extends Component
         $index = $keys[1];
         $field = $keys[2];
 
-        // Synchroniser les dépendances immédiatement après chaque changement
         if ($field === 'essence_id') {
             $this->updateTitresForEssence($index, $value);
-            $this->transactions[$index]['type_id'] = null;
-            $this->transactions[$index]['filteredTypes'] = $this->allTypes;
             $this->updateVolumeRestant($index);
         } elseif ($field === 'forme_id') {
             $this->updateTypesForForme($index, $value);
@@ -175,7 +180,6 @@ class AddMultipleTransactions extends Component
             $this->updateVolumeRestant($index);
         }
 
-        // Toujours valider après synchronisation
         $this->validateSingleField($index, $field, $value);
     }
     private function validateSingleField($index, $field, $value)
@@ -193,42 +197,61 @@ class AddMultipleTransactions extends Component
         }
     }
 
-    private function updateTitresForEssence($index, $essenceId)
+    public function updateTitresForEssence($index, $essenceId)
     {
+        // Réinitialiser le titre sélectionné
+        $this->transactions[$index]['titre_id'] = null;
+
         if ($essenceId) {
+            // Charger les titres associés à l'essence
             $essence = Essence::with('titres')->find($essenceId);
-            $titres = $essence ? $essence->titres->toArray() : [];
+            $this->transactions[$index]['titres'] = $essence ? $essence->titres->toArray() : [];
         } else {
-            $titres = $this->allTitres;
+            // Si aucune essence n'est sélectionnée, afficher tous les titres
+            $this->transactions[$index]['titres'] = Titre::orderBy('nom')->get(['id', 'nom'])->toArray();
         }
-        $this->transactions[$index]['titres'] = $titres;
-        $this->transactions[$index]['titre_id'] = null; // Réinitialiser la sélection
-        // Réinitialiser le type aussi car il dépend indirectement de l'essence
-        $this->transactions[$index]['type_id'] = null;
-        $this->transactions[$index]['filteredTypes'] = $this->allTypes;
-        // Forcer la réactivité
-        $this->transactions = array_values($this->transactions);
+
+        // Réinitialiser aussi le volume restant
+        $this->transactions[$index]['volumeRestant'] = null;
+
+        // Forcer la mise à jour du composant
+        $this->dispatch('titresUpdated', index: $index);
     }
-    private function updateTypesForForme($index, $formeId)
+
+    public function updateTypesForForme($index, $formeId)
     {
-        if ($formeId) {
-            $forme = Forme::with('types')->find($formeId);
-            $filteredTypes = $forme ? $forme->types->toArray() : [];
-        } else {
-            $filteredTypes = $this->allTypes;
+        // Si pas de forme sélectionnée, afficher tous les types
+        if (!$formeId) {
+            $this->transactions[$index]['filteredTypes'] = $this->allTypes;
+            $this->transactions[$index]['type_id'] = null;
+            return;
         }
-        $this->transactions[$index]['filteredTypes'] = $filteredTypes;
-        // Réinitialiser le type_id seulement si nécessaire
-        if ($formeId == 1) {
-            $this->transactions[$index]['type_id'] = 1; // Forcer la sélection
-        } else {
-            // Si le type sélectionné n'est plus dans la liste filtrée, le réinitialiser
-            $currentTypeId = $this->transactions[$index]['type_id'];
-            $typeIds = array_column($filteredTypes, 'id');
-            if (!in_array($currentTypeId, $typeIds)) {
-                $this->transactions[$index]['type_id'] = null;
+
+        // Filtrer selon les règles métier
+        $filteredTypes = [];
+        foreach ($this->allTypes as $type) {
+            if ($formeId == 1 && $type['id'] == 1) {
+                $filteredTypes[] = $type; // Forme 1 -> Type 1 seulement
+            } elseif ($formeId == 2 && in_array($type['id'], [2, 3, 4, 5])) {
+                $filteredTypes[] = $type; // Forme 2 -> Types 2,3,4,5
+            } elseif ($formeId > 2) {
+                $filteredTypes[] = $type; // Autres formes -> tous types
             }
         }
+
+        $this->transactions[$index]['filteredTypes'] = $filteredTypes;
+
+        // Gérer la sélection automatique
+        $currentTypeId = $this->transactions[$index]['type_id'] ?? null;
+
+        if ($formeId == 1) {
+            // Forcer la sélection du type 1 si forme est 1
+            $this->transactions[$index]['type_id'] = 1;
+        } elseif ($currentTypeId && !in_array($currentTypeId, array_column($filteredTypes, 'id'))) {
+            // Réinitialiser si le type actuel n'est pas disponible
+            $this->transactions[$index]['type_id'] = null;
+        }
+
         // Forcer la réactivité
         $this->transactions = array_values($this->transactions);
     }
