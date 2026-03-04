@@ -137,7 +137,7 @@
                                 @php
                                     $currentYear = date('Y');
                                     $startYear = $currentYear - 0;
-                                    $endYear = $currentYear + 2;
+                                    $endYear = $currentYear + 1;
                                 @endphp
                                 @for ($year = $startYear; $year <= $endYear; $year++)
                                     <option value="{{ $year }}">{{ $year }}</option>
@@ -385,18 +385,30 @@
                         <p>Détails du dépassement :</p>
                         <ul>
                             <li>Volume en excès : <strong>{{ number_format($depassementValue, 2) }} m³</strong></li>
-                            @if ($volumeRestantGrume !== null)
-                                <li>Volume initial restant en Grume :
-                                    <strong>{{ number_format($volumeRestantGrume, 2) }} m³</strong>
-                                </li>
-                            @endif
-                            @if ($volumeRestantDebite !== null)
-                                <li>Volume initial restant en Débité (5N) :
-                                    <strong>{{ number_format($volumeRestantDebite, 2) }} m³</strong>
-                                </li>
+                            <li>Forme de la transaction : <strong>{{ $formeTransaction ?? 'Non définie' }}</strong></li>
+                            @if(isset($typeTransaction) && $typeTransaction !== 'Non défini')
+                                <li>Type de la transaction : <strong>{{ $typeTransaction }}</strong></li>
                             @endif
                         </ul>
-                        <p class="font-weight-bold">Êtes-vous sûr de vouloir poursuivre cette opération malgré le
+
+                        <div class="alert alert-info">
+                            <strong>Volumes équivalents disponibles :</strong>
+                            <ul class="mb-0 mt-2">
+                                @if ($volumeRestantGrume !== null)
+                                    <li>Volume restant en <strong>Grume</strong> :
+                                        <strong>{{ number_format($volumeRestantGrume, 2) }} m³</strong>
+                                    </li>
+                                @endif
+                                @if ($volumeRestantDebite !== null)
+                                    <li>Volume restant en <strong>Débité</strong> (équivalent) :
+                                        <strong>{{ number_format($volumeRestantDebite, 2) }} m³</strong>
+                                        <small class="text-muted">(conversion estimée selon le type sélectionné)</small>
+                                    </li>
+                                @endif
+                            </ul>
+                        </div>
+
+                        <p class="font-weight-bold text-danger">Êtes-vous sûr de vouloir poursuivre cette opération malgré le
                             dépassement ?</p>
                     </div>
                     <div class="modal-footer">
@@ -428,12 +440,12 @@
         });
     </script>
     <script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('redirectToList', () => {
-            window.location.href = "{{ route('admin.transaction.index') }}";
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('redirectToList', () => {
+                window.location.href = "{{ route('admin.transaction.index') }}";
+            });
         });
-    });
-</script>
+    </script>
 @endpush
 
 @push('js')

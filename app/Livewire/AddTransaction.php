@@ -147,6 +147,67 @@ class AddTransaction extends Component
     /**
      * Gestion de la soumission du formulaire
      */
+    // public function save()
+    // {
+    //     try {
+    //         $this->validate();
+
+    //         // Récupérer le titre associé
+    //         $titre = Titre::where('id', $this->titre_id)
+    //             ->whereHas('essence', function ($query) {
+    //                 $query->where('essences.id', $this->essence_id);
+    //             })
+    //             ->first();
+
+    //         if (!$titre) {
+    //             $this->addError('titre_id', 'Combinaison titre/essence invalide');
+    //             return;
+    //         }
+
+    //         // Créer la transaction
+    //         $transaction = new Transaction($this->prepareTransactionData());
+    //         // ✅ Calculer D'ABORD, mettre à jour FormeEssence ENSUITE
+    //       $nouveauVolumeRestant = $this->calculateDepassement($transaction, $titre);
+
+    //         // Calculer le nouveau volume restant
+    //         $volumeRestant = $this->getVolumeRestant($titre);
+    //         // $nouveauVolumeRestant = $volumeRestant - $transaction->volume;
+    //         // $nouveauVolumeRestant = $this->calculateDepassement($transaction, $titre);
+    //         // Vérifier s'il y a dépassement
+    //         if ($nouveauVolumeRestant < 0) {
+    //             // Gérer le dépassement
+    //             $this->handleDepassementWarning($transaction, $nouveauVolumeRestant);
+    //             return;
+    //         }
+
+    //         // Sauvegarder la transaction
+    //         $transaction->save();
+
+    //         // Mettre à jour le volume restant dans la table pivot
+    //         $pivotEntry = $titre->essence()
+    //             ->where('essences.id', $this->essence_id)
+    //             ->first();
+
+    //             //  Mettre à jour ou créer l'entrée dans FormeEssence
+    //         $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
+
+
+    //         if ($pivotEntry) {
+    //             $titre->essence()->updateExistingPivot($this->essence_id, [
+    //                 'VolumeRestant' => $nouveauVolumeRestant
+    //             ]);
+    //         }
+
+    //         $this->resetForm();
+    //         $this->showSuccessAlert = true;
+
+    //         // Rafraîchir le composant
+    //         // $this->dispatch('refreshComponent');
+    //         $this->dispatch('redirectToList');
+    //     } catch (\Exception $e) {
+    //         $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
+    //     }
+    // }
     public function save()
     {
         try {
@@ -167,22 +228,20 @@ class AddTransaction extends Component
             // Créer la transaction
             $transaction = new Transaction($this->prepareTransactionData());
 
-            // Mettre à jour ou créer l'entrée dans FormeEssence
-            $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
-
-            // Calculer le nouveau volume restant
-            $volumeRestant = $this->getVolumeRestant($titre);
-            $nouveauVolumeRestant = $volumeRestant - $transaction->volume;
+            // Calculer le nouveau volume restant AVANT de modifier FormeEssence
+            $nouveauVolumeRestant = $this->calculateDepassement($transaction, $titre);
 
             // Vérifier s'il y a dépassement
             if ($nouveauVolumeRestant < 0) {
-                // Gérer le dépassement
                 $this->handleDepassementWarning($transaction, $nouveauVolumeRestant);
                 return;
             }
 
             // Sauvegarder la transaction
             $transaction->save();
+
+            // Mettre à jour FormeEssence APRÈS le calcul
+            $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
 
             // Mettre à jour le volume restant dans la table pivot
             $pivotEntry = $titre->essence()
@@ -197,16 +256,11 @@ class AddTransaction extends Component
 
             $this->resetForm();
             $this->showSuccessAlert = true;
-
-            // Rafraîchir le composant
-            // $this->dispatch('refreshComponent');
-              $this->dispatch('redirectToList');
-
+            $this->dispatch('redirectToList');
         } catch (\Exception $e) {
             $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }
     }
-
     /**
      * Prépare les données de la transaction
      */
@@ -289,43 +343,122 @@ class AddTransaction extends Component
     /**
      * Calcule le dépassement selon les règles métier
      */
+    // private function calculateDepassement(Transaction $transaction, Titre $titre): float
+    // {
+    //     $volumeRestant = $this->getVolumeRestant($titre);
+
+    //     // Récupérer l'essence associée à la transaction
+    //     $essence = Essence::find($this->essence_id);
+
+    //     // Récupérer forme_id et type_id à partir de formeEssence si disponible
+    //     $formeId = null;
+    //     $typeId = null;
+
+    //     if ($essence && $essence->formeEssence) {
+    //         $formeId = $essence->formeEssence->forme_id;
+    //         $typeId = $essence->formeEssence->type_id;
+    //     }
+
+    //     $formeTypeTitre = $this->getFormeType($formeId, $typeId);
+    //     $formeTypeTransaction = $this->getFormeType($transaction->forme_id, $transaction->type_id);
+
+    //     // Cas 1 : Mêmes caractéristiques
+    //     if ($formeTypeTitre === $formeTypeTransaction) {
+    //         return $volumeRestant - $transaction->volume;
+    //     }
+
+    //     // Cas 2 : Conversion depuis des grumes
+    //     if ($formeTypeTitre === 'Grume') {
+    //         return $this->handleGrumeConversion($transaction, $formeTypeTransaction, $volumeRestant);
+    //     }
+
+    //     // Cas 3 : Conversion vers des grumes
+    //     if ($formeTypeTransaction === 'Grume') {
+    //         return $this->handleReverseGrumeConversion($titre, $formeTypeTitre, $volumeRestant, $transaction->volume);
+    //     }
+
+    //     return $volumeRestant - $transaction->volume;
+    // }
     private function calculateDepassement(Transaction $transaction, Titre $titre): float
     {
         $volumeRestant = $this->getVolumeRestant($titre);
 
-        // Récupérer l'essence associée à la transaction
-        $essence = Essence::find($this->essence_id);
+        // ✅ On lit directement depuis le formulaire Livewire
+        $formeIdTitre   = $this->getFormeTitre($titre); // forme stockée sur le titre
+        $formeIdTransaction = (int) $this->forme_id;    // forme sélectionnée dans le formulaire
+        $typeIdTransaction  = (int) $this->type_id;     // type sélectionné dans le formulaire
 
-        // Récupérer forme_id et type_id à partir de formeEssence si disponible
-        $formeId = null;
-        $typeId = null;
+        $formeTypeTitre       = $this->getFormeType($formeIdTitre['forme_id'], $formeIdTitre['type_id']);
+        $formeTypeTransaction = $this->getFormeType($formeIdTransaction, $typeIdTransaction);
 
-        if ($essence && $essence->formeEssence) {
-            $formeId = $essence->formeEssence->forme_id;
-            $typeId = $essence->formeEssence->type_id;
-        }
-
-        $formeTypeTitre = $this->getFormeType($formeId, $typeId);
-        $formeTypeTransaction = $this->getFormeType($transaction->forme_id, $transaction->type_id);
-
-        // Cas 1 : Mêmes caractéristiques
+        // Cas 1 : Même forme → soustraction directe
         if ($formeTypeTitre === $formeTypeTransaction) {
             return $volumeRestant - $transaction->volume;
         }
 
-        // Cas 2 : Conversion depuis des grumes
-        if ($formeTypeTitre === 'Grume') {
+        // Cas 2 : Titre en Grume, transaction en Débité → convertir Débité en Grume
+        if (str_starts_with($formeTypeTitre, 'Grume')) {
             return $this->handleGrumeConversion($transaction, $formeTypeTransaction, $volumeRestant);
         }
 
-        // Cas 3 : Conversion vers des grumes
-        if ($formeTypeTransaction === 'Grume') {
-            return $this->handleReverseGrumeConversion($titre, $formeTypeTitre, $volumeRestant, $transaction->volume);
-        }
+          // Cas 3 : Titre en Débité, transaction en Grume → convertir Grume en Débité
+    if (str_starts_with($formeTypeTransaction, 'Grume')) {
+        // Titre $titre, string $formeType, float $volumeRestant, float $volume
+        return $this->handleReverseGrumeConversion($formeTypeTitre, $volumeRestant, $transaction->volume); // ✅ décommenté
+    }
 
         return $volumeRestant - $transaction->volume;
     }
 
+    /**
+     * ✅ Nouvelle méthode helper — récupère la forme/type associée au titre
+     */
+    // private function getFormeTitre(Titre $titre): array
+    // {
+    //     $essence = Essence::find($this->essence_id);
+
+    //     if ($essence && $essence->formeEssence) {
+    //         return [
+    //             'forme_id' => $essence->formeEssence->forme_id,
+    //             'type_id'  => $essence->formeEssence->type_id,
+    //         ];
+    //     }
+
+    //     // Fallback : on utilise ce qui est dans le formulaire
+    //     return [
+    //         'forme_id' => (int) $this->forme_id,
+    //         'type_id'  => (int) $this->type_id,
+    //     ];
+    // }
+    private function getFormeTitre(Titre $titre): array
+    {
+        // ✅ Lire depuis la table pivot essence_titre (source de vérité)
+        $pivotEntry = $titre->essence()
+            ->where('essences.id', $this->essence_id)
+            ->first();
+
+        if ($pivotEntry && isset($pivotEntry->pivot->forme_id)) {
+            return [
+                'forme_id' => (int) $pivotEntry->pivot->forme_id,
+                'type_id'  => (int) $pivotEntry->pivot->type_id,
+            ];
+        }
+
+        // Fallback : formeEssence en BDD
+        $essence = Essence::find($this->essence_id);
+        if ($essence && $essence->formeEssence) {
+            return [
+                'forme_id' => $essence->formeEssence->forme_id,
+                'type_id'  => $essence->formeEssence->type_id,
+            ];
+        }
+
+        // Dernier recours
+        return [
+            'forme_id' => (int) $this->forme_id,
+            'type_id'  => (int) $this->type_id,
+        ];
+    }
     /**
      * Gère la conversion depuis des grumes
      */
@@ -333,7 +466,7 @@ class AddTransaction extends Component
     {
         return match ($formeType) {
             'Débité5N' => $volumeRestant - ($transaction->volume * 2.5),
-            'Débité6.1', 'Débité6.2' => $volumeRestant - ($transaction->volume * 1.5),
+            'Débité6.1', 'Débité6.2' => $volumeRestant - ($transaction->volume * 1.25),
             default => $volumeRestant - $transaction->volume
         };
     }
@@ -341,7 +474,7 @@ class AddTransaction extends Component
     /**
      * Gère la conversion vers des grumes
      */
-    private function handleReverseGrumeConversion(Titre $titre, string $formeType, float $volumeRestant, float $volume): float
+    private function handleReverseGrumeConversion(string $formeType, float $volumeRestant, float $volume): float
     {
         return match ($formeType) {
             'Débité5N' => $volumeRestant - ($volume * 0.4),
@@ -423,22 +556,19 @@ class AddTransaction extends Component
         // Calcul du volume restant actuel (avant la transaction en cours)
         $volumeRestantActuel = $this->getVolumeRestant($titre);
 
-        // Récupérer l'essence associée à la transaction
-        $essence = Essence::find($this->essence_id);
+        // Utiliser la forme sélectionnée dans le formulaire, pas celle stockée
+        $formeId = $this->forme_id;
+        $typeId = $this->type_id;
 
-        // Récupérer la forme depuis FormeEssence
-        $formeId = null;
-        if ($essence && $essence->formeEssence) {
-            $formeId = $essence->formeEssence->forme_id;
-        }
-
-        // Selon la forme de l'essence
-        if ($formeId == 1) { // Grume
+        // Calculer les volumes équivalents selon la forme de la transaction
+        if ($formeId == 1) { // Transaction en Grume
             $this->volumeRestantGrume = $volumeRestantActuel;
-            $this->volumeRestantDebite = $this->convertirGrumeEnDebite($volumeRestantActuel);
-        } else { // Débité
+            // Conversion vers Débité selon le type sélectionné
+            $this->volumeRestantDebite = $this->convertirGrumeVersDebite($volumeRestantActuel, $typeId);
+        } else { // Transaction en Débité
             $this->volumeRestantDebite = $volumeRestantActuel;
-            $this->volumeRestantGrume = $this->convertirDebiteEnGrume($volumeRestantActuel);
+            // Conversion vers Grume selon le type sélectionné
+            $this->volumeRestantGrume = $this->convertirDebiteVersGrume($volumeRestantActuel, $typeId);
         }
 
         $this->showDepassementModal = true;
@@ -447,19 +577,47 @@ class AddTransaction extends Component
         $this->dispatch('showDepassementModal', [
             'depassementValue' => $this->depassementValue,
             'volumeRestantGrume' => $this->volumeRestantGrume,
-            'volumeRestantDebite' => $this->volumeRestantDebite
+            'volumeRestantDebite' => $this->volumeRestantDebite,
+            'formeTransaction' => $formeId == 1 ? 'Grume' : 'Débité',
+            'typeTransaction' => $this->getTypeCode($typeId)
         ]);
     }
-    private function convertirGrumeEnDebite(float $volumeGrume): float
+
+    /**
+     * Convertit un volume Grume vers Débité selon le type
+     */
+    private function convertirGrumeVersDebite(float $volumeGrume, int $typeId): float
     {
-        // Exemple : coefficient de conversion de Grume à Débité (5N) = 0.4
-        return $volumeGrume * 0.4;
+        return match ($typeId) {
+            2 => $volumeGrume * 0.4,  // 5N
+            3 => $volumeGrume * 0.8, // 6.1
+            4 => $volumeGrume * 0.8, // 6.2
+            5 => $volumeGrume * 1.0,  // PS
+            default => $volumeGrume * 0.4 // Par défaut 5N
+        };
     }
 
-    private function convertirDebiteEnGrume(float $volumeDebite): float
+    /**
+     * Convertit un volume Débité vers Grume selon le type
+     */
+    private function convertirDebiteVersGrume(float $volumeDebite, int $typeId): float
     {
-        // Exemple : coefficient de conversion de Débité (5N) à Grume =2.5
-        return $volumeDebite * 2.5;
+        return match ($typeId) {
+            2 => $volumeDebite * 2.5,  // 5N
+            3 => $volumeDebite * 1.25,  // 6.1
+            4 => $volumeDebite * 1.25,  // 6.2
+            5 => $volumeDebite * 1.0,  // PS
+            default => $volumeDebite * 2.5 // Par défaut 5N
+        };
+    }
+
+    /**
+     * Récupère le code du type
+     */
+    private function getTypeCode(int $typeId): string
+    {
+        $type = Type::find($typeId);
+        return $type ? $type->code : 'Non défini';
     }
 
     /**
@@ -484,49 +642,81 @@ class AddTransaction extends Component
         $this->resetForm();
         $this->showSuccessAlert = true; // Activer l'alerte de succès
         $this->dispatch('redirectToList');
-
     }
     // Ajouter cette méthode pour la confirmation
+    // public function confirmSaveWithDepassement()
+    // {
+    //     try {
+    //         $this->validate();
+
+    //         // Créer la transaction sans forme_id et type_id
+    //         $transaction = new Transaction($this->prepareTransactionData());
+    //         $titre = Titre::find($this->titre_id);
+
+    //         // Mettre à jour ou créer l'entrée dans FormeEssence
+    //         $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
+
+    //         // Mettre à jour la table pivot essence_titre avec le nouveau volume restant
+    //         $pivotEntry = $titre->essence()
+    //             ->where('essences.id', $this->essence_id)
+    //             ->first();
+
+    //         if ($pivotEntry) {
+    //             $titre->essence()->updateExistingPivot($this->essence_id, [
+    //                 'VolumeRestant' => -$this->depassementValue
+    //             ]);
+    //         }
+
+    //         $transaction->save();
+
+    //         $this->closeDepassementModal();
+    //         $this->resetForm();
+    //         $this->showSuccessAlert = true;
+    //         $this->dispatch('redirectToList');
+
+
+    //         // Rafraîchir le composant
+    //         // $this->dispatch('refreshComponent');
+    //         $this->dispatch('redirectToList');
+    //     } catch (\Exception $e) {
+    //         $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
+    //     }
+    // }
     public function confirmSaveWithDepassement()
     {
         try {
             $this->validate();
 
-            // Créer la transaction sans forme_id et type_id
             $transaction = new Transaction($this->prepareTransactionData());
             $titre = Titre::find($this->titre_id);
 
-            // Mettre à jour ou créer l'entrée dans FormeEssence
+            // ✅ Calculer AVANT updateFormeEssence
+            $nouveauVolumeRestant = $this->calculateDepassement($transaction, $titre);
+
+            // ✅ Sauvegarder la transaction
+            $transaction->save();
+
+            // ✅ updateFormeEssence APRÈS le calcul
             $this->updateFormeEssence($this->essence_id, $this->forme_id, $this->type_id);
 
-            // Mettre à jour la table pivot essence_titre avec le nouveau volume restant
             $pivotEntry = $titre->essence()
                 ->where('essences.id', $this->essence_id)
                 ->first();
 
             if ($pivotEntry) {
                 $titre->essence()->updateExistingPivot($this->essence_id, [
-                    'VolumeRestant' => -$this->depassementValue
+                    'VolumeRestant' => $nouveauVolumeRestant // ✅ valeur recalculée
                 ]);
             }
-
-            $transaction->save();
 
             $this->closeDepassementModal();
             $this->resetForm();
             $this->showSuccessAlert = true;
             $this->dispatch('redirectToList');
-
-
-            // Rafraîchir le composant
-            // $this->dispatch('refreshComponent');
-            $this->dispatch('redirectToList');
-
         } catch (\Exception $e) {
             $this->addError('save', "Erreur lors de l'enregistrement : " . $e->getMessage());
         }
     }
-
     /**
      * Méthode pour fermer le modal
      */
@@ -560,21 +750,16 @@ class AddTransaction extends Component
 
         $volumeRestantActuel = $this->getVolumeRestant($titre);
 
-        // Récupérer l'essence associée à la transaction
-        $essence = Essence::find($this->essence_id);
+        // Utiliser la forme sélectionnée dans le formulaire
+        $formeId = $this->forme_id;
+        $typeId = $this->type_id;
 
-        // Récupérer la forme depuis FormeEssence
-        $formeId = null;
-        if ($essence && $essence->formeEssence) {
-            $formeId = $essence->formeEssence->forme_id;
-        }
-
-        if ($formeId == 1) { // Grume
+        if ($formeId == 1) { // Transaction en Grume
             $this->volumeRestantGrume = $volumeRestantActuel;
-            $this->volumeRestantDebite = $this->convertirGrumeEnDebite($volumeRestantActuel);
-        } else { // Débité
+            $this->volumeRestantDebite = $this->convertirGrumeVersDebite($volumeRestantActuel, $typeId);
+        } else { // Transaction en Débité
             $this->volumeRestantDebite = $volumeRestantActuel;
-            $this->volumeRestantGrume = $this->convertirDebiteEnGrume($volumeRestantActuel);
+            $this->volumeRestantGrume = $this->convertirDebiteVersGrume($volumeRestantActuel, $typeId);
         }
     }
 
@@ -628,11 +813,3 @@ class AddTransaction extends Component
         ]);
     }
 }
-
-
-
-
-
-
-
-

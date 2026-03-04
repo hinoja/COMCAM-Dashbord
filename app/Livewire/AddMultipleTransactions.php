@@ -21,7 +21,7 @@ class AddMultipleTransactions extends Component
     public $showDepassementModal = false;
     public $depassementDetails = [];
     public $currentTransactionIndex = null;
-    public $maxTransactions = 10;
+    public $maxTransactions = 8;
 
     public $exercice;
     public $date = '';
@@ -85,12 +85,13 @@ class AddMultipleTransactions extends Component
             'essence_id' => $last['essence_id'],
             'conditionnemment_id' => $last['conditionnemment_id'],
             'societe_id' => $last['societe_id'],
-            'pays' => $last['pays'],
-            'destination' => $last['destination'],
+            'pays' => $last['pays'] ?? '', // Initialisation correcte
+            'destination' => $last['destination'] ?? '', // Initialisation correcte
+            'errors' => [], // Initialiser le tableau d'erreurs
             'volume' => 0,
             'filteredTypes' => $this->allTypes,
             'titres' => $this->allTitres,
-            'errors' => [],
+            'errors' => [], // Initialiser le tableau d'erreurs
             'volumeRestant' => null
         ];
 
@@ -171,6 +172,7 @@ class AddMultipleTransactions extends Component
         $index = $keys[1];
         $field = $keys[2];
 
+
         if ($field === 'essence_id') {
             $this->updateTitresForEssence($index, $value);
             $this->updateVolumeRestant($index);
@@ -182,21 +184,38 @@ class AddMultipleTransactions extends Component
 
         $this->validateSingleField($index, $field, $value);
     }
+
+    // private function validateSingleField($index, $field, $value)
+    // {
+    //     $rules = $this->rules();
+    //     $fieldKey = "transactions.{$index}.{$field}";
+
+    //     if (isset($rules[$fieldKey])) {
+    //         try {
+    //             $this->validateOnly($fieldKey);
+    //             // Effacer l'erreur si validation réussie
+    //             if (isset($this->transactions[$index]['errors'][$field])) {
+    //                 $this->transactions[$index]['errors'][$field] = null;
+    //             }
+    //         } catch (\Illuminate\Validation\ValidationException $e) {
+    //             // Stocker l'erreur dans le tableau des transactions
+    //             if (isset($e->errors()[$fieldKey])) {
+    //                 $this->transactions[$index]['errors'][$field] = $e->errors()[$fieldKey][0];
+    //             }
+    //         }
+    //     }
+    // }
     private function validateSingleField($index, $field, $value)
     {
-        $rules = $this->rules();
         $fieldKey = "transactions.{$index}.{$field}";
 
-        if (isset($rules[$fieldKey])) {
-            try {
-                $this->validateOnly($fieldKey);
-                $this->transactions[$index]['errors'][$field] = null;
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                $this->transactions[$index]['errors'][$field] = $e->errors()[$fieldKey][0];
-            }
+        try {
+            $this->validateOnly($fieldKey);
+            unset($this->transactions[$index]['errors'][$field]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->transactions[$index]['errors'][$field] = $e->errors()[$fieldKey][0];
         }
     }
-
     public function updateTitresForEssence($index, $essenceId)
     {
         // Réinitialiser le titre sélectionné
@@ -273,34 +292,67 @@ class AddMultipleTransactions extends Component
     protected function rules(): array
     {
         $rules = [
+            'exercice' => ['required', 'int'],
             'date' => ['required', 'date'],
-            'exercice' => ['required', 'int', 'digits:4', 'min:2024'],
         ];
+
         foreach ($this->transactions as $index => $transaction) {
-            $rules["transactions.{$index}.numero"] = ['required', 'numeric', 'min:0'];
-            $rules["transactions.{$index}.titre_id"] = ['required', 'int', 'exists:titres,id'];
-            $rules["transactions.{$index}.type_id"] = ['required', 'exists:types,id'];
-            $rules["transactions.{$index}.essence_id"] = ['required', 'int', 'exists:essences,id'];
-            $rules["transactions.{$index}.forme_id"] = ['required', 'int', 'exists:formes,id'];
-            $rules["transactions.{$index}.conditionnemment_id"] = ['required', 'int', 'exists:conditionnemments,id'];
-            $rules["transactions.{$index}.societe_id"] = ['required', 'int', 'exists:societes,id'];
-            $rules["transactions.{$index}.pays"] = ['required', 'string', 'max:255'];
-            $rules["transactions.{$index}.destination"] = ['required', 'string', 'max:255'];
-            $rules["transactions.{$index}.volume"] = ['required', 'numeric', 'min:0'];
+            $rules["transactions.$index.essence_id"] = ['required', 'exists:essences,id'];
+            $rules["transactions.$index.titre_id"] = ['required', 'exists:titres,id'];
+            $rules["transactions.$index.forme_id"] = ['required', 'exists:formes,id'];
+            $rules["transactions.$index.type_id"] = ['required', 'exists:types,id'];
+            $rules["transactions.$index.societe_id"] = ['required', 'exists:societes,id'];
+            $rules["transactions.$index.conditionnemment_id"] = ['required', 'exists:conditionnemments,id'];
+            $rules["transactions.$index.pays"] = ['required', 'string', 'max:255'];
+            $rules["transactions.$index.destination"] = ['required', 'string', 'max:255'];
+            $rules["transactions.$index.volume"] = ['required', 'numeric', 'min:0.00001'];
         }
+
         return $rules;
+    }
+    protected function messages(): array
+    {
+        $messages = [
+            'date.required' => 'La date est requise.',
+            'date.date' => 'La date doit être une date valide.',
+            'exercice.required' => 'L\'exercice est requis.',
+            'exercice.digits' => 'L\'exercice doit être une année à 4 chiffres.',
+            'exercice.min' => 'L\'exercice doit être au moins 2024.',
+        ];
+
+        foreach ($this->transactions as $index => $transaction) {
+            $messages["transactions.{$index}.essence_id.required"] = 'L\'essence est requise pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.titre_id.required"] = 'Le titre est requis pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.pays.required"] = 'Le pays est requis pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.destination.required"] = 'La destination est requise pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.societe_id.required"] = 'La société est requise pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.forme_id.required"] = 'La forme est requise pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.type_id.required"] = 'Le type est requis pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.conditionnemment_id.required"] = 'Le conditionnement est requis pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.volume.required"] = 'Le volume est requis pour la transaction ' . ($index + 1) . '.';
+            $messages["transactions.{$index}.volume.min"] = 'Le volume doit être supérieur ou égal à 0 pour la transaction ' . ($index + 1) . '.';
+        }
+
+        return $messages;
     }
 
     public function save()
     {
         try {
+            // Validation globale
+            $this->validate();
             if (empty($this->transactions)) {
                 session()->flash('error', 'Ajoutez au moins une transaction avant enregistrement !');
                 return;
             }
 
-            $this->validate();
+            // Réinitialiser toutes les erreurs
+            foreach ($this->transactions as $index => $transaction) {
+                $this->transactions[$index]['errors'] = [];
+            }
 
+
+            // Vérifier s'il y a des erreurs personnalisées
             foreach ($this->transactions as $index => $transaction) {
                 if (!empty(array_filter($transaction['errors']))) {
                     session()->flash('error', 'Corrigez les erreurs dans les transactions avant de soumettre.');
@@ -348,7 +400,23 @@ class AddMultipleTransactions extends Component
             session()->flash('success', 'Transactions enregistrées avec succès !');
             $this->dispatch('redirectToList');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            session()->flash('error', 'Corrigez les erreurs avant de soumettre.');
+            // Transférer les erreurs au tableau des transactions
+            foreach ($e->errors() as $key => $messages) {
+                if (str_starts_with($key, 'transactions.')) {
+                    $parts = explode('.', $key);
+                    if (count($parts) >= 3) {
+                        $index = $parts[1];
+                        $field = $parts[2];
+
+                        // S'assurer que l'index existe
+                        if (isset($this->transactions[$index])) {
+                            $this->transactions[$index]['errors'][$field] = $messages[0];
+                        }
+                    }
+                }
+            }
+
+            session()->flash('error', 'Veuillez corriger les erreurs dans le formulaire.');
         } catch (\Exception $e) {
             session()->flash('error', "Erreur lors de l'enregistrement : {$e->getMessage()}");
         }

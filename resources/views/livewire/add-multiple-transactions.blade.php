@@ -8,6 +8,25 @@
             gap: 10px;
         }
 
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-confirm {
+            background-color: #ffc107;
+            color: #856404;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
         .action-btn {
             width: 30px;
             height: 30px;
@@ -145,6 +164,20 @@
     <form wire:submit.prevent="save" class="needs-validation">
         @csrf
         <div class="card-body">
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-times-circle mr-2"></i> Veuillez corriger les erreurs suivantes :
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <!-- Reste du formulaire -->
+        </div>
+        <div class="card-body">
             <!-- Notifications -->
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -165,6 +198,7 @@
                 </div>
             @endif
 
+
             <!-- General Information -->
             <div class="p-3 bg-light rounded-lg mb-4">
                 <h5 class="text-primary mb-3">
@@ -180,7 +214,7 @@
                                 @php
                                     $currentYear = date('Y');
                                     $startYear = $currentYear - 0;
-                                    $endYear = $currentYear + 2;
+                                    $endYear = $currentYear + 1;
                                 @endphp
                                 @for ($year = $startYear; $year <= $endYear; $year++)
                                     <option value="{{ $year }}">{{ $year }}</option>
@@ -223,7 +257,9 @@
                         <button type="button" wire:click="duplicateTransaction({{ $index }})"
                             class="duplicate-btn action-btn   text-white">
                             <i class="fas fa-copy"></i>
-                             @if(count($transactions) >= $maxTransactions) disabled @endif
+                            @if (count($transactions) >= $maxTransactions)
+                                disabled
+                            @endif
                         </button>
 
                         <div class="accordion">
@@ -244,13 +280,20 @@
                                                     <label>Essence</label>
                                                     <select wire:model="transactions.{{ $index }}.essence_id"
                                                         wire:change="updateTitresForEssence({{ $index }}, $event.target.value)"
-                                                        class="form-control">
+                                                        class="form-control select2 tom-select @error('transactions.' . $index . '.essence_id') is-invalid @enderror"
+                                                        id="essence-select-{{ $index }}">
                                                         <option value="">Sélectionner une essence</option>
                                                         @foreach ($essences as $essence)
                                                             <option value="{{ $essence['id'] }}">
-                                                                {{ $essence['nom_local'] }}</option>
+                                                                {{ $essence['nom_local'] }}
+                                                            </option>
                                                         @endforeach
                                                     </select>
+                                                    @error('transactions.' . $index . '.essence_id')
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ $message }}
+                                                        </div>
+                                                    @enderror
                                                 </div>
                                             </div>
 
@@ -258,34 +301,39 @@
                                                 <div class="form-group">
                                                     <label>Titre</label>
                                                     <select wire:model="transactions.{{ $index }}.titre_id"
-                                                        class="form-control">
+                                                        class="form-control  " class="tom-select"
+                                                        id="titre-select-{{ $index }}">
                                                         <option value="">Sélectionner un titre</option>
                                                         @foreach ($transaction['titres'] as $titre)
                                                             <option value="{{ $titre['id'] }}">{{ $titre['nom'] }}
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @if (isset($transaction['errors']['titre_id']) && $transaction['errors']['essence_id'])
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ $transaction['errors']['titre_id'] }}</div>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="font-weight-bold text-muted">Pays</label>
-                                                    <input wire:model.defer="transactions.{{ $index }}.pays"
+                                                    <input wire:model="transactions.{{ $index }}.pays"
                                                         type="text" placeholder="Nigeria"
-                                                        class="form-control @error('transactions.{{ $index }}.pays') is-invalid @enderror">
-                                                    @error('transactions.{{ $index }}.pays')
+                                                        class="form-control @error('transactions.' . $index . '.pays') is-invalid @enderror">
+                                                    @error('transactions.' . $index . '.pays')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
+
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="font-weight-bold text-muted">Destination</label>
-                                                    <input
-                                                        wire:model.defer="transactions.{{ $index }}.destination"
+                                                    <input wire:model="transactions.{{ $index }}.destination"
                                                         type="text" placeholder="Maroua"
-                                                        class="form-control @error('transactions.{{ $index }}.destination') is-invalid @enderror">
-                                                    @error('transactions.{{ $index }}.destination')
+                                                        class="form-control @error('transactions.' . $index . '.destination') is-invalid @enderror">
+                                                    @error('transactions.' . $index . '.destination')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
@@ -297,7 +345,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="font-weight-bold text-muted">Société</label>
-                                                    <select
+                                                    <select class="select2"
                                                         wire:model.defer="transactions.{{ $index }}.societe_id"
                                                         class="form-control @error('transactions.{{ $index }}.societe_id') is-invalid @enderror">
                                                         <option value="">Sélectionner une société</option>
@@ -316,6 +364,7 @@
                                                     <label>Forme</label>
                                                     <select wire:model="transactions.{{ $index }}.forme_id"
                                                         wire:change="updateTypesForForme({{ $index }}, $event.target.value)"
+                                                        {{-- class="select2" --}}
                                                         class="form-control @error('transactions.' . $index . '.forme_id') is-invalid @enderror">
                                                         <option value="">Sélectionner une forme</option>
                                                         @foreach ($formes as $forme)
@@ -323,9 +372,10 @@
                                                                 {{ $forme['designation'] }}</option>
                                                         @endforeach
                                                     </select>
-                                                    @error('transactions.' . $index . '.forme_id')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @if (isset($transaction['errors']['forme_id']) && $transaction['errors']['forme_id'])
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ $transaction['errors']['forme_id'] }}</div>
+                                                    @endif
                                                 </div>
                                             </div>
 
@@ -333,7 +383,7 @@
                                                 <div class="form-group">
                                                     <label>Type</label>
                                                     <select wire:model="transactions.{{ $index }}.type_id"
-                                                        class="form-control @error('transactions.' . $index . '.type_id') is-invalid @enderror">
+                                                        class="form-control  @error('transactions.' . $index . '.type_id') is-invalid @enderror">
                                                         <option value="">Sélectionner un type</option>
                                                         @foreach ($transaction['filteredTypes'] as $type)
                                                             <option value="{{ $type['id'] }}"
@@ -342,9 +392,10 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error('transactions.' . $index . '.type_id')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @if (isset($transaction['errors']['type_id']) && $transaction['errors']['pays'])
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ $transaction['errors']['type_id'] }}</div>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -372,10 +423,12 @@
                                                         placeholder="500"
                                                         class="form-control @error('transactions.{{ $index }}.volume') is-invalid @enderror"
                                                         step="0.00001">
-                                                    @error('transactions.{{ $index }}.volume')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    @if (isset($transaction['errors']['volume']) && $transaction['errors']['pays'])
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ $transaction['errors']['volume'] }}</div>
+                                                    @endif
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -388,8 +441,7 @@
 
             <div class="card-footer border-top-0 text-right py-3">
                 <button type="submit" class="btn btn-primary btn-lg px-5" style="background: green"
-                    @if (collect($transactions)->pluck('errors')->flatten()->filter()->isNotEmpty()) disabled @endif>
-                    <i class="fas fa-save mr-2"></i> Enregistrer toutes les transactions
+                    {{-- @if (collect($transactions)->pluck('errors')->flatten()->filter()->isNotEmpty()) disabled @endif> --}} <i class="fas fa-save mr-2"></i> Enregistrer toutes les transactions
                 </button>
             </div>
         </div>
@@ -441,21 +493,37 @@
 
 </div>
 
-<script>
-    document.addEventListener('livewire:init', () => {
-
-                Livewire.on('titresUpdated', (index) => {
-                    // Force Livewire à mettre à jour le DOM
-                    Livewire.dispatch('refreshComponent');
-                });
-                Livewire.on('redirectToList', () => {
-                    window.location.href = "{{ route('admin.transaction.index') }}";
+@push('js')
+    <script>
+        < script >
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('showDepassementModal', () => {
+                    $('#modal-open').modal('show');
                 });
 
-                Livewire.on('typesUpdated', (index) => {
-                    // Force Livewire à mettre à jour le DOM
-                    Livewire.dispatch('refreshComponent');
+                Livewire.on('hideDepassementModal', () => {
+                    ['hideDepassementModal'].forEach(modalId => {
+                        $('#modal-open').modal('hide');
 
+                    });
                 });
-            }
-</script>
+            }); <
+        />
+        document.addEventListener('livewire:init', () => {
+
+                    Livewire.on('titresUpdated', (index) => {
+                        // Force Livewire à mettre à jour le DOM
+                        Livewire.dispatch('refreshComponent');
+                    });
+                    Livewire.on('redirectToList', () => {
+                        window.location.href = "{{ route('admin.transaction.index') }}";
+                    });
+
+                    Livewire.on('typesUpdated', (index) => {
+                        // Force Livewire à mettre à jour le DOM
+                        Livewire.dispatch('refreshComponent');
+
+                    });
+                }
+    </script>
+@endpush
