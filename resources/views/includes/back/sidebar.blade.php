@@ -29,7 +29,7 @@
                         <a class="nav-link" href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i>
                             <span>@lang('Users')</span></a>
                     </li>
-                
+
             @endauth
 
             <li class="@if (Str::contains($currentUri, 'transaction')) active @endif">
